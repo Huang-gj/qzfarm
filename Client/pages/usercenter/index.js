@@ -2,6 +2,7 @@ import {
   fetchUserCenter
 } from '../../services/usercenter/fetchUsercenter';
 import Toast from 'tdesign-miniprogram/toast/index';
+import { genPicURL } from '../../utils/genURL';
 
 const menuData = [
   [{
@@ -42,6 +43,7 @@ const menuData = [
 const orderTagInfos = [{
     title: '待付款',
     iconName: 'wallet',
+    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/TdesignMoney.png',
     orderNum: 0,
     tabType: 5,
     status: 1,
@@ -49,6 +51,7 @@ const orderTagInfos = [{
   {
     title: '待发货',
     iconName: 'deliver',
+    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/StreamlineShippingTruck.png',
     orderNum: 0,
     tabType: 10,
     status: 1,
@@ -56,6 +59,7 @@ const orderTagInfos = [{
   {
     title: '待收货',
     iconName: 'package',
+    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/HugeiconsPackageDelivered.png',
     orderNum: 0,
     tabType: 40,
     status: 1,
@@ -63,6 +67,7 @@ const orderTagInfos = [{
   {
     title: '待评价',
     iconName: 'comment',
+    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/PajamasReviewList.png',
     orderNum: 0,
     tabType: 60,
     status: 1,
@@ -70,6 +75,7 @@ const orderTagInfos = [{
   {
     title: '退款/售后',
     iconName: 'exchang',
+    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/MingcuteRefundCnyFill.png',
     orderNum: 0,
     tabType: 0,
     status: 1,
@@ -128,23 +134,47 @@ Page({
             }
           });
         });
-        const info = orderTagInfos.map((v, index) => ({
-          ...v,
-          ...orderInfo[index],
-        }));
+        
+        // 为每个订单图标获取临时URL
+        const processOrderIcons = async () => {
+          const info = orderTagInfos.map((v, index) => {
+            const item = {
+              ...v,
+              ...orderInfo[index],
+            };
+            return item;
+          });
+          
+          // 转换所有图标URL
+          const iconPromises = info.map(async (item) => {
+            if (item.iconUrl) {
+              try {
+                const tempUrl = await genPicURL(item.iconUrl);
+                item.customIconUrl = tempUrl;
+              } catch (error) {
+                console.error('获取图标URL失败:', error);
+              }
+            }
+            return item;
+          });
+          
+          const processedInfo = await Promise.all(iconPromises);
 
-        // 修改用户头像和用户名
-        userInfo.avatarUrl = 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/usercenter/微信图片_20250318105208.jpg';
-        userInfo.nickName = 'QZFarm';
+          // 修改用户头像和用户名
+          userInfo.avatarUrl = 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/usercenter/微信图片_20250318105208.jpg';
+          userInfo.nickName = 'QZFarm';
 
-        this.setData({
-          userInfo,
-          menuData,
-          orderTagInfos: info,
-          customerServiceInfo,
-          currAuthStep: 2,
-        });
-        wx.stopPullDownRefresh();
+          this.setData({
+            userInfo,
+            menuData,
+            orderTagInfos: processedInfo,
+            customerServiceInfo,
+            currAuthStep: 2,
+          });
+          wx.stopPullDownRefresh();
+        };
+        
+        processOrderIcons();
       },
     );
   },

@@ -10,7 +10,9 @@ import {
 export async function genOrders(params) {
   const urls = await Promise.all([
 
-    genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/products/橘子.jpg')
+    genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/products/橘子.jpg'),
+    genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/products/西瓜.jpg'),
+    genPicURL('	cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/products/梨.jpg')
   ])
   const resp = {
     data: {
@@ -20,7 +22,7 @@ export async function genOrders(params) {
       orders: [{
           saasId: '88888888',
           storeId: '1000',
-          storeName: '云Mall深圳旗舰店',
+          storeName: '水果店',
           uid: '88888888205468',
           parentOrderNo: '354021731671873099',
           orderId: '354021735982432279',
@@ -144,7 +146,7 @@ export async function genOrders(params) {
         {
           saasId: '88888888',
           storeId: '1000',
-          storeName: '云Mall深圳旗舰店',
+          storeName: '水果店',
           uid: '88888888205468',
           parentOrderNo: '132381532610540875',
           orderId: '132381537256650240',
@@ -209,8 +211,8 @@ export async function genOrders(params) {
               roomId: null,
               goodsMainType: 0,
               goodsViceType: 0,
-              goodsName: '不锈钢刀叉勺套装家用西餐餐具ins简约耐用不锈钢金色银色可选',
-              goodsPictureUrl: 'https://cdn-we-retail.ym.tencent.com/tsr/goods/gh-2b.png',
+              goodsName: '梨',
+              goodsPictureUrl: urls[2],
               originPrice: '29900',
               actualPrice: '19900',
               specifications: [{
@@ -241,8 +243,8 @@ export async function genOrders(params) {
               roomId: null,
               goodsMainType: 0,
               goodsViceType: 0,
-              goodsName: '纯色纯棉休闲圆领短袖T恤纯白亲肤厚柔软细腻面料纯白短袖套头T恤',
-              goodsPictureUrl: 'https://cdn-we-retail.ym.tencent.com/tsr/goods/nz-08a.png',
+              goodsName: '西瓜',
+              goodsPictureUrl: urls[1],
               originPrice: '31900',
               actualPrice: '26900',
               specifications: [{
@@ -333,7 +335,7 @@ export async function genOrders(params) {
         {
           saasId: '88888888',
           storeId: '1000',
-          storeName: '云Mall深圳旗舰店',
+          storeName: '水果店',
           uid: '88888888205468',
           parentOrderNo: '132222623132329291',
           orderId: '132222629674264064',
@@ -580,7 +582,7 @@ export async function genOrders(params) {
         {
           saasId: '88888888',
           storeId: '1000',
-          storeName: '云Mall深圳旗舰店',
+          storeName: '水果店',
           uid: '88888888205468',
           parentOrderNo: '130862219672031307',
           orderId: '130862224737571072',
@@ -694,7 +696,7 @@ export async function genOrders(params) {
         {
           saasId: '88888888',
           storeId: '1000',
-          storeName: '云Mall深圳旗舰店',
+          storeName: '水果店',
           uid: '88888888205468',
           parentOrderNo: '130494472895208267',
           orderId: '130494482155052032',
@@ -727,8 +729,8 @@ export async function genOrders(params) {
             roomId: null,
             goodsMainType: 0,
             goodsViceType: 0,
-            goodsName: '不锈钢刀叉勺套装家用西餐餐具ins简约耐用不锈钢金色银色可选',
-            goodsPictureUrl: 'https://cdn-we-retail.ym.tencent.com/tsr/goods/gh-2b.png',
+            goodsName: '梨',
+            goodsPictureUrl: urls[2],
             originPrice: '29900',
             actualPrice: '19900',
             specifications: [{
@@ -808,7 +810,7 @@ export async function genOrders(params) {
         {
           saasId: '88888888',
           storeId: '1000',
-          storeName: '云Mall深圳旗舰店',
+          storeName: '水果店',
           uid: '88888888205468',
           parentOrderNo: '130169571554503755',
           orderId: '130169572291521792',
@@ -841,8 +843,8 @@ export async function genOrders(params) {
             roomId: null,
             goodsMainType: 0,
             goodsViceType: 0,
-            goodsName: '纯色纯棉休闲圆领短袖T恤纯白亲肤厚柔软细腻面料纯白短袖套头T恤',
-            goodsPictureUrl: 'https://cdn-we-retail.ym.tencent.com/tsr/goods/nz-08b.png',
+            goodsName: '西瓜',
+            goodsPictureUrl: urls[1],
             originPrice: '31900',
             actualPrice: '26900',
             specifications: [{
@@ -945,7 +947,7 @@ export async function genOrders(params) {
         {
           saasId: '88888888',
           storeId: '1000',
-          storeName: '云Mall深圳旗舰店',
+          storeName: '水果店',
           uid: '88888888205468',
           parentOrderNo: '130150835531421259',
           orderId: '130150836385879808',

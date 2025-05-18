@@ -31,6 +31,19 @@ page {
   color: rgb(116, 116, 116) !important;
 }
 
+.search-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.search-icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
 .home-page-header .swiper-wrap {
   margin-top: 20rpx;
 }

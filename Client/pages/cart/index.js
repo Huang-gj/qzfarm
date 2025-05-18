@@ -1,15 +1,18 @@
 import Dialog from 'tdesign-miniprogram/dialog/index';
 import Toast from 'tdesign-miniprogram/toast/index';
-import { fetchCartGroupData } from '../../services/cart/cart';
+import { fetchCartGroupData, updateCartNum } from '../../services/cart/cart';
 
 Page({
   data: {
     cartGroupData: null,
+    emptyCartImage: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/TdesignCart (1).png',
   },
 
   // 调用自定义tabbar的init函数，使页面与tabbar激活状态保持一致
   onShow() {
     this.getTabBar().init();
+    this.refreshData();
+    updateCartNum(); // 更新购物车角标
   },
 
   onLoad() {
@@ -75,7 +78,7 @@ Page({
         for (const goods of activity.goodsPromotionList) {
           if (goods.spuId === spuId && goods.skuId === skuId) {
             currentStore = store;
-            currentActivity = currentActivity;
+            currentActivity = activity;
             currentGoods = goods;
             return {
               currentStore,
@@ -93,8 +96,15 @@ Page({
     };
   },
 
-  // 注：实际场景时应该调用接口获取购物车数据
+  // 获取购物车数据，优先使用本地存储的数据
   getCartGroupData() {
+    // 先尝试从本地缓存获取购物车数据
+    const cartData = wx.getStorageSync('cart_data');
+    if (cartData) {
+      return Promise.resolve({ data: cartData });
+    }
+    
+    // 如果本地没有数据，则使用mock数据
     const { cartGroupData } = this.data;
     if (!cartGroupData) {
       return fetchCartGroupData();
@@ -106,6 +116,8 @@ Page({
   // 注：实际场景时应该调用接口更改选中状态
   selectGoodsService({ spuId, skuId, isSelected }) {
     this.findGoods(spuId, skuId).currentGoods.isSelected = isSelected;
+    // 更新本地存储
+    this.updateLocalStorage();
     return Promise.resolve();
   },
 
@@ -119,6 +131,8 @@ Page({
         goods.isSelected = isSelected;
       });
     });
+    // 更新本地存储
+    this.updateLocalStorage();
     return Promise.resolve();
   },
 
@@ -126,6 +140,8 @@ Page({
   // 注：实际场景时应该调用接口
   changeQuantityService({ spuId, skuId, quantity }) {
     this.findGoods(spuId, skuId).currentGoods.quantity = quantity;
+    // 更新本地存储
+    this.updateLocalStorage();
     return Promise.resolve();
   },
 
@@ -146,23 +162,62 @@ Page({
     for (const store of storeGoods) {
       for (const activity of store.promotionGoodsList) {
         if (deleteGoods(activity.goodsPromotionList) > -1) {
+          // 更新本地存储
+          this.updateLocalStorage();
           return Promise.resolve();
         }
       }
       if (deleteGoods(store.shortageGoodsList) > -1) {
+        // 更新本地存储
+        this.updateLocalStorage();
         return Promise.resolve();
       }
     }
     if (deleteGoods(invalidGoodItems) > -1) {
+      // 更新本地存储
+      this.updateLocalStorage();
       return Promise.resolve();
     }
     return Promise.reject();
+  },
+
+  // 更新本地存储的购物车数据
+  updateLocalStorage() {
+    const { cartGroupData } = this.data;
+    if (cartGroupData) {
+      // 计算总价和总选中商品数量
+      let totalAmount = 0;
+      let selectedGoodsCount = 0;
+      
+      cartGroupData.storeGoods.forEach(store => {
+        store.promotionGoodsList.forEach(promotion => {
+          promotion.goodsPromotionList.forEach(goods => {
+            if (goods.isSelected) {
+              totalAmount += parseFloat(goods.price) * goods.quantity;
+              selectedGoodsCount += goods.quantity;
+            }
+          });
+        });
+      });
+      
+      // 更新购物车总价和选中商品数量
+      cartGroupData.totalAmount = totalAmount.toFixed(0);
+      cartGroupData.selectedGoodsCount = selectedGoodsCount;
+      
+      // 保存到本地存储
+      wx.setStorageSync('cart_data', cartGroupData);
+      
+      // 更新TabBar的购物车角标
+      updateCartNum();
+    }
   },
 
   // 清空失效商品
   // 注：实际场景时应该调用接口
   clearInvalidGoodsService() {
     this.data.cartGroupData.invalidGoodItems = [];
+    // 更新本地存储
+    this.updateLocalStorage();
     return Promise.resolve();
   },
 
@@ -211,7 +266,7 @@ Page({
       }
       Dialog.confirm({
         title: '商品库存不足',
-        content: `当前商品库存不足，最大可购买数量为${stockQuantity}件`,
+        content: `当前商品库存不足，最大可购买数量为${stockQuantity}斤`,
         confirmBtn: '修改为最大可购买数量',
         cancelBtn: '取消',
       })

@@ -48,3 +48,34 @@
 .filter-left-content .filter-active-item {
   color: #fa550f;
 }
+
+/* 价格筛选按钮样式 */
+.price-filter-item {
+  position: relative;
+}
+
+/* 价格上下箭头图标样式 */
+.price-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin: 2rpx 0;
+  opacity: 0.5;
+}
+
+/* 当前激活的箭头图标样式 */
+.active-icon {
+  opacity: 1;
+}
+
+/* 筛选图标样式 */
+.filter-icon {
+  width: 32rpx;
+  height: 32rpx;
+  margin-left: 8rpx;
+}
+
+/* 筛选按钮样式，确保右对齐 */
+.filter-item-last {
+  justify-content: flex-end;
+  padding-right: 30rpx;
+}

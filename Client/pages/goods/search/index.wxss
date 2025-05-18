@@ -77,3 +77,17 @@
 .add-notes__confirm {
   color: #fa4126 !important;
 }
+
+/* 添加搜索图标样式 */
+.search-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.search-icon {
+  width: 36rpx;
+  height: 36rpx;
+}

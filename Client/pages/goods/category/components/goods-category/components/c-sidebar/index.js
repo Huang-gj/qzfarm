@@ -92,7 +92,9 @@ Component({
       return Promise.all(stack);
     },
     getTopRightRadiusItemIndexs(activeKey, children) {
-      const { length } = children;
+      const {
+        length
+      } = children;
       if (activeKey !== 0 && activeKey < length - 1) return [0, activeKey + 1];
       if (activeKey !== 0) return [0];
       if (activeKey < length - 1) return [activeKey + 1];

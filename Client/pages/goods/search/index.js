@@ -2,6 +2,7 @@ import {
   getSearchHistory,
   getSearchPopular,
 } from '../../../services/good/fetchSearchHistory';
+import { genPicURL } from '../../../utils/genURL';
 
 Page({
   data: {
@@ -14,14 +15,30 @@ Page({
       message: '',
     },
     dialogShow: false,
+    searchIconUrl: '',
   },
 
   deleteType: 0,
   deleteIndex: '',
 
+  onLoad() {
+    this.loadSearchIcon();
+  },
+
   onShow() {
     this.queryHistory();
     this.queryPopular();
+  },
+
+  loadSearchIcon() {
+    const fileID = 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/TdesignSearch.png';
+    genPicURL(fileID).then(url => {
+      this.setData({
+        searchIconUrl: url
+      });
+    }).catch(err => {
+      console.error('搜索图标加载失败:', err);
+    });
   },
 
   async queryHistory() {

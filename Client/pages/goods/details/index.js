@@ -1,10 +1,12 @@
 import Toast from 'tdesign-miniprogram/toast/index';
 import { fetchGood } from '../../../services/good/fetchGood';
 import { fetchActivityList } from '../../../services/activity/fetchActivityList';
+import { addToCart, updateCartNum, getCartCount } from '../../../services/cart/cart';
 import {
   getGoodsDetailsCommentList,
   getGoodsDetailsCommentsCount,
 } from '../../../services/good/fetchGoodsDetailsComments';
+import { genPicURL } from '../../../utils/genURL';
 
 import { cdnBase } from '../../../config/index';
 
@@ -54,14 +56,19 @@ Page({
         title: '首页',
         url: '/pages/home/home',
         iconName: 'home',
+        customIcon: true,
+        iconImage: ''
       },
       {
         title: '购物车',
         url: '/pages/cart/index',
         iconName: 'cart',
         showCartNum: true,
+        customIcon: true,
+        iconImage: ''
       },
     ],
+
     isStock: true,
     cartNum: 0,
     soldout: false,
@@ -221,13 +228,65 @@ Page({
   },
 
   addCart() {
-    const { isAllSelectedSku } = this.data;
-    Toast({
-      context: this,
-      selector: '#t-toast',
-      message: isAllSelectedSku ? '点击加入购物车' : '请选择规格',
-      icon: '',
-      duration: 1000,
+    const { isAllSelectedSku, selectItem, buyNum, details } = this.data;
+    if (!isAllSelectedSku) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '请选择规格',
+        icon: '',
+        duration: 1000,
+      });
+      return;
+    }
+    
+    // 准备添加到购物车的商品信息
+    const goodsInfo = {
+      spuId: details.spuId,
+      skuId: selectItem.skuId,
+      title: details.title,
+      price: selectItem.price || details.minSalePrice,
+      originPrice: details.maxLinePrice,
+      primaryImage: details.primaryImage,
+      quantity: buyNum,
+      stockQuantity: selectItem.quantity,
+      specInfo: selectItem.specInfo || []
+    };
+    
+    // 调用添加到购物车服务
+    addToCart(goodsInfo).then(res => {
+      if (res.code === 'Success') {
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '加入购物车成功',
+          icon: 'check-circle',
+          duration: 1000,
+        });
+        
+        // 更新购物车数量显示
+        this.updateCartBadge();
+        
+        // 关闭规格选择弹窗
+        this.handlePopupHide();
+      } else {
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '加入购物车失败',
+          icon: 'close-circle',
+          duration: 1000,
+        });
+      }
+    }).catch(err => {
+      console.error('加入购物车失败:', err);
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '加入购物车失败',
+        icon: 'close-circle',
+        duration: 1000,
+      });
     });
   },
 
@@ -279,7 +338,6 @@ Page({
     } else {
       this.addCart();
     }
-    // this.handlePopupHide();
   },
 
   changeNum(e) {
@@ -439,5 +497,35 @@ Page({
     this.getDetail(spuId);
     this.getCommentsList(spuId);
     this.getCommentsStatistics(spuId);
+    
+    // 加载云存储图片链接
+    this.loadCustomIcons();
+    
+    // 更新购物车数量
+    this.updateCartBadge();
+  },
+  
+  async loadCustomIcons() {
+    try {
+      // 获取首页图标链接
+      const homeIconUrl = await genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/toBar/TdesignHome.png');
+      // 获取购物车图标链接
+      const cartIconUrl = await genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/toBar/TdesignCart.png');
+      
+      // 更新 jumpArray 中的图标链接
+      const jumpArray = this.data.jumpArray;
+      jumpArray[0].iconImage = homeIconUrl;
+      jumpArray[1].iconImage = cartIconUrl;
+      
+      this.setData({ jumpArray });
+    } catch (error) {
+      console.error('加载自定义图标失败:', error);
+    }
+  },
+
+  updateCartBadge() {
+    // 获取购物车数量并更新显示
+    const cartNum = getCartCount();
+    this.setData({ cartNum });
   },
 });

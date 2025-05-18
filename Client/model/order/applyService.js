@@ -7,7 +7,8 @@ import {
 } from '../../utils/genURL'
 // 前端模拟数据的 API 服务，主要用于 售后服务（退换货）相关的模拟数据，包括订单查询、退款原因获取、申请售后服务等。
 const urls = ([
-  genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/products/橘子.jpg')
+  genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/products/橘子.jpg'),
+  genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/products/西瓜.jpg')
 ])
 const orderResps = [{
     data: {
@@ -209,8 +210,8 @@ const orderResps = [{
       boughtQuantity: 1,
       orderNo: '130169571554503755',
       goodsInfo: {
-        goodsName: '纯色纯棉休闲圆领短袖T恤纯白亲肤厚柔软细腻面料纯白短袖套头T恤',
-        skuImage: 'https://cdn-we-retail.ym.tencent.com/tsr/goods/nz-08b.png',
+        goodsName: '西瓜',
+        skuImage: urls[1],
         specInfo: [{
             specId: '50456',
             specTitle: '颜色',

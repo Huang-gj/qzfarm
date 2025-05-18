@@ -2,7 +2,7 @@
 import { config } from '../../config/index';
 
 /** 获取商品列表 */
-function mockFetchGoodsList(params) {
+async function mockFetchGoodsList(params) {
   console.log('[mockFetchGoodsList] 开始获取商品列表, 参数:', params);
   console.log('[mockFetchGoodsList] config.useMock 设置为:', config.useMock);
   
@@ -12,10 +12,19 @@ function mockFetchGoodsList(params) {
     
     console.log('[mockFetchGoodsList] 已加载 delay 和 getSearchResult 函数');
     
-    const data = getSearchResult(params);
+    // 提取排序参数，确保传递给getSearchResult
+    const { sort = 0, sortType = 0 } = params;
+    
+    // 异步调用getSearchResult
+    const data = await getSearchResult({
+      ...params,
+      sort,
+      sortType
+    });
     console.log('[mockFetchGoodsList] getSearchResult 返回数据:', data ? '成功' : '失败');
     
-    if (data.spuList.length) {
+    // 确保spuList存在并且是数组
+    if (data && data.spuList && data.spuList.length) {
       console.log('[mockFetchGoodsList] 商品列表数量:', data.spuList.length);
       data.spuList.forEach((item) => {
         item.spuId = item.spuId;
@@ -31,7 +40,10 @@ function mockFetchGoodsList(params) {
         }
       });
     } else {
-      console.log('[mockFetchGoodsList] 商品列表为空');
+      console.log('[mockFetchGoodsList] 商品列表为空或不存在');
+      // 确保data包含必要的结构
+      if (!data) data = {};
+      if (!data.spuList) data.spuList = [];
     }
     
     return delay().then(() => {

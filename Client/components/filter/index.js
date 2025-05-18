@@ -1,3 +1,5 @@
+import { initIcons } from '../../utils/icons';
+
 Component({
   externalClasses: ['wr-class'],
 
@@ -43,9 +45,34 @@ Component({
     layout: 1,
     overall: 1,
     sorts: '',
+    // 图标URL
+    filterIcon: '',
+    caretUpIcon: '',
+    caretDownIcon: '',
+  },
+
+  lifetimes: {
+    attached() {
+      // 组件加载时初始化图标
+      this.loadIcons();
+    }
   },
 
   methods: {
+    // 加载自定义图标
+    async loadIcons() {
+      try {
+        const icons = await initIcons();
+        this.setData({
+          filterIcon: icons.filterIcon,
+          caretUpIcon: icons.caretUpIcon,
+          caretDownIcon: icons.caretDownIcon,
+        });
+      } catch (error) {
+        console.error('加载图标失败:', error);
+      }
+    },
+
     onChangeShowAction() {
       const { layout } = this.data;
       const nextLayout = layout === 1 ? 0 : 1;

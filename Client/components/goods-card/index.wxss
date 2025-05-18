@@ -1,8 +1,10 @@
 .goods-card {
   box-sizing: border-box;
   font-size: 24rpx;
-  border-radius: 0 0 16rpx 16rpx;
+  border-radius: 16rpx;
   border-bottom: none;
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
 }
 
 .goods-card__main {
@@ -24,6 +26,7 @@
   position: relative;
   width: 340rpx;
   height: 340rpx;
+  overflow: hidden;
 }
 
 .goods-card__thumb:empty {
@@ -37,6 +40,7 @@
   height: 100%;
   border-radius: 16rpx 16rpx 0 0;
   overflow: hidden;
+  object-fit: cover;
 }
 
 .goods-card__body {
@@ -46,6 +50,9 @@
   border-radius: 0 0 16rpx 16rpx;
   padding: 16rpx 24rpx 18rpx;
   flex-direction: column;
+  width: 340rpx;
+  min-height: 160rpx;
+  box-sizing: border-box;
 }
 
 .goods-card__upper {
@@ -53,6 +60,7 @@
   flex-direction: column;
   overflow: hidden;
   flex: 1 1 auto;
+  min-height: 80rpx;
 }
 
 .goods-card__title {
@@ -74,6 +82,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   margin: 8rpx 0 0 0;
+  min-height: 38rpx;
 }
 
 .goods-card__tag {
@@ -93,13 +102,14 @@
 }
 
 .goods-card__down {
-  display: flex;
   position: relative;
+  display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: baseline;
   line-height: 32rpx;
   margin: 8rpx 0 0 0;
+  min-height: 40rpx;
 }
 
 .goods-card__origin-price {
@@ -112,12 +122,21 @@
 }
 
 .goods-card__add-cart {
-  order: 3;
-  margin: auto 0 0 auto;
   position: absolute;
   bottom: 0;
   right: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  padding: 4rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36rpx;
+  height: 36rpx;
+  z-index: 9;
 }
+
+
 
 .spec-for-price {
   font-size: 36rpx;

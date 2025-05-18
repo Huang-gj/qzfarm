@@ -5,6 +5,9 @@ import {
   fetchGoodsList
 } from '../../services/good/fetchGoods';
 import Toast from 'tdesign-miniprogram/toast/index';
+import {
+  genPicURL
+} from '../../utils/genURL';
 
 Page({
   data: {
@@ -23,6 +26,8 @@ Page({
     swiperImageProps: {
       mode: 'scaleToFill'
     },
+    cartIconUrl: '',
+    searchIconUrl: '',
   },
 
   goodListPagination: {
@@ -39,7 +44,6 @@ Page({
   },
 
   onLoad() {
-
     this.goodListPagination = {
       index: 0,
       num: 20
@@ -48,6 +52,9 @@ Page({
       tabIndex: 0
     };
     this.init();
+
+    this.loadCartIcon();
+    this.loadSearchIcon();
   },
 
   onReachBottom() {
@@ -134,6 +141,28 @@ Page({
     } = this.data.goodsList[index];
     wx.navigateTo({
       url: `/pages/goods/details/index?spuId=${spuId}`,
+    });
+  },
+
+  loadCartIcon() {
+    const fileID = 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/TdesignCartAdd.png';
+    genPicURL(fileID).then(url => {
+      this.setData({
+        cartIconUrl: url
+      });
+    }).catch(err => {
+      console.error('购物车图标加载失败:', err);
+    });
+  },
+
+  loadSearchIcon() {
+    const fileID = 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/TdesignSearch.png';
+    genPicURL(fileID).then(url => {
+      this.setData({
+        searchIconUrl: url
+      });
+    }).catch(err => {
+      console.error('搜索图标加载失败:', err);
     });
   },
 

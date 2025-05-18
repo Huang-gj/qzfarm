@@ -42,6 +42,12 @@
   padding: 2rpx 6rpx;
 }
 
+/* 自定义图标样式 */
+.custom-icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
 .operate-text {
   color: #666;
   font-size: 20rpx;

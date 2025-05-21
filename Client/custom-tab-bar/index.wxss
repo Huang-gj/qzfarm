@@ -38,6 +38,12 @@
   flex-direction: column;
 }
 
+.icon-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
 .tab-bar-icon {
   width: 48rpx;
   height: 48rpx;
@@ -58,4 +64,25 @@
 .debug-text {
   font-size: 10rpx;
   color: red;
+}
+
+/* 购物车角标样式 */
+.cart-badge {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  min-width: 32rpx;
+  max-width: 40rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  border-radius: 16rpx;
+  background: #FF5F15;
+  color: white;
+  font-size: 20rpx;
+  text-align: center;
+  padding: 0 6rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

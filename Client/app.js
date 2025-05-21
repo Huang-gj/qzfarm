@@ -1,8 +1,41 @@
 import updateManager from './common/updateManager';
 
+// 创建简单的事件中心
+const eventCenter = {
+  events: {},
+  on(eventName, callback) {
+    if (!this.events[eventName]) {
+      this.events[eventName] = [];
+    }
+    this.events[eventName].push(callback);
+  },
+  emit(eventName, data) {
+    const callbacks = this.events[eventName];
+    if (callbacks) {
+      callbacks.forEach(callback => callback(data));
+    }
+  },
+  off(eventName, callback) {
+    const callbacks = this.events[eventName];
+    if (callbacks) {
+      if (callback) {
+        const index = callbacks.indexOf(callback);
+        if (index !== -1) {
+          callbacks.splice(index, 1);
+        }
+      } else {
+        this.events[eventName] = [];
+      }
+    }
+  }
+};
+
 App({
  // ... existing code ...
  onLaunch: function (options) {
+  // 初始化事件中心
+  wx.eventCenter = eventCenter;
+  
   wx.cloud.init({
     env: 'cloud1-2gorklioe3299acb',
     traceUser: true
@@ -58,11 +91,40 @@ App({
     }
     return true;
   },
+  // 刷新购物车角标
+  refreshCartBadge() {
+    // 从本地存储获取最新购物车数量
+    try {
+      const cartData = wx.getStorageSync('cart_data');
+      let count = 0;
+      
+      if (cartData && cartData.goodsList) {
+        cartData.goodsList.forEach(goods => {
+          count += goods.quantity;
+        });
+      }
+      
+      // 更新全局数据
+      this.globalData.cartCount = count;
+      
+      // 存储到本地
+      wx.setStorageSync('cart_count', count);
+      
+      // 发布事件通知所有订阅者
+      wx.eventCenter.emit('cartUpdate', { count });
+      
+      return count;
+    } catch (err) {
+      console.error('刷新购物车角标失败', err);
+      return 0;
+    }
+  },
   globalData: {
     isLoggedIn: false,
     userInfo: null,
     launchOptions: null,
     redirectPath: null,
-    redirectQuery: null
+    redirectQuery: null,
+    cartCount: 0
   }
 });

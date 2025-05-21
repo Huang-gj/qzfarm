@@ -23,6 +23,13 @@ Component({
     }, // 是否开启按钮插槽
     shopCartNum: {
       type: Number, // 购物车气泡数量
+      value: 0, // 设置默认值为0
+      observer(newVal) {
+        // 当购物车数量变化时，触发更新
+        this.setData({
+          shopCartNum: newVal
+        });
+      }
     },
     buttonType: {
       type: Number,

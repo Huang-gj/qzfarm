@@ -21,7 +21,9 @@ Component({
           }
         }
 
-        this.setData({ _storeGoods: storeGoods });
+        this.setData({
+          _storeGoods: storeGoods
+        });
       },
     },
     invalidGoodItems: {
@@ -30,11 +32,17 @@ Component({
         invalidGoodItems.forEach((goods) => {
           goods.specs = goods.specInfo.map((item) => item.specValue); // 目前仅展示商品已选规格的值
         });
-        this.setData({ _invalidGoodItems: invalidGoodItems });
+        this.setData({
+          _invalidGoodItems: invalidGoodItems
+        });
       },
     },
-    thumbWidth: { type: null },
-    thumbHeight: { type: null },
+    thumbWidth: {
+      type: null
+    },
+    thumbHeight: {
+      type: null
+    },
   },
 
   data: {
@@ -49,8 +57,34 @@ Component({
   methods: {
     // 删除商品
     deleteGoods(e) {
-      const { goods } = e.currentTarget.dataset;
-      this.triggerEvent('delete', { goods });
+      const {
+        goods
+      } = e.currentTarget.dataset;
+      // 直接触发删除事件，不需要弹框确认，因为在swipe删除时已经有onGoodsDelete的弹框确认了
+      this.triggerEvent('delete', {
+        goods
+      });
+    },
+
+    // 确认是否删除商品（从stepper减到0时调用）
+    confirmDeleteGoods(goods) {
+      wx.showModal({
+        title: '提示',
+        content: '确定将该商品从购物车中移除吗？',
+        confirmText: '确定移除',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            // 用户点击确定，触发删除事件
+            this.triggerEvent('delete', {
+              goods
+            });
+          } else {
+            // 用户点击取消，恢复数量为1
+            this.changeQuantity(1, goods);
+          }
+        }
+      });
     },
 
     // 清空失效商品
@@ -60,7 +94,9 @@ Component({
 
     // 选中商品
     selectGoods(e) {
-      const { goods } = e.currentTarget.dataset;
+      const {
+        goods
+      } = e.currentTarget.dataset;
       this.triggerEvent('selectgoods', {
         goods,
         isSelected: !goods.isSelected,
@@ -74,27 +110,46 @@ Component({
       });
     },
     changeStepper(e) {
-      const { value } = e.detail;
-      const { goods } = e.currentTarget.dataset;
+      const {
+        value
+      } = e.detail;
+      const {
+        goods
+      } = e.currentTarget.dataset;
       let num = value;
       if (value > goods.stack) {
         num = goods.stack;
       }
+
+      // 当数量变为0时，弹出确认框询问是否删除
+      if (num === 0) {
+        this.confirmDeleteGoods(goods);
+        return;
+      }
+
       this.changeQuantity(num, goods);
     },
 
     input(e) {
-      const { value } = e.detail;
-      const { goods } = e.currentTarget.dataset;
+      const {
+        value
+      } = e.detail;
+      const {
+        goods
+      } = e.currentTarget.dataset;
       const num = value;
+
+      // input事件不处理数量为0的情况，已经在changeStepper中处理了
       this.changeQuantity(num, goods);
     },
 
     overlimit(e) {
-      const text =
-        e.detail.type === 'minus'
-          ? '该商品数量不能减少了哦'
-          : '同一商品最多购买999件';
+      // 如果是减到0以下的情况，不提示任何信息
+      if (e.detail.type === 'minus') {
+        return;
+      }
+
+      const text = '同一商品最多购买999件';
       Toast({
         context: this,
         selector: '#t-toast',
@@ -104,13 +159,21 @@ Component({
 
     // 去凑单/再逛逛
     gotoBuyMore(e) {
-      const { promotion, storeId = '' } = e.currentTarget.dataset;
-      this.triggerEvent('gocollect', { promotion, storeId });
+      const {
+        promotion,
+        storeId = ''
+      } = e.currentTarget.dataset;
+      this.triggerEvent('gocollect', {
+        promotion,
+        storeId
+      });
     },
 
     // 选中门店
     selectStore(e) {
-      const { storeIndex } = e.currentTarget.dataset;
+      const {
+        storeIndex
+      } = e.currentTarget.dataset;
       const store = this.data.storeGoods[storeIndex];
       const isSelected = !store.isSelected;
       if (store.storeStockShortage && isSelected) {
@@ -137,7 +200,9 @@ Component({
     // 展示规格popup
     specsTap(e) {
       this.isSpecsTap = true;
-      const { goods } = e.currentTarget.dataset;
+      const {
+        goods
+      } = e.currentTarget.dataset;
       this.setData({
         isShowSpecs: true,
         currentGoods: goods,
@@ -155,12 +220,18 @@ Component({
         this.isSpecsTap = false;
         return;
       }
-      const { goods } = e.currentTarget.dataset;
-      this.triggerEvent('goodsclick', { goods });
+      const {
+        goods
+      } = e.currentTarget.dataset;
+      this.triggerEvent('goodsclick', {
+        goods
+      });
     },
 
     gotoCoupons() {
-      wx.navigateTo({ url: '/pages/coupon/coupon-list/index' });
+      wx.navigateTo({
+        url: '/pages/coupon/coupon-list/index'
+      });
     },
   },
 });

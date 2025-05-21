@@ -7,15 +7,57 @@ Component({
   data: {
     active: 0,
     list: [],
+    cartCount: 0 // 购物车数量
   },
 
   lifetimes: {
     attached() {
       this.initTabBar();
+      // 初始化购物车数量
+      this.updateCartCount();
+      
+      // 监听购物车更新事件
+      if (wx.eventCenter && typeof wx.eventCenter.on === 'function') {
+        wx.eventCenter.on('cartUpdate', (data) => {
+          this.setData({
+            cartCount: data.count
+          });
+        });
+      }
+    },
+    detached() {
+      // 取消事件监听，避免内存泄漏
+      if (wx.eventCenter && typeof wx.eventCenter.off === 'function') {
+        wx.eventCenter.off('cartUpdate');
+      }
+    },
+    // 页面显示时更新购物车数量
+    pageShow() {
+      this.updateCartCount();
+    }
+  },
+
+  pageLifetimes: {
+    show() {
+      // 页面显示时更新购物车数量
+      this.updateCartCount();
     }
   },
 
   methods: {
+    // 更新购物车数量
+    updateCartCount() {
+      // 从本地缓存获取购物车数量
+      try {
+        const cartCount = wx.getStorageSync('cart_count') || 0;
+        this.setData({
+          cartCount: cartCount
+        });
+      } catch (e) {
+        console.error('获取购物车数量失败', e);
+      }
+    },
+
     async initTabBar() {
       try {
         // 先打印调试信息

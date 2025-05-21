@@ -1,14 +1,26 @@
 import Toast from 'tdesign-miniprogram/toast/index';
-import { fetchGood } from '../../../services/good/fetchGood';
-import { fetchActivityList } from '../../../services/activity/fetchActivityList';
-import { addToCart, updateCartNum, getCartCount } from '../../../services/cart/cart';
+import {
+  fetchGood
+} from '../../../services/good/fetchGood';
+import {
+  fetchActivityList
+} from '../../../services/activity/fetchActivityList';
+import {
+  addToCart,
+  updateCartNum,
+  getCartCount
+} from '../../../services/cart/cart';
 import {
   getGoodsDetailsCommentList,
   getGoodsDetailsCommentsCount,
 } from '../../../services/good/fetchGoodsDetailsComments';
-import { genPicURL } from '../../../utils/genURL';
+import {
+  genPicURL
+} from '../../../utils/genURL';
 
-import { cdnBase } from '../../../config/index';
+import {
+  cdnBase
+} from '../../../config/index';
 
 const imgPrefix = `${cdnBase}/`;
 
@@ -39,8 +51,7 @@ Page({
     recLeftImg,
     recRightImg,
     details: {},
-    goodsTabArray: [
-      {
+    goodsTabArray: [{
         name: '商品',
         value: '', // 空字符串代表置顶
       },
@@ -51,8 +62,7 @@ Page({
     ],
     storeLogo: `${imgPrefix}common/store-logo.png`,
     storeName: '云mall标准版旗舰店',
-    jumpArray: [
-      {
+    jumpArray: [{
         title: '首页',
         url: '/pages/home/home',
         iconName: 'home',
@@ -89,7 +99,9 @@ Page({
     maxSalePrice: 0,
     list: [],
     spuId: '',
-    navigation: { type: 'fraction' },
+    navigation: {
+      type: 'fraction'
+    },
     current: 0,
     autoplay: true,
     duration: 500,
@@ -120,29 +132,42 @@ Page({
   },
 
   toNav(e) {
-    const { url } = e.detail;
+    const {
+      url
+    } = e.detail;
     wx.switchTab({
       url: url,
     });
   },
 
   showCurImg(e) {
-    const { index } = e.detail;
-    const { images } = this.data.details;
+    const {
+      index
+    } = e.detail;
+    const {
+      images
+    } = this.data.details;
     wx.previewImage({
       current: images[index],
       urls: images, // 需要预览的图片http链接列表
     });
   },
 
-  onPageScroll({ scrollTop }) {
+  onPageScroll({
+    scrollTop
+  }) {
     const goodsTab = this.selectComponent('#goodsTab');
     goodsTab && goodsTab.onScroll(scrollTop);
   },
 
   chooseSpecItem(e) {
-    const { specList } = this.data.details;
-    const { selectedSku, isAllSelectedSku } = e.detail;
+    const {
+      specList
+    } = this.data.details;
+    const {
+      selectedSku,
+      isAllSelectedSku
+    } = e.detail;
     if (!isAllSelectedSku) {
       this.setData({
         selectSkuSellsPrice: 0,
@@ -155,7 +180,10 @@ Page({
   },
 
   getSkuItem(specList, selectedSku) {
-    const { skuArray, primaryImage } = this.data;
+    const {
+      skuArray,
+      primaryImage
+    } = this.data;
     const selectedSkuValues = this.getSelectedSkuValues(specList, selectedSku);
     let selectedAttrStr = ` 件  `;
     selectedSkuValues.forEach((item) => {
@@ -228,7 +256,12 @@ Page({
   },
 
   addCart() {
-    const { isAllSelectedSku, selectItem, buyNum, details } = this.data;
+    const {
+      isAllSelectedSku,
+      selectItem,
+      buyNum,
+      details
+    } = this.data;
     if (!isAllSelectedSku) {
       Toast({
         context: this,
@@ -239,7 +272,7 @@ Page({
       });
       return;
     }
-    
+
     // 准备添加到购物车的商品信息
     const goodsInfo = {
       spuId: details.spuId,
@@ -252,7 +285,7 @@ Page({
       stockQuantity: selectItem.quantity,
       specInfo: selectItem.specInfo || []
     };
-    
+
     // 调用添加到购物车服务
     addToCart(goodsInfo).then(res => {
       if (res.code === 'Success') {
@@ -263,10 +296,10 @@ Page({
           icon: 'check-circle',
           duration: 1000,
         });
-        
+
         // 更新购物车数量显示
         this.updateCartBadge();
-        
+
         // 关闭规格选择弹窗
         this.handlePopupHide();
       } else {
@@ -291,7 +324,10 @@ Page({
   },
 
   gotoBuy(type) {
-    const { isAllSelectedSku, buyNum } = this.data;
+    const {
+      isAllSelectedSku,
+      buyNum
+    } = this.data;
     if (!isAllSelectedSku) {
       Toast({
         context: this,
@@ -308,8 +344,7 @@ Page({
       storeId: '1',
       spuId: this.data.spuId,
       goodsName: this.data.details.title,
-      skuId:
-        type === 1 ? this.data.skuList[0].skuId : this.data.selectItem.skuId,
+      skuId: type === 1 ? this.data.skuList[0].skuId : this.data.selectItem.skuId,
       available: this.data.details.available,
       price: this.data.details.minSalePrice,
       specInfo: this.data.details.specList?.map((item) => ({
@@ -332,7 +367,9 @@ Page({
   },
 
   specsConfirm() {
-    const { buyType } = this.data;
+    const {
+      buyType
+    } = this.data;
     if (buyType === 1) {
       this.gotoBuy();
     } else {
@@ -353,7 +390,9 @@ Page({
   },
 
   promotionChange(e) {
-    const { index } = e.detail;
+    const {
+      index
+    } = e.detail;
     wx.navigateTo({
       url: `/pages/promotion-detail/index?promotion_id=${index}`,
     });
@@ -412,7 +451,9 @@ Page({
     try {
       const code = 'Success';
       const data = await getGoodsDetailsCommentList();
-      const { homePageComments } = data;
+      const {
+        homePageComments
+      } = data;
       if (code.toUpperCase() === 'SUCCESS') {
         const nextState = {
           commentsList: homePageComments.map((item) => {
@@ -421,9 +462,9 @@ Page({
               userName: item.userName || '',
               commentScore: item.commentScore,
               commentContent: item.commentContent || '用户未填写评价',
-              userHeadUrl: item.isAnonymity
-                ? this.anonymityAvatar
-                : item.userHeadUrl || this.anonymityAvatar,
+              userHeadUrl: item.isAnonymity ?
+                this.anonymityAvatar :
+                item.userHeadUrl || this.anonymityAvatar,
             };
           }),
         };
@@ -436,7 +477,9 @@ Page({
 
   onShareAppMessage() {
     // 自定义的返回信息
-    const { selectedAttrStr } = this.data;
+    const {
+      selectedAttrStr
+    } = this.data;
     let shareSubTitle = '';
     if (selectedAttrStr.indexOf('件') > -1) {
       const count = selectedAttrStr.indexOf('件');
@@ -490,34 +533,61 @@ Page({
   },
 
   onLoad(query) {
-    const { spuId } = query;
+    const {
+      spuId
+    } = query;
     this.setData({
       spuId: spuId,
     });
     this.getDetail(spuId);
     this.getCommentsList(spuId);
     this.getCommentsStatistics(spuId);
-    
+
     // 加载云存储图片链接
     this.loadCustomIcons();
-    
-    // 更新购物车数量
-    this.updateCartBadge();
+
+    // 等组件渲染完成后再获取购物车数量和设置监听
+    wx.nextTick(() => {
+      // 更新购物车数量
+      this.updateCartBadge();
+      
+      // 监听购物车更新事件
+      if (wx.eventCenter && typeof wx.eventCenter.on === 'function') {
+        this.cartUpdateListener = (data) => {
+          this.setData({ cartNum: data.count });
+          // 更新buy-bar组件的购物车数量
+          const buyBar = this.selectComponent('.goods-details-card');
+          if (buyBar) {
+            buyBar.setData({ shopCartNum: data.count });
+          }
+        };
+        wx.eventCenter.on('cartUpdate', this.cartUpdateListener);
+      }
+    });
   },
-  
+
+  onUnload() {
+    // 页面卸载时，取消事件监听
+    if (wx.eventCenter && typeof wx.eventCenter.off === 'function' && this.cartUpdateListener) {
+      wx.eventCenter.off('cartUpdate', this.cartUpdateListener);
+    }
+  },
+
   async loadCustomIcons() {
     try {
       // 获取首页图标链接
       const homeIconUrl = await genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/toBar/TdesignHome.png');
       // 获取购物车图标链接
       const cartIconUrl = await genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/toBar/TdesignCart.png');
-      
+
       // 更新 jumpArray 中的图标链接
       const jumpArray = this.data.jumpArray;
       jumpArray[0].iconImage = homeIconUrl;
       jumpArray[1].iconImage = cartIconUrl;
-      
-      this.setData({ jumpArray });
+
+      this.setData({
+        jumpArray
+      });
     } catch (error) {
       console.error('加载自定义图标失败:', error);
     }
@@ -526,6 +596,18 @@ Page({
   updateCartBadge() {
     // 获取购物车数量并更新显示
     const cartNum = getCartCount();
-    this.setData({ cartNum });
+    
+    // 更新页面上的购物车数量
+    this.setData({
+      cartNum 
+    });
+    
+    // 确保购物车数量正确设置到buy-bar组件
+    const buyBar = this.selectComponent('.goods-details-card');
+    if (buyBar) {
+      buyBar.setData({
+        shopCartNum: cartNum
+      });
+    }
   },
 });

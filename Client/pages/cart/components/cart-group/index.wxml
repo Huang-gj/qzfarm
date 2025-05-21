@@ -14,7 +14,6 @@
       />
       <view class="cart-store__content">
         <view class="store-title">
-          <t-icon prefix="wr" size="40rpx" color="#333333" name="store" />
           <view class="store-name">{{store.storeName}}</view>
         </view>
         <view class="get-coupon" catch:tap="gotoCoupons">优惠券</view>
@@ -73,7 +72,7 @@
                   <t-stepper
                     classname="stepper-info"
                     value="{{goods.quantity}}"
-                    min="{{1}}"
+                    min="{{0}}"
                     max="{{999}}"
                     data-goods="{{goods}}"
                     data-gi="{{gi}}"

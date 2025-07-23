@@ -49,7 +49,7 @@ export async function getAllGoods() {
         saasId: '88888888',
         storeId: '1000',
         spuId: '0',
-        title: '橘子',
+        title: '超级大橘子',
         primaryImage: urls[0],
         images: [
           urls[0],

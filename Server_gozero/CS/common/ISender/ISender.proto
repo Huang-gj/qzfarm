@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package ID;
+
+option go_package = "./ISender";
+
+message getIDReq {
+  string bizTag = 1;
+}
+
+message getIDResp {
+  string bizTag = 1;
+  int64 idStart = 2;
+  int64 idEnd = 3;
+}
+
+service ID {
+  rpc getID(getIDReq) returns (getIDResp);
+}

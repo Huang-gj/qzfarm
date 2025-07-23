@@ -3,7 +3,6 @@ const app = getApp();
 
 Page({
   data: {
-    user_account: '',
     user_passwd: '',
     PhoneNumber: '',
     currentForm: 'login' // 'login' or 'forgot'
@@ -22,7 +21,7 @@ Page({
 
   onInputUsername(e) {
     this.setData({
-      user_account: e.detail.value
+      phone_number: e.detail.value
     });
   },
 
@@ -40,11 +39,11 @@ Page({
 
   handleLogin() {
     const {
-      user_account,
+      phone_number,
       user_passwd
     } = this.data;
 
-    if (!user_account || !user_passwd) {
+    if (!phone_number || !user_passwd) {
       wx.showToast({
         title: '请输入用户名和密码',
         icon: 'none'
@@ -59,11 +58,11 @@ Page({
 
     // 调用后端登录接口
     wx.request({
-      url: 'http://localhost:8888/userLogin',
+      url: 'http://127.0.0.1:8888/api/userLogin',
       method: 'POST',
       data: {
-        user_account: user_account,
-        user_passwd: user_passwd
+        phone_number: phone_number,
+        password: user_passwd
       },
       success: (res) => {
         wx.hideLoading();
@@ -71,21 +70,24 @@ Page({
         if (res.data.code === 200) {
 
           // 保存用户信息和token
-          wx.setStorageSync('userInfo', {
-            user_id: res.data.data.user_id,
-            user_account: res.data.data.user_account,
-            nick_name: res.data.data.nick_name,
-            is_farmer: res.data.data.is_farmer
+          wx.setStorageSync('token', {
+            accessToken: res.data.accessToken,
+            accessExpire: res.data.accessExpire,
+            refreshAfter: res.data.refreshAfter,
+
           });
-          wx.setStorageSync('token', res.data.data.token);
+
 
           // 更新全局状态
+          // console.log(res.data)
           app.globalData.isLoggedIn = true;
           app.globalData.userInfo = {
-            user_id: res.data.data.user_id,
-            user_account: res.data.data.user_account,
-            nick_name: res.data.data.nick_name,
-            is_farmer: res.data.data.is_farmer
+            user_id: res.data.user_info.user_id,
+            phone_number: res.data.user_info.phone_number,
+            nickname: res.data.user_info.nickname,
+            avatar: res.data.user_info.avatar,
+            address: res.data.user_info.address,
+
           };
 
           // 显示成功提示后跳转

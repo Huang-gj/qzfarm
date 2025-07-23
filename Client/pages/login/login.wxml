@@ -8,7 +8,7 @@
 
   <view class="form-container {{currentForm === 'login' ? '' : 'hidden'}}" id="loginForm">
     <view class="input-group">
-      <input type="text" placeholder="用户名" bindinput="onInputUsername" value="{{user_account}}" />
+      <input type="text" placeholder="手机号" bindinput="onInputUsername" value="{{phone_number}}" />
     </view>
     <view class="input-group">
       <input type="password" placeholder="密码" bindinput="onInputPassword" value="{{user_passwd}}" />

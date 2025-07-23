@@ -7,9 +7,7 @@
   </view>
 
   <view class="form-container">
-    <view class="input-group">
-      <input type="text" placeholder="用户名" bindinput="onInputUsername" value="{{username}}" />
-    </view>
+
     <view class="input-group">
       <input type="text" placeholder="电话号码" bindinput="onInputPhoneNumber" value="{{PhoneNumber}}" />
     </view>

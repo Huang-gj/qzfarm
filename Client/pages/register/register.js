@@ -1,18 +1,13 @@
 // register.js
 Page({
   data: {
-    username: '',
+
     PhoneNumber: '',
     NickName: '',
     password: '',
     confirmPassword: ''
   },
 
-  onInputUsername(e) {
-    this.setData({
-      username: e.detail.value
-    });
-  },
 
   onInputPhoneNumber(e) {
     this.setData({
@@ -38,7 +33,7 @@ Page({
 
   handleRegister() {
     const {
-      username,
+
       PhoneNumber,
       NickName,
       password,
@@ -46,7 +41,7 @@ Page({
     } = this.data;
 
     // 表单验证
-    if (!username || !PhoneNumber || !NickName || !password || !confirmPassword) {
+    if (!PhoneNumber || !NickName || !password || !confirmPassword) {
       wx.showToast({
         title: '请填写所有字段',
         icon: 'none'
@@ -89,31 +84,33 @@ Page({
 
     // 调用后端注册接口
     wx.request({
-      url: 'http://localhost:8888/userRegister',
+      url: 'http://127.0.0.1:8888/api/userRegister',
       method: 'POST',
+
       data: {
-        user_account: username,
-        user_passwd: password,
+
+        password: password,
         phone_number: PhoneNumber,
-        nick_name: NickName
+        nickname: NickName
       },
       success: (res) => {
         wx.hideLoading();
-
-        if (res.data.code === 200) {
+        console.log(NickName, PhoneNumber)
+        if (res.code === 200) {
           wx.showToast({
             title: '注册成功',
             icon: 'success',
             duration: 1500
           });
-          
+
+
           // 简化跳转逻辑，使用单一setTimeout
           setTimeout(() => {
             // 首先尝试使用reLaunch直接跳转到登录页
             wx.reLaunch({
               url: '/pages/login/login',
               complete: (res) => {
-                if (res.errMsg !== 'reLaunch:ok') {
+                if (res.data.msg !== 'reLaunch:ok') {
                   console.error('跳转失败，尝试使用其他方式', res);
                   // 退出到登录页
                   wx.navigateBack({
@@ -129,7 +126,9 @@ Page({
             });
           }, 1500);
         } else {
+
           wx.showToast({
+
             title: res.data.msg || '注册失败',
             icon: 'none'
           });

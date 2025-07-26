@@ -21,12 +21,18 @@ Page({
   onChange(e) {
     // 获取点击的分类信息
     const { item } = e.detail;
-    // 获取分类ID（groupId）
-    const groupId = item.groupId || '';
+    // 获取分类名称作为标签
+    const categoryName = item.name || '';
     
-    // 导航到商品列表页面并传递分类ID
+    console.log('[onChange] 分类点击:', {
+      groupId: item.groupId,
+      name: item.name,
+      categoryName: categoryName
+    });
+    
+    // 导航到商品列表页面并传递分类名称作为标签
     wx.navigateTo({
-      url: `/pages/goods/list/index?groupId=${groupId}`,
+      url: `/pages/goods/list/index?tag=${encodeURIComponent(categoryName)}`,
     });
   },
   

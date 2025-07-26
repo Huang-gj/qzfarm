@@ -6,6 +6,12 @@
  * @property {number} user_id - 用户ID
  */
 
+/**
+ * @typedef {Object} GetGoodRequest
+ * @property {number} user_id - 用户ID
+ * @property {number} good_id - 商品ID
+ */
+
 // 响应数据类型定义
 /**
  * @typedef {Object} Goods
@@ -29,6 +35,13 @@
  * @property {number} code - 状态码
  * @property {string} msg - 响应信息
  * @property {Goods[]} goods_list - 商品列表
+ */
+
+/**
+ * @typedef {Object} GetGoodResponse
+ * @property {number} code - 状态码
+ * @property {string} msg - 响应信息
+ * @property {Goods} good - 商品信息
  */
 
 /**
@@ -122,15 +135,59 @@ function parseImageUrls(imageUrls) {
  */
 export function getGoodById(goodId, userId = 0) {
   return new Promise((resolve, reject) => {
-    getAllGoodsApi({ user_id: userId })
-      .then(response => {
-        const good = response.goods_list.find(item => item.good_id === goodId);
-        resolve(good || null);
-      })
-      .catch(error => {
-        console.error('获取商品详情失败:', error);
-        resolve(null);
-      });
+    // 获取存储的token
+    const tokenData = wx.getStorageSync('token');
+    let headers = {
+      'Content-Type': 'application/json'
+    };
+
+    // 如果有token，添加到请求头
+    if (tokenData && tokenData.accessToken) {
+      headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
+    }
+
+    wx.request({
+      url: 'http://localhost:8889/api/getGood',
+      method: 'POST',
+      data: {
+        user_id: userId,
+        good_id: goodId
+      },
+      header: headers,
+      timeout: 10000,
+      success: (res) => {
+        console.log('获取商品详情成功:', res);
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          const response = res.data;
+          if (response.code === 200) {
+            console.log('[getGoodById] 原始响应数据:', response.good);
+            
+            // 如果 image_urls 是字符串，尝试解析为数组
+            const good = {
+              ...response.good,
+              image_urls: parseImageUrls(response.good.image_urls)
+            };
+            
+            console.log('[getGoodById] 处理后的商品数据:', good);
+            console.log('[getGoodById] 库存信息:', {
+              repertory: good.repertory,
+              repertory_type: typeof good.repertory,
+              repertory_original: response.good.repertory
+            });
+            
+            resolve(good);
+          } else {
+            reject(new Error(response.msg || '获取商品详情失败'));
+          }
+        } else {
+          reject(new Error(`HTTP ${res.statusCode}: ${res.data.msg || '请求失败'}`));
+        }
+      },
+      fail: (err) => {
+        console.error('获取商品详情失败:', err);
+        reject(new Error(err.errMsg || '网络请求失败'));
+      }
+    });
   });
 }
 
@@ -151,6 +208,61 @@ export function getGoodsByFarmId(farmId, userId = 0) {
         console.error('获取农场商品列表失败:', error);
         resolve([]);
       });
+  });
+}
+
+/**
+ * 根据标签获取商品列表
+ * @param {string} goodTag - 商品标签
+ * @param {number} userId - 用户ID
+ * @returns {Promise<Goods[]>} 商品列表
+ */
+export function getGoodsByTag(goodTag, userId = 0) {
+  return new Promise((resolve, reject) => {
+    // 获取存储的token
+    const tokenData = wx.getStorageSync('token');
+    let headers = {
+      'Content-Type': 'application/json'
+    };
+
+    // 如果有token，添加到请求头
+    if (tokenData && tokenData.accessToken) {
+      headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
+    }
+
+    wx.request({
+      url: 'http://localhost:8889/api/getGoodsByTag',
+      method: 'POST',
+      data: {
+        user_id: userId,
+        good_tag: goodTag
+      },
+      header: headers,
+      timeout: 10000,
+      success: (res) => {
+        console.log('根据标签获取商品列表成功:', res);
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          const response = res.data;
+          if (response.code === 200) {
+            // 如果 image_urls 是字符串，尝试解析为数组
+            const goodsList = response.goods_list.map(good => ({
+              ...good,
+              image_urls: parseImageUrls(good.image_urls)
+            }));
+            
+            resolve(goodsList);
+          } else {
+            reject(new Error(response.msg || '根据标签获取商品列表失败'));
+          }
+        } else {
+          reject(new Error(`HTTP ${res.statusCode}: ${res.data?.msg || '请求失败'}`));
+        }
+      },
+      fail: (err) => {
+        console.error('根据标签获取商品列表失败:', err);
+        reject(new Error(err.errMsg || '网络请求失败'));
+      }
+    });
   });
 }
 

@@ -106,7 +106,7 @@ Page({
                 thumb: cosThumb(goods.goodsPictureUrl, 70),
                 title: goods.goodsName,
                 skuId: goods.skuId,
-                spuId: goods.spuId,
+                good_id: goods.good_id,
                 specs: (goods.specifications || []).map(
                   (spec) => spec.specValue,
                 ),

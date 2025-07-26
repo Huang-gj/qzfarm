@@ -3,6 +3,28 @@
 
 package types
 
+type GetGoodRequest struct {
+	UserID int `json:"user_id"`
+	GoodID int `json:"good_id"`
+}
+
+type GetGoodResponse struct {
+	Code int    `json:"code"` // 状态码
+	Msg  string `json:"msg"`  // 响应信息
+	Good Good   `json:"good"` // 商品列表
+}
+
+type GetGoodsByTagRequest struct {
+	UserID  int    `json:"user_id"`
+	GoodTag string `json:"good_tag"`
+}
+
+type GetGoodsByTagResponse struct {
+	Code  int     `json:"code"`       // 状态码
+	Msg   string  `json:"msg"`        // 响应信息
+	Goods []*Good `json:"goods_list"` // 商品列表
+}
+
 type GetGoodsRequest struct {
 	UserID int `json:"user_id"`
 }

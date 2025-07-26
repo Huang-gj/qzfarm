@@ -50,7 +50,7 @@ export async function genOrders(params) {
           orderItemVOs: [{
             id: '354021736133427225',
             orderNo: null,
-            spuId: '3',
+            good_id: '3',
             skuId: '135696670',
             roomId: null,
             goodsMainType: 0,
@@ -174,7 +174,7 @@ export async function genOrders(params) {
           orderItemVOs: [{
               id: '132381537407645696',
               orderNo: null,
-              spuId: '0',
+              good_id: '0',
               skuId: '135676631',
               roomId: null,
               goodsMainType: 0,
@@ -206,7 +206,7 @@ export async function genOrders(params) {
             {
               id: '132381537407645952',
               orderNo: null,
-              spuId: '7',
+              good_id: '7',
               skuId: '135691633',
               roomId: null,
               goodsMainType: 0,
@@ -238,7 +238,7 @@ export async function genOrders(params) {
             {
               id: '132381537407646208',
               orderNo: null,
-              spuId: '1',
+              good_id: '1',
               skuId: '135691631',
               roomId: null,
               goodsMainType: 0,
@@ -363,7 +363,7 @@ export async function genOrders(params) {
           orderItemVOs: [{
               id: '132222629825259776',
               orderNo: null,
-              spuId: '5',
+              good_id: '5',
               skuId: '135691625',
               roomId: null,
               goodsMainType: 0,
@@ -395,7 +395,7 @@ export async function genOrders(params) {
             {
               id: '132222629825260032',
               orderNo: null,
-              spuId: '0',
+              good_id: '0',
               skuId: '135676631',
               roomId: null,
               goodsMainType: 0,
@@ -427,7 +427,7 @@ export async function genOrders(params) {
             {
               id: '132222629825260288',
               orderNo: null,
-              spuId: '3',
+              good_id: '3',
               skuId: '135691622',
               roomId: null,
               goodsMainType: 0,
@@ -459,7 +459,7 @@ export async function genOrders(params) {
             {
               id: '132222629825260544',
               orderNo: null,
-              spuId: '135681628',
+              good_id: '135681628',
               skuId: '135676629',
               roomId: null,
               goodsMainType: 0,
@@ -491,7 +491,7 @@ export async function genOrders(params) {
             {
               id: '132222629825260800',
               orderNo: null,
-              spuId: '2',
+              good_id: '2',
               skuId: '135686631',
               roomId: null,
               goodsMainType: 0,
@@ -610,7 +610,7 @@ export async function genOrders(params) {
           orderItemVOs: [{
             id: '130862224922120960',
             orderNo: null,
-            spuId: '0',
+            good_id: '0',
             skuId: '135676631',
             roomId: null,
             goodsMainType: 0,
@@ -724,7 +724,7 @@ export async function genOrders(params) {
           orderItemVOs: [{
             id: '130494482322824704',
             orderNo: null,
-            spuId: '7',
+            good_id: '7',
             skuId: '135691633',
             roomId: null,
             goodsMainType: 0,
@@ -838,7 +838,7 @@ export async function genOrders(params) {
           orderItemVOs: [{
             id: '130169572425740032',
             orderNo: null,
-            spuId: '1',
+            good_id: '1',
             skuId: '135691631',
             roomId: null,
             goodsMainType: 0,
@@ -975,7 +975,7 @@ export async function genOrders(params) {
           orderItemVOs: [{
             id: '130150836520098048',
             orderNo: null,
-            spuId: '0',
+            good_id: '0',
             skuId: '135681631',
             roomId: null,
             goodsMainType: 0,

@@ -61,7 +61,7 @@ Page({
       },
     ],
     storeLogo: `${imgPrefix}common/store-logo.png`,
-    storeName: '云mall标准版旗舰店',
+    storeName: '',
     jumpArray: [{
         title: '首页',
         url: '/pages/home/home',
@@ -98,7 +98,7 @@ Page({
     minSalePrice: 0,
     maxSalePrice: 0,
     list: [],
-    spuId: '',
+    goodId: '', // 替换good_id为goodId
     navigation: {
       type: 'fraction'
     },
@@ -275,7 +275,7 @@ Page({
 
     // 准备添加到购物车的商品信息
     const goodsInfo = {
-      spuId: details.spuId,
+      good_id: details.good_id || details.good_id, // 优先使用good_id，兼容原有good_id
       skuId: selectItem.skuId,
       title: details.title,
       price: selectItem.price || details.minSalePrice,
@@ -342,7 +342,7 @@ Page({
     const query = {
       quantity: buyNum,
       storeId: '1',
-      spuId: this.data.spuId,
+      good_id: this.data.goodId,
       goodsName: this.data.details.title,
       skuId: type === 1 ? this.data.skuList[0].skuId : this.data.selectItem.skuId,
       available: this.data.details.available,
@@ -352,7 +352,7 @@ Page({
         specValue: item.specValueList[0].specValue,
       })),
       primaryImage: this.data.details.primaryImage,
-      spuId: this.data.details.spuId,
+      good_id: this.data.details.good_id || this.data.details.good_id, // 优先使用good_id，兼容原有good_id
       thumb: this.data.details.primaryImage,
       title: this.data.details.title,
     };
@@ -378,8 +378,17 @@ Page({
   },
 
   changeNum(e) {
+    const { buyNum } = e.detail;
+    const { stockQuantity = 0 } = this.data;
+    
+    // 确保购买数量不超过库存
+    const maxQuantity = Math.max(0, stockQuantity);
+    const finalBuyNum = Math.min(buyNum, maxQuantity);
+    
+ 
+    
     this.setData({
-      buyNum: e.detail.buyNum,
+      buyNum: finalBuyNum,
     });
   },
 
@@ -404,9 +413,22 @@ Page({
     });
   },
 
-  getDetail(spuId) {
-    Promise.all([fetchGood(spuId), fetchActivityList()]).then((res) => {
+  getDetail(goodId) {
+    Promise.all([fetchGood(goodId), fetchActivityList()]).then((res) => {
       const [details, activityList] = res;
+      
+      // 检查是否成功获取到商品数据
+      if (!details) {
+        console.error('[getDetail] 未获取到商品数据，goodId:', goodId);
+        wx.showToast({
+          title: '商品不存在',
+          icon: 'none'
+        });
+        return;
+      }
+      
+      console.log('[getDetail] 获取到商品数据:', details);
+      
       const skuArray = [];
       const {
         skuList,
@@ -416,14 +438,43 @@ Page({
         maxSalePrice,
         maxLinePrice,
         soldNum,
+        // 新数据格式的字段
+        good_id,
+        title,
+        image_urls,
+        price,
+        units,
+        repertory,
+        detail,
+        specList
       } = details;
-      skuList.forEach((item) => {
-        skuArray.push({
-          skuId: item.skuId,
-          quantity: item.stockInfo ? item.stockInfo.stockQuantity : 0,
-          specInfo: item.specInfo,
+      
+      // 如果有原有的skuList，使用它；否则创建默认的sku
+      if (skuList && skuList.length > 0) {
+        skuList.forEach((item) => {
+          skuArray.push({
+            skuId: item.skuId,
+            quantity: item.stockInfo ? item.stockInfo.stockQuantity : 0,
+            specInfo: item.specInfo,
+          });
         });
-      });
+      } else {
+        // 为新数据格式创建默认的sku
+        const defaultSku = {
+          skuId: good_id || goodId,
+          quantity: repertory || 0,
+          repertory: repertory || 0, // 添加 repertory 字段
+          specInfo: specList ? specList.map(spec => ({
+            specId: spec.specId,
+            specValueId: spec.specValueList[0]?.specValueId || 'units_value',
+            specValue: spec.specValueList[0]?.specValue || ''
+          })) : []
+        };
+        
+   
+        skuArray.push(defaultSku);
+      }
+      
       const promotionArray = [];
       activityList.forEach((item) => {
         promotionArray.push({
@@ -431,18 +482,36 @@ Page({
           label: '满100元减99.9元',
         });
       });
+      
+      // 基于 repertory 字段判断库存状态
+      const stockQuantity = repertory || 0;
+      const hasStock = stockQuantity > 0;
+      const isSoldOut = stockQuantity <= 0;
+      
+     
+      
       this.setData({
         details,
         activityList,
-        isStock: details.spuStockQuantity > 0,
-        maxSalePrice: maxSalePrice ? parseInt(maxSalePrice) : 0,
-        maxLinePrice: maxLinePrice ? parseInt(maxLinePrice) : 0,
-        minSalePrice: minSalePrice ? parseInt(minSalePrice) : 0,
+        isStock: hasStock,
+        maxSalePrice: maxSalePrice ? parseInt(maxSalePrice) : (price ? parseInt(price) : 0),
+        maxLinePrice: maxLinePrice ? parseInt(maxLinePrice) : (price ? parseInt(price) : 0),
+        minSalePrice: minSalePrice ? parseInt(minSalePrice) : (price ? parseInt(price) : 0),
         list: promotionArray,
         skuArray: skuArray,
-        primaryImage,
-        soldout: isPutOnSale === 0,
-        soldNum,
+        primaryImage: primaryImage || (image_urls && image_urls.length > 0 ? image_urls[0] : ''),
+        soldout: isSoldOut,
+        soldNum: soldNum || 0,
+        goodId: good_id || goodId, // 保存good_id
+        // 添加库存数量信息
+        stockQuantity: stockQuantity,
+        maxPurchaseQuantity: stockQuantity
+      });
+    }).catch(error => {
+      console.error('[getDetail] 获取商品详情失败:', error);
+      wx.showToast({
+        title: '获取商品详情失败',
+        icon: 'none'
       });
     });
   },
@@ -458,7 +527,7 @@ Page({
         const nextState = {
           commentsList: homePageComments.map((item) => {
             return {
-              goodsSpu: item.spuId,
+              goodsSpu: item.good_id || item.good_id, // 优先使用good_id，兼容原有good_id
               userName: item.userName || '',
               commentScore: item.commentScore,
               commentContent: item.commentContent || '用户未填写评价',
@@ -488,7 +557,7 @@ Page({
     const customInfo = {
       imageUrl: this.data.details.primaryImage,
       title: this.data.details.title + shareSubTitle,
-      path: `/pages/goods/details/index?spuId=${this.data.spuId}`,
+      path: `/pages/goods/details/index?goodId=${this.data.goodId}`,
     };
     return customInfo;
   },
@@ -528,20 +597,25 @@ Page({
   /** 跳转到评价列表 */
   navToCommentsListPage() {
     wx.navigateTo({
-      url: `/pages/goods/comments/index?spuId=${this.data.spuId}`,
+      url: `/pages/goods/comments/index?goodId=${this.data.goodId}`,
     });
   },
 
   onLoad(query) {
     const {
-      spuId
+      goodId
     } = query;
+    
+    // 确保goodId是数字类型
+    const goodIdNum = parseInt(goodId, 10);
+
+    
     this.setData({
-      spuId: spuId,
+      goodId: goodIdNum,
     });
-    this.getDetail(spuId);
-    this.getCommentsList(spuId);
-    this.getCommentsStatistics(spuId);
+    this.getDetail(goodIdNum);
+    this.getCommentsList(goodIdNum);
+    this.getCommentsStatistics(goodIdNum);
 
     // 加载云存储图片链接
     this.loadCustomIcons();

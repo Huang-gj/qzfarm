@@ -48,7 +48,7 @@ export async function getAllGoods() {
     const goods = [{
         saasId: '88888888',
         storeId: '1000',
-        spuId: '0',
+        good_id: '0',
         title: '超级大橘子',
         primaryImage: urls[0],
         images: [
@@ -222,7 +222,7 @@ export async function getAllGoods() {
       {
         saasId: '88888888',
         storeId: '1000',
-        spuId: '135686666',
+        good_id: '135686666',
         title: '橘子2',
         primaryImage: urls[3],
         images: [
@@ -419,7 +419,7 @@ export async function getAllGoods() {
       {
         saasId: '88888888',
         storeId: '1000',
-        spuId: '135686633',
+        good_id: '135686633',
         title: '西瓜',
         primaryImage: urls[1],
         minSalePrice: '25900',
@@ -494,7 +494,7 @@ export async function getAllGoods() {
       {
         saasId: '88888888',
         storeId: '1000',
-        spuId: '135681624',
+        good_id: '135681624',
         title: '梨',
         primaryImage: urls[2],
         images: [
@@ -637,7 +637,7 @@ export async function genGood(id, available = 1) {
     const specID = ['135681624', '135686633'];
     if (specID.indexOf(id) > -1) {
       console.log('[genGood] 匹配到特定ID商品');
-      const goodItem = allGoods.filter((good) => good.spuId === id)[0];
+      const goodItem = allGoods.filter((good) => good.good_id === id)[0];
       return goodItem;
     }
 
@@ -649,7 +649,7 @@ export async function genGood(id, available = 1) {
 
     return {
       ...item,
-      spuId: `${id}`,
+      good_id: `${id}`,
       available: available,
       desc: item?.desc || defaultDesc,
       images: item?.images || [item?.primaryImage],

@@ -1,5 +1,7 @@
 <view class="goods-detail-page">
   <view class="goods-head">
+   
+    
     <t-swiper
       wx:if="{{details.images.length > 0}}"
       height="750rpx"
@@ -125,6 +127,7 @@
     bind:specsConfirm="specsConfirm"
     isStock="{{isStock}}"
     outOperateStatus="{{outOperateStatus}}"
+    limitMaxCount="{{stockQuantity}}"
   >
     <view slot="goods-price">
       <view class="popup-sku__price">

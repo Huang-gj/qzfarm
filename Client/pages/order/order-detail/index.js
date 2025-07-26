@@ -114,7 +114,7 @@ Page({
             thumb: goods.goodsPictureUrl,
             title: goods.goodsName,
             skuId: goods.skuId,
-            spuId: goods.spuId,
+            good_id: goods.good_id,
             specs: (goods.specifications || []).map((s) => s.specValue),
             price: goods.tagPrice ? goods.tagPrice : goods.actualPrice, // 商品销售单价, 优先取限时活动价
             num: goods.buyQuantity,
@@ -226,7 +226,7 @@ Page({
     } = e.currentTarget.dataset;
     const goods = this.data.order.orderItemVOs[index];
     wx.navigateTo({
-      url: `/pages/goods/details/index?spuId=${goods.spuId}`
+      url: `/pages/goods/details/index?goodId=${goods.good_id}`
     });
   },
 

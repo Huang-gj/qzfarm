@@ -27,7 +27,7 @@ Component({
               this.storeId = goods.storeId;
               return {
                 skuId: goods.skuId,
-                spuId: goods.spuId,
+                good_id: goods.good_id,
                 storeId: goods.storeId,
                 selected: true,
                 quantity: goods.num,

@@ -83,7 +83,7 @@ export function addToCart(goodsInfo) {
   // 查找商品是否已经在购物车中
   let found = false;
   for (let i = 0; i < cartData.goodsList.length; i++) {
-    if (cartData.goodsList[i].spuId === goodsInfo.spuId && cartData.goodsList[i].skuId === goodsInfo.skuId) {
+    if (cartData.goodsList[i].good_id === goodsInfo.good_id && cartData.goodsList[i].skuId === goodsInfo.skuId) {
       // 商品已存在，增加数量
       cartData.goodsList[i].quantity += goodsInfo.quantity || 1;
       found = true;
@@ -97,7 +97,7 @@ export function addToCart(goodsInfo) {
       uid: `${Date.now()}${Math.floor(Math.random() * 1000)}`,
       saasId: '88888888',
       storeId: '1000', // 保留一个默认值
-      spuId: goodsInfo.spuId,
+      good_id: goodsInfo.good_id,
       skuId: goodsInfo.skuId || '135681631',
       isSelected: 1,
       thumb: goodsInfo.thumb || goodsInfo.primaryImage,

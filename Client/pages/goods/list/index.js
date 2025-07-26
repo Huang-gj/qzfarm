@@ -1,4 +1,5 @@
-import { fetchGoodsList } from '../../../services/good/fetchGoodsList';
+import { getGoodsByTag } from '../../../model/goodsApi';
+import { genPicURL } from '../../../utils/genURL';
 import Toast from 'tdesign-miniprogram/toast/index';
 
 const initFilters = {
@@ -149,22 +150,25 @@ Page({
   },
 
   async init(reset = true) {
-    const { loadMoreStatus, goodsList = [], sorts, overall, minVal, maxVal } = this.data;
+    const { loadMoreStatus, goodsList = [], sorts, overall, minVal, maxVal, groupId } = this.data;
     
     if (reset) {
       // 只有第一次加载或刷新时才请求新数据
-      const params = this.generalQueryData(reset);
       if (loadMoreStatus !== 0) return;
       this.setData({ loadMoreStatus: 1, loading: true });
       
       try {
-        console.log('[init] 开始获取商品列表, 参数:', params);
-        const result = await fetchGoodsList(params);
-        const code = 'Success';
-        const data = result;
-        if (code.toUpperCase() === 'SUCCESS') {
-          const { spuList, totalCount = 0 } = data;
-          if (totalCount === 0 && reset) {
+        console.log('[init] 开始根据标签获取商品列表, 标签:', groupId);
+        
+        // 使用分类名称作为标签来获取商品
+        const goodsList = await getGoodsByTag(groupId, 0); // 使用默认用户ID 0
+        
+        console.log('[init] 获取到商品列表:', goodsList);
+        
+        if (Array.isArray(goodsList)) {
+          const totalCount = goodsList.length;
+          
+          if (totalCount === 0) {
             this.total = totalCount;
             this.setData({
               emptyInfo: {
@@ -178,6 +182,35 @@ Page({
             return;
           }
 
+          // 转换数据格式以适配前端显示，并处理图片URL
+          const spuList = await Promise.all(goodsList.map(async (item) => {
+            let thumbUrl = '';
+            if (item.image_urls && item.image_urls.length > 0) {
+              try {
+                thumbUrl = await genPicURL(item.image_urls[0]);
+                console.log('[init] 图片URL转换成功:', {
+                  original: item.image_urls[0],
+                  converted: thumbUrl
+                });
+              } catch (error) {
+                console.error('[init] 图片URL转换失败:', error);
+                thumbUrl = item.image_urls[0]; // 转换失败时使用原始URL
+              }
+            }
+            
+            return {
+              good_id: item.good_id,
+              thumb: thumbUrl,
+              title: item.title,
+              price: item.price,
+              originPrice: item.price,
+              desc: item.detail || '',
+              tags: item.good_tag ? [item.good_tag] : [],
+              // 保留原始数据
+              ...item
+            };
+          }));
+
           this.originalGoodsList = spuList; // 保存原始列表
           
           // 先按价格筛选
@@ -186,7 +219,7 @@ Page({
           // 再按排序条件排序
           const sortedList = this.sortGoodsList(filteredList, sorts, overall);
           
-          this.pageNum = params.pageNum || 1;
+          this.pageNum = 1;
           this.total = totalCount;
           this.setData({
             goodsList: sortedList,
@@ -205,6 +238,10 @@ Page({
       } catch (error) {
         console.error('[init] 获取商品列表失败:', error);
         this.setData({ loading: false, hasLoaded: true });
+        wx.showToast({
+          title: '获取商品列表失败',
+          icon: 'none'
+        });
       }
     } else {
       // 先按价格筛选
@@ -221,10 +258,27 @@ Page({
   },
 
   onLoad(options) {
-    const { groupId = '' } = options;
-    console.log('[onLoad] 加载商品列表页面, 分类ID:', groupId);
+    const { groupId = '', tag = '' } = options;
+    // 优先使用 tag 参数，如果没有则使用 groupId
+    let goodTag = tag || groupId || '';
     
-    this.setData({ groupId }, () => {
+    // 如果tag参数被URL编码了，需要解码
+    if (tag) {
+      try {
+        goodTag = decodeURIComponent(tag);
+      } catch (error) {
+        console.error('[onLoad] URL解码失败:', error);
+        goodTag = tag;
+      }
+    }
+    
+    console.log('[onLoad] 加载商品列表页面:', {
+      originalTag: tag,
+      originalGroupId: groupId,
+      decodedTag: goodTag
+    });
+    
+    this.setData({ groupId: goodTag }, () => {
       this.init(true);
     });
 
@@ -262,9 +316,9 @@ Page({
 
   gotoGoodsDetail(e) {
     const { index } = e.detail;
-    const { spuId } = this.data.goodsList[index];
+    const { good_id } = this.data.goodsList[index];
     wx.navigateTo({
-      url: `/pages/goods/details/index?spuId=${spuId}`,
+      url: `/pages/goods/details/index?goodId=${good_id}`,
     });
   },
 

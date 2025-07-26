@@ -186,7 +186,7 @@ Page({
       storeId,
       uid,
       saasId,
-      spuId,
+      good_id,
       goodsName,
       skuId,
       storeName,
@@ -198,7 +198,7 @@ Page({
       storeId,
       uid,
       saasId,
-      spuId,
+      good_id,
       goodsName,
       skuId,
       storeName,
@@ -232,7 +232,7 @@ Page({
             titlePrefixTags: item.tagText ? [{ text: item.tagText }] : [],
             num: item.quantity,
             skuId: item.skuId,
-            spuId: item.spuId,
+            good_id: item.good_id,
             storeId: item.storeId,
           });
         });
@@ -549,9 +549,9 @@ Page({
       },
     } = e;
     const index = this.goodsRequestList.findIndex(
-      ({ storeId, spuId, skuId }) =>
+      ({ storeId, good_id, skuId }) =>
         goods.storeId === storeId &&
-        goods.spuId === spuId &&
+        goods.good_id === good_id &&
         goods.skuId === skuId,
     );
     if (index >= 0) {

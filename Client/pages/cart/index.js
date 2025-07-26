@@ -113,7 +113,7 @@ Page({
     });
   },
 
-  findGoods(spuId, skuId) {
+  findGoods(good_id, skuId) {
     let currentGoods;
     const {
       goodsList
@@ -121,7 +121,7 @@ Page({
 
     // 直接在扁平的商品列表中查找
     for (const goods of goodsList) {
-      if (goods.spuId === spuId && goods.skuId === skuId) {
+      if (goods.good_id === good_id && goods.skuId === skuId) {
         currentGoods = goods;
         return {
           currentGoods
@@ -158,11 +158,11 @@ Page({
 
   // 选择单个商品
   selectGoodsService({
-    spuId,
+    good_id,
     skuId,
     isSelected
   }) {
-    this.findGoods(spuId, skuId).currentGoods.isSelected = isSelected;
+    this.findGoods(good_id, skuId).currentGoods.isSelected = isSelected;
     // 更新本地存储
     this.updateLocalStorage();
     return Promise.resolve();
@@ -187,11 +187,11 @@ Page({
 
   // 加购数量变更
   changeQuantityService({
-    spuId,
+    good_id,
     skuId,
     quantity
   }) {
-    this.findGoods(spuId, skuId).currentGoods.quantity = quantity;
+    this.findGoods(good_id, skuId).currentGoods.quantity = quantity;
     // 更新本地存储
     this.updateLocalStorage();
     return Promise.resolve();
@@ -199,7 +199,7 @@ Page({
 
   // 删除加购商品
   deleteGoodsService({
-    spuId,
+    good_id,
     skuId
   }) {
     const {
@@ -209,7 +209,7 @@ Page({
 
     // 在扁平的商品列表中查找并删除
     const goodsIndex = goodsList.findIndex(goods =>
-      goods.spuId === spuId && goods.skuId === skuId
+      goods.good_id === good_id && goods.skuId === skuId
     );
 
     if (goodsIndex > -1) {
@@ -221,7 +221,7 @@ Page({
 
     // 在无效商品列表中查找并删除
     const invalidIndex = invalidGoodItems.findIndex(goods =>
-      goods.spuId === spuId && goods.skuId === skuId
+      goods.good_id === good_id && goods.skuId === skuId
     );
 
     if (invalidIndex > -1) {
@@ -277,14 +277,14 @@ Page({
   onGoodsSelect(e) {
     const {
       goods: {
-        spuId,
+        good_id,
         skuId
       },
       isSelected,
     } = e.detail;
     const {
       currentGoods
-    } = this.findGoods(spuId, skuId);
+    } = this.findGoods(good_id, skuId);
     Toast({
       context: this,
       selector: '#t-toast',
@@ -294,7 +294,7 @@ Page({
       icon: '',
     });
     this.selectGoodsService({
-      spuId,
+      good_id,
       skuId,
       isSelected
     }).then(() => this.refreshData());
@@ -316,19 +316,32 @@ Page({
   onQuantityChange(e) {
     const {
       goods: {
-        spuId,
+        good_id,
         skuId
       },
       quantity,
     } = e.detail;
     const {
       currentGoods
-    } = this.findGoods(spuId, skuId);
-    const stockQuantity = currentGoods.stockQuantity > 0 ? currentGoods.stockQuantity : 0; // 避免后端返回的是-1
+    } = this.findGoods(good_id, skuId);
+    
+    // 基于 repertory 字段判断库存数量
+    const stockQuantity = currentGoods.repertory || currentGoods.stockQuantity || 0;
+    const maxPurchaseQuantity = Math.max(0, stockQuantity); // 确保不为负数
+    
+    console.log('[onQuantityChange] 库存检查:', {
+      good_id,
+      skuId,
+      requestedQuantity: quantity,
+      stockQuantity: stockQuantity,
+      maxPurchaseQuantity: maxPurchaseQuantity,
+      currentGoods: currentGoods
+    });
+    
     // 加购数量超过库存数量
-    if (quantity > stockQuantity) {
+    if (quantity > maxPurchaseQuantity) {
       // 加购数量等于库存数量的情况下继续加购
-      if (currentGoods.quantity === stockQuantity && quantity - stockQuantity === 1) {
+      if (currentGoods.quantity === maxPurchaseQuantity && quantity - maxPurchaseQuantity === 1) {
         Toast({
           context: this,
           selector: '#t-toast',
@@ -336,24 +349,29 @@ Page({
         });
         return;
       }
+      
+      // 获取商品单位信息
+      const units = currentGoods.units || '个';
+      
       Dialog.confirm({
           title: '商品库存不足',
-          content: `当前商品库存不足，最大可购买数量为${stockQuantity}斤`,
+          content: `当前商品库存不足，最大可购买数量为${maxPurchaseQuantity}${units}`,
           confirmBtn: '修改为最大可购买数量',
           cancelBtn: '取消',
         })
         .then(() => {
           this.changeQuantityService({
-            spuId,
+            good_id,
             skuId,
-            quantity: stockQuantity,
+            quantity: maxPurchaseQuantity,
           }).then(() => this.refreshData());
         })
         .catch(() => {});
       return;
     }
+    
     this.changeQuantityService({
-      spuId,
+      good_id,
       skuId,
       quantity
     }).then(() => this.refreshData());
@@ -369,11 +387,11 @@ Page({
 
   goGoodsDetail(e) {
     const {
-      spuId,
+      good_id,
       storeId
     } = e.detail.goods;
     wx.navigateTo({
-      url: `/pages/goods/details/index?spuId=${spuId}&storeId=${storeId}`,
+      url: `/pages/goods/details/index?goodId=${good_id}&storeId=${storeId}`,
     });
   },
 
@@ -385,7 +403,7 @@ Page({
   onGoodsDelete(e) {
     const {
       goods: {
-        spuId,
+        good_id,
         skuId
       },
     } = e.detail;
@@ -395,7 +413,7 @@ Page({
       cancelBtn: '取消',
     }).then(() => {
       this.deleteGoodsService({
-        spuId,
+        good_id,
         skuId
       }).then(() => {
         Toast({

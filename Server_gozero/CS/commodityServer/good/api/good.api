@@ -12,6 +12,11 @@ type GetGoodsRequest {
 	userID int `json:"user_id"`
 }
 
+type GetGoodRequest {
+	userID int `json:"user_id"`
+	GoodID int `json:"good_id"`
+}
+
 type Good {
 	Id         int64   `json:"id"` // 主键ID
 	DelState   int64   `json:"del_state"` // 0-正常 1-删除
@@ -34,6 +39,23 @@ type GetGoodsResponse {
 	Goods []*Good `json:"goods_list"` // 商品列表
 }
 
+type GetGoodResponse {
+	Code int    `json:"code"` // 状态码
+	Msg  string `json:"msg"` // 响应信息
+	Good Good   `json:"good"` // 商品列表
+}
+
+type GetGoodsByTagRequest {
+	userID  int    `json:"user_id"`
+	GoodTag string `json:"good_tag"`
+}
+
+type GetGoodsByTagResponse {
+	Code  int     `json:"code"` // 状态码
+	Msg   string  `json:"msg"` // 响应信息
+	Goods []*Good `json:"goods_list"` // 商品列表
+}
+
 @server (
 	prefix: api
 	jwt:    Auth
@@ -41,5 +63,11 @@ type GetGoodsResponse {
 service good-api {
 	@handler GetAllGoods
 	post /getAllGoods (GetGoodsRequest) returns (GetGoodsResponse)
+
+	@handler GetGood
+	post /getGood (GetGoodRequest) returns (GetGoodResponse)
+
+	@handler getGoodsByTag
+	post /getGoodsByTag (GetGoodsByTagRequest) returns (GetGoodsByTagResponse)
 }
 

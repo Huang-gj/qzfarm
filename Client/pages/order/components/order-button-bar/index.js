@@ -172,7 +172,7 @@ Component({
       const params = {
         orderNo: order.orderNo,
         skuId: goods?.skuId ?? '19384938948343',
-        spuId: goods?.spuId ?? '28373847384343',
+        good_id: goods?.good_id ?? '28373847384343',
         orderStatus: order.status,
         logisticsNo: order.logisticsNo,
         price: goods?.price ?? 89,

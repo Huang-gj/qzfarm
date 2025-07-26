@@ -19,6 +19,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/getAllGoods",
 				Handler: GetAllGoodsHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/getGood",
+				Handler: GetGoodHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/getGoodsByTag",
+				Handler: getGoodsByTagHandler(serverCtx),
+			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api"),

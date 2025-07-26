@@ -141,7 +141,7 @@ Page({
         id: res.data.skuId,
         thumb: res.data.goodsInfo && res.data.goodsInfo.skuImage,
         title: res.data.goodsInfo && res.data.goodsInfo.goodsName,
-        spuId: res.data.spuId,
+        good_id: res.data.good_id,
         skuId: res.data.skuId,
         specs: ((res.data.goodsInfo && res.data.goodsInfo.specInfo) || []).map((s) => s.specValue),
         paidAmountEach: res.data.paidAmountEach,
@@ -167,11 +167,11 @@ Page({
   },
 
   async getRightsPreview() {
-    const { orderNo, skuId, spuId } = this.query;
+    const { orderNo, skuId, good_id } = this.query;
     const params = {
       orderNo,
       skuId,
-      spuId,
+      good_id,
       numOfSku: this.data.serviceFrom.returnNum,
     };
     const res = await fetchRightsPreview(params);
@@ -368,7 +368,7 @@ Page({
             itemTotalAmount: this.data.goodsInfo.price * this.data.serviceFrom.returnNum,
             rightsQuantity: this.data.serviceFrom.returnNum,
             skuId: this.query.skuId,
-            spuId: this.query.spuId,
+            good_id: this.query.good_id,
           },
         ],
         refundMemo: this.data.serviceFrom.remark.current,

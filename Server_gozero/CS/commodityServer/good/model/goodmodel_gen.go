@@ -27,6 +27,8 @@ type (
 	goodModel interface {
 		Insert(ctx context.Context, data *Good) (sql.Result, error)
 		FindAll(ctx context.Context) ([]*Good, error)
+		FindAllByGoodTag(ctx context.Context, goodTag string) ([]*Good, error)
+		FindOne(ctx context.Context, id int64) (*Good, error)
 		Update(ctx context.Context, data *Good) error
 		Delete(ctx context.Context, id int64) error
 	}
@@ -92,4 +94,30 @@ func (m *defaultGoodModel) Update(ctx context.Context, data *Good) error {
 
 func (m *defaultGoodModel) tableName() string {
 	return m.table
+}
+
+func (m *defaultGoodModel) FindOne(ctx context.Context, id int64) (*Good, error) {
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE good_id = ? LIMIT 1", goodRows, m.table)
+
+	var resp Good
+	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlx.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
+
+func (m *defaultGoodModel) FindAllByGoodTag(ctx context.Context, goodTag string) ([]*Good, error) {
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE good_tag = ?", goodRows, m.table)
+
+	var goods []*Good
+	err := m.conn.QueryRowsCtx(ctx, &goods, query, goodTag)
+	if err != nil {
+		return nil, err
+	}
+	return goods, nil
 }

@@ -3,7 +3,7 @@ export function getGoodsDetailsComments() {
   return {
     homePageComments: [
       {
-        spuId: '1722045',
+        good_id: '1722045',
         skuId: null,
         specInfo: null,
         commentContent:

@@ -8,6 +8,7 @@ CREATE TABLE `land`
     land_id     INT         NOT NULL COMMENT '分布式唯一ID',
     farm_id     INT         NOT NULL COMMENT '土地所属农场id',
     land_name   VARCHAR(20) NOT NULL DEFAULT '' COMMENT '土地名称',
+    land_tag VARCHAR(20) NOT NULL DEFAULT '' COMMENT '土地类型',
     area        VARCHAR(64) NOT NULL DEFAULT '' COMMENT '土地面积',
     image_urls  TEXT COMMENT '图片信息',
     price       FLOAT       NOT NULL DEFAULT 0.0 COMMENT '价格',

@@ -28,6 +28,16 @@ Component({
     limitMaxCount: {
       type: Number,
       value: 999,
+      observer(newVal) {
+      
+        // 确保购买数量不超过库存
+        const currentBuyNum = this.data.buyNum;
+        if (currentBuyNum > newVal) {
+          this.setData({
+            buyNum: Math.max(1, newVal)
+          });
+        }
+      }
     },
     limitMinCount: {
       type: Number,
@@ -97,8 +107,16 @@ Component({
       specList.forEach((item) => {
         selectedSku[item.specId] = '';
       });
+      // 确保初始购买数量不超过库存
+      const { limitMaxCount } = this.properties;
+      const currentBuyNum = this.data.buyNum;
+      const validBuyNum = Math.min(currentBuyNum, limitMaxCount);
+      
+ 
+      
       this.setData({
         specList,
+        buyNum: validBuyNum
       });
       this.selectSpecObj = {};
       this.selectedSku = {};
@@ -108,18 +126,36 @@ Component({
     checkSkuStockQuantity(specValueId, skuList) {
       let hasStock = false;
       const array = [];
-      skuList.forEach((item) => {
-        (item.specInfo || []).forEach((subItem) => {
-          if (subItem.specValueId === specValueId && item.quantity > 0) {
+      
+   
+      
+      skuList.forEach((item, index) => {
+     
+        
+        (item.specInfo || []).forEach((subItem, subIndex) => {
+         
+          
+          // 基于 repertory 字段判断库存，如果没有 repertory 则使用 quantity
+          const stockQuantity = item.repertory || item.quantity || 0;
+          const specMatches = subItem.specValueId === specValueId;
+          const hasEnoughStock = stockQuantity > 0;
+          
+         
+          
+          if (specMatches && hasEnoughStock) {
             const subArray = [];
             (item.specInfo || []).forEach((specItem) => {
               subArray.push(specItem.specValueId);
             });
             array.push(subArray);
             hasStock = true;
+          
           }
         });
       });
+      
+     
+      
       return {
         hasStock,
         specsArray: array,
@@ -331,8 +367,20 @@ Component({
 
     handleBuyNumChange(e) {
       const { value } = e.detail;
+      const { limitMaxCount, limitMinCount } = this.properties;
+      
+      // 确保数量在有效范围内
+      const validValue = Math.max(limitMinCount, Math.min(value, limitMaxCount));
+      
+  
+      
       this.setData({
-        buyNum: value,
+        buyNum: validValue,
+      });
+      
+      // 触发数量变更事件
+      this.triggerEvent('changeNum', {
+        buyNum: validValue,
       });
     },
   },

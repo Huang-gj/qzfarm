@@ -3,7 +3,7 @@ Host: 127.0.0.1
 Port: 8889
 
 Log:
-  ServiceName: "idClient-srv"
+  ServiceName: "GoodClient-srv"
   Mode: file
   Encoding: json
   Path: logs

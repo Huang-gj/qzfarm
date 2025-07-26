@@ -10,7 +10,7 @@ function mockSearchResult(params) {
 
   if (data.spuList.length) {
     data.spuList.forEach((item) => {
-      item.spuId = item.spuId;
+      item.good_id = item.good_id;
       item.thumb = item.primaryImage;
       item.title = item.title;
       item.price = item.minSalePrice;

@@ -4,7 +4,7 @@ import (
 	"Server_gozero/CS/commodityServer/good/api/internal/svc"
 	"Server_gozero/CS/commodityServer/good/api/internal/types"
 	"context"
-
+	"errors"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -26,12 +26,14 @@ func (l *GetAllGoodsLogic) GetAllGoods(req *types.GetGoodsRequest) (resp *types.
 	// todo: add your logic here and delete this line
 	allGoods, err := l.svcCtx.GoodModel.FindAll(l.ctx)
 	if err != nil {
-		return nil, err
+		logx.Errorw("getAllGoods_FindAll failed", logx.Field("err", err))
+		return &types.GetGoodsResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")
 	}
+
 	goods := make([]*types.Good, len(allGoods))
 	for i, good := range allGoods {
 		goods[i] = &types.Good{
-			Id:         good.GoodId,
+			Id:         good.Id,
 			DelState:   good.DelState,
 			DelTime:    good.DelTime.Format("2006-01-02 15:04:05"),
 			CreateTime: good.CreateTime.Format("2006-01-02 15:04:05"),

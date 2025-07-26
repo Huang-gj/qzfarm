@@ -169,9 +169,9 @@ Page({
 
   gotoGoodsDetail(e) {
     const { index } = e.detail;
-    const { spuId } = this.data.goodsList[index];
+    const { good_id } = this.data.goodsList[index];
     wx.navigateTo({
-      url: `/pages/goods/details/index?spuId=${spuId}`,
+      url: `/pages/goods/details/index?goodId=${good_id}`,
     });
   },
 

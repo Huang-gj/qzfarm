@@ -17,7 +17,7 @@ Page({
     layoutText: layoutMap[0],
     loadMoreStatus: 0,
     myLoadStatus: 0,
-    spuId: '1060004',
+    good_id: '1060004',
     commentLevel: '',
     hasImage: '',
     commentType: '',
@@ -39,7 +39,7 @@ Page({
     try {
       const result = await fetchCommentsCount(
         {
-          spuId: options.spuId,
+          good_id: options.good_id,
         },
         {
           method: 'POST',
@@ -64,12 +64,12 @@ Page({
     } catch (error) {}
   },
   generalQueryData(reset) {
-    const { hasImage, pageNum, pageSize, spuId, commentLevel } = this.data;
+    const { hasImage, pageNum, pageSize, good_id, commentLevel } = this.data;
     const params = {
       pageNum: 1,
       pageSize: 30,
       queryParameter: {
-        spuId,
+        good_id,
       },
     };
     if (
@@ -158,7 +158,7 @@ Page({
     return array;
   },
   getComments(options) {
-    const { commentLevel = -1, spuId, hasImage = '' } = options;
+    const { commentLevel = -1, good_id, hasImage = '' } = options;
     if (commentLevel !== -1) {
       this.setData({
         commentLevel: commentLevel,
@@ -167,7 +167,7 @@ Page({
     this.setData({
       hasImage: hasImage,
       commentType: hasImage ? '4' : '',
-      spuId: spuId,
+      good_id: good_id,
     });
     this.init(true);
   },

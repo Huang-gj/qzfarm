@@ -4,6 +4,9 @@ import {
 import {
   fetchGoodsList
 } from '../../services/good/fetchGoods';
+import {
+  fetchLandsList
+} from '../../services/land/fetchLands';
 import Toast from 'tdesign-miniprogram/toast/index';
 import {
   genPicURL
@@ -14,7 +17,9 @@ Page({
     imgSrcs: [],
     tabList: [],
     goodsList: [],
+    landsList: [],
     goodsListLoadStatus: 0,
+    landsListLoadStatus: 0,
     pageLoading: false,
     current: 1,
     autoplay: true,
@@ -28,9 +33,14 @@ Page({
     },
     cartIconUrl: '',
     searchIconUrl: '',
+    currentTabIndex: 0,
   },
 
   goodListPagination: {
+    index: 0,
+    num: 20,
+  },
+  landListPagination: {
     index: 0,
     num: 20,
   },
@@ -58,8 +68,10 @@ Page({
   },
 
   onReachBottom() {
-    if (this.data.goodsListLoadStatus === 0) {
+    if (this.data.goodsListLoadStatus === 0 && this.privateData.tabIndex === 0) {
       this.loadGoodsList();
+    } else if (this.data.landsListLoadStatus === 0 && this.privateData.tabIndex === 1) {
+      this.loadLandsList();
     }
   },
 
@@ -91,12 +103,26 @@ Page({
   },
 
   tabChangeHandle(e) {
-    this.privateData.tabIndex = e.detail;
-    this.loadGoodsList(true);
+    // 增加调试输出，确认tab索引类型
+    console.log('[tabChangeHandle] e.detail:', e.detail, typeof e.detail);
+    const tabIndex = Number(e.detail.value); // 取value字段
+    this.privateData.tabIndex = tabIndex;
+    this.setData({
+      currentTabIndex: tabIndex
+    });
+    if (tabIndex === 0) {
+      this.loadGoodsList(true);
+    } else if (tabIndex === 1) {
+      this.loadLandsList(true);
+    }
   },
 
   onReTry() {
-    this.loadGoodsList();
+    if (this.privateData.tabIndex === 0) {
+      this.loadGoodsList();
+    } else if (this.privateData.tabIndex === 1) {
+      this.loadLandsList();
+    }
   },
 
   async loadGoodsList(fresh = false) {
@@ -122,12 +148,47 @@ Page({
         goodsList: fresh ? nextList : this.data.goodsList.concat(nextList),
         goodsListLoadStatus: 0,
       });
-
       this.goodListPagination.index = pageIndex;
       this.goodListPagination.num = pageSize;
+      // 调试输出
+      console.log('[loadGoodsList] goodsList:', this.data.goodsList);
     } catch (err) {
       this.setData({
         goodsListLoadStatus: 3
+      });
+    }
+  },
+
+  async loadLandsList(fresh = false) {
+    if (fresh) {
+      wx.pageScrollTo({
+        scrollTop: 0,
+      });
+    }
+
+    this.setData({
+      landsListLoadStatus: 1
+    });
+
+    const pageSize = this.landListPagination.num;
+    let pageIndex = this.privateData.tabIndex * pageSize + this.landListPagination.index + 1;
+    if (fresh) {
+      pageIndex = 0;
+    }
+
+    try {
+      const nextList = await fetchLandsList(pageIndex, pageSize);
+      this.setData({
+        landsList: fresh ? nextList : this.data.landsList.concat(nextList),
+        landsListLoadStatus: 0,
+      });
+      this.landListPagination.index = pageIndex;
+      this.landListPagination.num = pageSize;
+      // 调试输出
+      console.log('[loadLandsList] landsList:', this.data.landsList);
+    } catch (err) {
+      this.setData({
+        landsListLoadStatus: 3
       });
     }
   },
@@ -141,6 +202,42 @@ Page({
     } = this.data.goodsList[index];
     wx.navigateTo({
       url: `/pages/goods/details/index?goodId=${good_id}`,
+    });
+  },
+
+  landListClickHandle(e) {
+    const {
+      index
+    } = e.detail;
+    console.log('[landListClickHandle] 点击事件:', e);
+    console.log('[landListClickHandle] 点击的索引:', index);
+    console.log('[landListClickHandle] 当前landsList:', this.data.landsList);
+    
+    if (!this.data.landsList || !this.data.landsList[index]) {
+      console.error('[landListClickHandle] 数据不存在，index:', index, 'landsList长度:', this.data.landsList?.length);
+      wx.showToast({
+        title: '土地信息不完整',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    const landItem = this.data.landsList[index];
+    console.log('[landListClickHandle] 点击的土地项:', landItem);
+    const { land_id } = landItem;
+    console.log('[landListClickHandle] 土地ID:', land_id);
+    
+    if (!land_id) {
+      console.error('[landListClickHandle] land_id不存在');
+      wx.showToast({
+        title: '土地信息不完整',
+        icon: 'none'
+      });
+      return;
+    }
+    
+    wx.navigateTo({
+      url: `/pages/land/details/index?landId=${land_id}`,
     });
   },
 

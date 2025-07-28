@@ -50,13 +50,37 @@
     </t-tabs>
   </view>
 
+  <!-- 商品列表 -->
   <goods-list
+    wx:if="{{currentTabIndex === 0}}"
     wr-class="goods-list-container"
     goodsList="{{goodsList}}"
     cart-icon-url="{{cartIconUrl}}"
     bind:click="goodListClickHandle"
     bind:addcart="goodListAddCartHandle"
   />
-  <load-more list-is-empty="{{!goodsList.length}}" status="{{goodsListLoadStatus}}" bind:retry="onReTry" />
+  
+  <!-- 土地列表 -->
+  <goods-list
+    wx:if="{{currentTabIndex === 1}}"
+    wr-class="goods-list-container"
+    goodsList="{{landsList}}"
+    cart-icon-url="{{cartIconUrl}}"
+    bind:click="landListClickHandle"
+    bind:addcart="goodListAddCartHandle"
+  />
+  
+  <load-more 
+    wx:if="{{currentTabIndex === 0}}"
+    list-is-empty="{{!goodsList.length}}" 
+    status="{{goodsListLoadStatus}}" 
+    bind:retry="onReTry" 
+  />
+  <load-more 
+    wx:if="{{currentTabIndex === 1}}"
+    list-is-empty="{{!landsList.length}}" 
+    status="{{landsListLoadStatus}}" 
+    bind:retry="onReTry" 
+  />
   <t-toast id="t-toast" />
 </view>

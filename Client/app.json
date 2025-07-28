@@ -30,7 +30,9 @@
     "pages/order/fill-tracking-no/index",
     "pages/order/delivery-detail/index",
     "pages/order/invoice/index",
-    "pages/usercenter/name-edit/index"
+    "pages/usercenter/name-edit/index",
+    "pages/land/details/index",
+    "pages/land/list/index"
   ],
   "tabBar": {
     "custom": true,
@@ -47,6 +49,7 @@
         "pagePath": "pages/goods/category/index",
         "text": "分类"
       },
+
       {
         "pagePath": "pages/cart/index",
         "text": "购物车"

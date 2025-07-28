@@ -10,6 +10,7 @@ const TabMenu = [{
     text: '分类',
     url: 'pages/goods/category/index',
   },
+
   {
     icon: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/toBar/TdesignCart.png',
     selectedIcon: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/toBar/TdesignCartFilled.png',

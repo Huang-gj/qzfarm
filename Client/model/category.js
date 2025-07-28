@@ -40,11 +40,11 @@ export async function getCategoryList() {
     },
     {
       groupId: '2000',
-      name: '瓜果',
+      name: '农产品',
       thumbnail: 'https://cdn-we-retail.ym.tencent.com/miniapp/category/category-default.png',
       children: [{
         groupId: '2100',
-        name: '瓜果',
+        name: '农产品',
         thumbnail: 'https://cdn-we-retail.ym.tencent.com/miniapp/category/category-default.png',
         children: [{
             groupId: '2101',

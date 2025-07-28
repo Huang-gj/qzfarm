@@ -71,7 +71,6 @@ export function getAllGoodsApi(params = {}) {
       header: headers,
       timeout: 10000,
       success: (res) => {
-        console.log('获取商品列表成功:', res);
         if (res.statusCode >= 200 && res.statusCode < 300) {
           const response = res.data;
           if (response.code === 200) {
@@ -156,24 +155,15 @@ export function getGoodById(goodId, userId = 0) {
       header: headers,
       timeout: 10000,
       success: (res) => {
-        console.log('获取商品详情成功:', res);
+
         if (res.statusCode >= 200 && res.statusCode < 300) {
           const response = res.data;
           if (response.code === 200) {
-            console.log('[getGoodById] 原始响应数据:', response.good);
-            
             // 如果 image_urls 是字符串，尝试解析为数组
             const good = {
               ...response.good,
               image_urls: parseImageUrls(response.good.image_urls)
             };
-            
-            console.log('[getGoodById] 处理后的商品数据:', good);
-            console.log('[getGoodById] 库存信息:', {
-              repertory: good.repertory,
-              repertory_type: typeof good.repertory,
-              repertory_original: response.good.repertory
-            });
             
             resolve(good);
           } else {
@@ -240,7 +230,7 @@ export function getGoodsByTag(goodTag, userId = 0) {
       header: headers,
       timeout: 10000,
       success: (res) => {
-        console.log('根据标签获取商品列表成功:', res);
+
         if (res.statusCode >= 200 && res.statusCode < 300) {
           const response = res.data;
           if (response.code === 200) {

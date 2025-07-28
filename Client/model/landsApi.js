@@ -91,7 +91,6 @@ export function getAllLandsApi(params = {}) {
 
         if (res.statusCode >= 200 && res.statusCode < 300) {
           const response = res.data;
-          console.log('[getAllLandsApi] 响应数据:', response);
           if (response.code === 200) {
             
             if (!response.lands_list) {

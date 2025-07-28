@@ -3,9 +3,17 @@ export function genPicURL(fileID) {
     wx.cloud.getTempFileURL({
       fileList: [fileID],
       success: res => {
-        resolve(res.fileList[0].tempFileURL); // 只取一个 URL 返回
+        if (res.fileList && res.fileList[0] && res.fileList[0].tempFileURL) {
+          resolve(res.fileList[0].tempFileURL);
+        } else {
+          console.error('[genPicURL] 返回数据格式错误或URL为空:', res);
+          reject(new Error('返回数据格式错误或URL为空'));
+        }
       },
-      fail: reject
+      fail: error => {
+        console.error('[genPicURL] 获取失败:', error);
+        reject(error);
+      }
     });
   });
 }

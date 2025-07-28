@@ -2,7 +2,9 @@ import {
   fetchUserCenter
 } from '../../services/usercenter/fetchUsercenter';
 import Toast from 'tdesign-miniprogram/toast/index';
-import { genPicURL } from '../../utils/genURL';
+import {
+  genPicURL
+} from '../../utils/genURL';
 
 const menuData = [
   [{
@@ -82,20 +84,27 @@ const orderTagInfos = [{
   },
 ];
 
-const getDefaultData = () => ({
-  showMakePhone: false,
-  userInfo: {
-    avatarUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/usercenter/微信图片_20250318105208.jpg',
-    nickName: 'QZFarm',
-    phoneNumber: '',
-  },
-  menuData,
-  orderTagInfos,
-  customerServiceInfo: {},
-  currAuthStep: 1,
-  showKefu: true,
-  versionNo: '',
-});
+const getDefaultData = () => {
+  const app = getApp();
+  console.log('[getDefaultData] app:', app);
+  console.log('[getDefaultData] app.globalData:', app.globalData);
+  console.log('[getDefaultData] app.globalData.userInfo:', app.globalData.userInfo);
+  
+  return {
+    showMakePhone: false,
+    userInfo: {
+      avatarUrl: app.globalData.userInfo?.avatar || 'http://tmp/j7Lzt6rRFF03aee2ac14977047342291b43da5a4dfae.jpg',
+      nickName: app.globalData.userInfo?.nickname || '',
+      phoneNumber: app.globalData.userInfo?.phone_number || '',
+    },
+    menuData,
+    orderTagInfos,
+    customerServiceInfo: {},
+    currAuthStep: 1,
+    showKefu: true,
+    versionNo: '',
+  };
+};
 
 Page({
   data: getDefaultData(),
@@ -105,6 +114,7 @@ Page({
   },
 
   onShow() {
+    console.log('[onShow] 用户中心页面显示');
     this.getTabBar().init();
     this.init();
     this.refreshUserInfo();
@@ -118,6 +128,7 @@ Page({
   },
 
   fetUseriInfoHandle() {
+    console.log('[fetUseriInfoHandle] 开始获取用户信息');
     fetchUserCenter().then(
       ({
         userInfo,
@@ -125,6 +136,7 @@ Page({
         orderTagInfos: orderInfo,
         customerServiceInfo,
       }) => {
+        console.log('[fetUseriInfoHandle] 获取到的用户信息:', userInfo);
         // eslint-disable-next-line no-unused-expressions
         menuData?.[0].forEach((v) => {
           countsData.forEach((counts) => {
@@ -134,7 +146,7 @@ Page({
             }
           });
         });
-        
+
         // 为每个订单图标获取临时URL
         const processOrderIcons = async () => {
           const info = orderTagInfos.map((v, index) => {
@@ -144,7 +156,7 @@ Page({
             };
             return item;
           });
-          
+
           // 转换所有图标URL
           const iconPromises = info.map(async (item) => {
             if (item.iconUrl) {
@@ -157,13 +169,14 @@ Page({
             }
             return item;
           });
-          
+
           const processedInfo = await Promise.all(iconPromises);
 
           // 修改用户头像和用户名
-          userInfo.avatarUrl = 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/usercenter/微信图片_20250318105208.jpg';
-          userInfo.nickName = 'QZFarm';
+          // userInfo.avatarUrl = 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/usercenter/微信图片_20250318105208.jpg';
+          // userInfo.nickName = 'QZFarm';
 
+          console.log('[fetUseriInfoHandle] 设置用户信息到页面:', userInfo);
           this.setData({
             userInfo,
             menuData,
@@ -173,7 +186,7 @@ Page({
           });
           wx.stopPullDownRefresh();
         };
-        
+
         processOrderIcons();
       },
     );
@@ -298,7 +311,7 @@ Page({
     });
   },
 
-  handleLogout: function() {
+  handleLogout: function () {
     wx.showModal({
       title: '提示',
       content: '确定要退出登录吗？',
@@ -308,17 +321,17 @@ Page({
           // 清除本地存储的用户信息和登录态
           wx.removeStorageSync('userInfo');
           wx.removeStorageSync('token');
-          
+
           // 更新全局状态
           const app = getApp();
           app.globalData.isLoggedIn = false;
           app.globalData.userInfo = null;
-          
+
           // 跳转到登录页面
           wx.reLaunch({
             url: '/pages/login/login'
           });
-          
+
           wx.showToast({
             title: '已退出登录',
             icon: 'success',
@@ -329,16 +342,24 @@ Page({
     });
   },
 
-  refreshUserInfo: function() {
+    refreshUserInfo: function () {
+    console.log('[refreshUserInfo] 开始刷新用户信息');
     const app = getApp();
+    console.log('[refreshUserInfo] app:', app);
+    console.log('[refreshUserInfo] app.globalData:', app.globalData);
+    console.log('[refreshUserInfo] app.globalData.userInfo:', app.globalData.userInfo);
+    
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
+    console.log('[refreshUserInfo] 获取到的用户信息:', userInfo);
     
     if (userInfo) {
+      console.log('[refreshUserInfo] 设置用户信息:', userInfo);
       this.setData({
         userInfo: userInfo,
         isLoggedIn: true
       });
     } else {
+      console.log('[refreshUserInfo] 没有用户信息，设置为空');
       this.setData({
         userInfo: {},
         isLoggedIn: false

@@ -31,11 +31,9 @@ Page({
 
   handleFilterChange(e) {
     const { layout, overall, sorts } = e.detail;
-    console.log('[handleFilterChange] 过滤条件变更:', e.detail);
     
     // 防止重复触发 - 检查排序条件是否真的变化了
     if (sorts === this.data.sorts && overall === this.data.overall) {
-      console.log('[handleFilterChange] 排序条件未变化，不执行操作');
       return;
     }
     
@@ -59,14 +57,6 @@ Page({
   generalQueryData(reset = false) {
     const { filter, keywords, minVal, maxVal, groupId, sorts, overall } = this.data;
     const { pageNum, pageSize } = this;
-    
-    console.log('[generalQueryData] 当前过滤条件:', { 
-      filter, 
-      sorts, 
-      overall, 
-      minVal, 
-      maxVal 
-    });
     
     const params = {
       sort: 0, // 0 综合，1 价格
@@ -95,8 +85,6 @@ Page({
     if (maxVal) {
       params.maxPrice = parseFloat(maxVal) * 100; // 转换为分
     }
-    
-    console.log('[generalQueryData] 生成查询参数:', params);
     
     if (reset) return params;
     return {
@@ -158,29 +146,17 @@ Page({
       this.setData({ loadMoreStatus: 1, loading: true });
       
       try {
-        console.log('[init] 开始根据标签获取土地列表, 标签:', groupId);
-        console.log('[init] 当前数据状态:', {
-          loadMoreStatus,
-          groupId,
-          hasGroupId: !!groupId
-        });
-        
         // 使用分类名称作为标签来获取土地
         let landsList;
         if (groupId) {
           // 如果有标签，使用标签获取土地
-          console.log('[init] 调用getLandsByTag，参数:', { groupId, userId: 0 });
           landsList = await getLandsByTag(groupId, 0);
-          console.log('[init] getLandsByTag返回结果:', landsList);
         } else {
           // 如果没有标签，获取所有土地
-          console.log('[init] 没有标签，获取所有土地');
           const { getAllLandsApi } = require('../../../model/landsApi');
           const response = await getAllLandsApi({ user_id: 0 });
           landsList = response.lands_list || [];
         }
-        
-        console.log('[init] 获取到土地列表:', landsList);
         
         if (Array.isArray(landsList)) {
           const totalCount = landsList.length;
@@ -205,10 +181,6 @@ Page({
             if (item.image_urls && item.image_urls.length > 0) {
               try {
                 thumbUrl = await genPicURL(item.image_urls[0]);
-                console.log('[init] 图片URL转换成功:', {
-                  original: item.image_urls[0],
-                  converted: thumbUrl
-                });
               } catch (error) {
                 console.error('[init] 图片URL转换失败:', error);
                 thumbUrl = item.image_urls[0]; // 转换失败时使用原始URL
@@ -238,7 +210,6 @@ Page({
           
           this.pageNum = 1;
           this.total = totalCount;
-          console.log('[init] 最终设置的土地列表:', sortedList);
           this.setData({
             landsList: sortedList,
             loadMoreStatus: sortedList.length === totalCount ? 2 : 0,
@@ -290,11 +261,7 @@ Page({
       }
     }
     
-    console.log('[onLoad] 加载土地列表页面:', {
-      originalTag: tag,
-      originalGroupId: groupId,
-      decodedTag: landTag
-    });
+
     
     this.setData({ groupId: landTag }, () => {
       this.init(true);
@@ -334,9 +301,6 @@ Page({
 
   gotoLandDetail(e) {
     const { index } = e.detail;
-    console.log('[gotoLandDetail] 点击事件:', e);
-    console.log('[gotoLandDetail] 点击的索引:', index);
-    console.log('[gotoLandDetail] 当前landsList:', this.data.landsList);
     
     if (!this.data.landsList || !this.data.landsList[index]) {
       console.error('[gotoLandDetail] 数据不存在，index:', index, 'landsList长度:', this.data.landsList?.length);
@@ -344,10 +308,7 @@ Page({
     }
     
     const landItem = this.data.landsList[index];
-    console.log('[gotoLandDetail] 点击的土地项:', landItem);
-    
     const { land_id } = landItem;
-    console.log('[gotoLandDetail] 土地ID:', land_id);
     
     if (!land_id) {
       console.error('[gotoLandDetail] land_id不存在');

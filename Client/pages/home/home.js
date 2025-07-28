@@ -103,8 +103,6 @@ Page({
   },
 
   tabChangeHandle(e) {
-    // 增加调试输出，确认tab索引类型
-    console.log('[tabChangeHandle] e.detail:', e.detail, typeof e.detail);
     const tabIndex = Number(e.detail.value); // 取value字段
     this.privateData.tabIndex = tabIndex;
     this.setData({
@@ -150,8 +148,7 @@ Page({
       });
       this.goodListPagination.index = pageIndex;
       this.goodListPagination.num = pageSize;
-      // 调试输出
-      console.log('[loadGoodsList] goodsList:', this.data.goodsList);
+
     } catch (err) {
       this.setData({
         goodsListLoadStatus: 3
@@ -184,8 +181,7 @@ Page({
       });
       this.landListPagination.index = pageIndex;
       this.landListPagination.num = pageSize;
-      // 调试输出
-      console.log('[loadLandsList] landsList:', this.data.landsList);
+
     } catch (err) {
       this.setData({
         landsListLoadStatus: 3
@@ -209,9 +205,6 @@ Page({
     const {
       index
     } = e.detail;
-    console.log('[landListClickHandle] 点击事件:', e);
-    console.log('[landListClickHandle] 点击的索引:', index);
-    console.log('[landListClickHandle] 当前landsList:', this.data.landsList);
     
     if (!this.data.landsList || !this.data.landsList[index]) {
       console.error('[landListClickHandle] 数据不存在，index:', index, 'landsList长度:', this.data.landsList?.length);
@@ -223,9 +216,7 @@ Page({
     }
     
     const landItem = this.data.landsList[index];
-    console.log('[landListClickHandle] 点击的土地项:', landItem);
     const { land_id } = landItem;
-    console.log('[landListClickHandle] 土地ID:', land_id);
     
     if (!land_id) {
       console.error('[landListClickHandle] land_id不存在');

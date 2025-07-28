@@ -427,7 +427,7 @@ Page({
         return;
       }
       
-      console.log('[getDetail] 获取到土地数据:', details);
+
       
       const skuArray = [];
       const {
@@ -521,7 +521,6 @@ Page({
 
   async getCommentsList() {
     // 暂时注释掉评论功能，等后端接口完成后再启用
-    console.log('[getCommentsList] 评论功能暂时禁用');
     this.setData({
       commentsList: []
     });

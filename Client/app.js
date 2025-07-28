@@ -76,11 +76,14 @@ App({
     updateManager();
   },
   checkLoginStatus: function () {
+    console.log('[checkLoginStatus] 开始检查登录状态');
     const userInfo = wx.getStorageSync('userInfo');
+    console.log('[checkLoginStatus] 从本地存储获取的用户信息:', userInfo);
 
     // 全局状态设置
     this.globalData.isLoggedIn = !!userInfo;
     this.globalData.userInfo = userInfo || null;
+    console.log('[checkLoginStatus] 设置后的全局数据:', this.globalData);
   },
   checkLogin: function () {
     if (!this.globalData.isLoggedIn) {

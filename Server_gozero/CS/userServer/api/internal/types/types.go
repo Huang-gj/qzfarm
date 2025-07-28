@@ -28,10 +28,20 @@ type RegisterResponse struct {
 	Msg  string `json:"msg"`
 }
 
+type UpdateUserInfoRequest struct {
+	Userinfo UserInfo `json:"user_info"`
+}
+
+type UpdateUserInfoResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
 type UserInfo struct {
 	UserID      int    `json:"user_id"`
 	PhoneNumber string `json:"phone_number"`
 	Avatar      string `json:"avatar"`
 	NickName    string `json:"nickname"`
 	Address     string `json:"address"`
+	Gender      int    `json:"gender"`
 }

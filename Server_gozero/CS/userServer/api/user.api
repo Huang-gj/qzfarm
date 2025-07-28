@@ -31,6 +31,7 @@ type UserInfo {
 	Avatar      string `json:"avatar"`
 	NickName    string `json:"nickname"`
 	Address     string `json:"address"`
+	Gender      int    `json:"gender"`
 }
 
 type LoginResponse {
@@ -42,6 +43,15 @@ type LoginResponse {
 	RefreshAfter int      `json:"refreshAfter"`
 }
 
+type UpdateUserInfoRequest {
+	userinfo UserInfo `json:"user_info"`
+}
+
+type UpdateUserInfoResponse {
+	Code int    `json:"code"`
+	msg  string `json:"msg"`
+}
+
 @server (
 	prefix: api
 )
@@ -51,5 +61,8 @@ service user-api {
 
 	@handler LoginHandler
 	post /userLogin (LoginRequest) returns (LoginResponse)
+
+	@handler UploadUserInfoHandler
+	post /uploadUserInfo (UpdateUserInfoRequest) returns (UpdateUserInfoResponse)
 }
 

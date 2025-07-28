@@ -28,7 +28,7 @@ type (
 		Insert(ctx context.Context, data *User) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*User, error)
 		FindOneByPhoneNumber(ctx context.Context, phoneNumber string) (*User, error)
-		Update(ctx context.Context, data *User) error
+		UpdateUserInfo(ctx context.Context, data *User) error
 		Delete(ctx context.Context, id int64) error
 	}
 
@@ -85,11 +85,29 @@ func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, 
 	return ret, err
 }
 
-func (m *defaultUserModel) Update(ctx context.Context, data *User) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.DelState, data.DelTime, data.UserId, data.PhoneNumber, data.Password, data.Avatar, data.Nickname, data.Address, data.Gender, data.Id)
+func (m *defaultUserModel) UpdateUserInfo(ctx context.Context, data *User) error {
+	query := fmt.Sprintf(`UPDATE %s 
+		SET del_state = ?, 
+		    phone_number = ?, 
+		    avatar = ?, 
+		    nickname = ?, 
+		    address = ?, 
+		    gender = ? 
+		WHERE user_id = ?`, m.table)
+
+	_, err := m.conn.ExecCtx(ctx, query,
+		data.DelState,
+		data.PhoneNumber,
+		data.Avatar,
+		data.Nickname,
+		data.Address,
+		data.Gender,
+		data.UserId,
+	)
+
 	return err
 }
+
 
 func (m *defaultUserModel) FindOneByPhoneNumber(ctx context.Context, phoneNumber string) (*User, error) {
 	query := fmt.Sprintf("SELECT %s FROM %s WHERE phone_number = ? LIMIT 1", userRows, m.table)

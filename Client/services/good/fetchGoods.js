@@ -5,15 +5,11 @@ import { genPicURL } from '../../utils/genURL';
 
 /** 获取商品列表 */
 async function fetchGoodsListFromApi(pageIndex = 1, pageSize = 20) {
-  console.log('[fetchGoodsListFromApi] 开始获取商品列表, 页码:', pageIndex, '每页数量:', pageSize);
-
   try {
     // 调用API获取所有商品数据
     const response = await getAllGoodsApi({
       user_id: 0
     }); // 暂时使用默认用户ID
-
-    // 添加调试信息
 
 
     // 确保goods_list是数组
@@ -37,10 +33,6 @@ async function fetchGoodsListFromApi(pageIndex = 1, pageSize = 20) {
       if (Array.isArray(item.image_urls) && item.image_urls.length > 0) {
         try {
           thumbUrl = await genPicURL(item.image_urls[0]);
-          console.log('[fetchGoodsListFromApi] 图片URL转换成功:', {
-            original: item.image_urls[0],
-            converted: thumbUrl
-          });
         } catch (error) {
           console.error('[fetchGoodsListFromApi] 图片URL转换失败:', error);
           thumbUrl = item.image_urls[0]; // 转换失败时使用原始URL
@@ -89,14 +81,10 @@ async function fetchGoodsListFromApi(pageIndex = 1, pageSize = 20) {
           }]
         }]
       };
-      
-      // 打印每一个商品信息
-      console.log('[fetchGoodsListFromApi] 商品信息:', processedItem);
 
       return processedItem;
     }));
 
-    console.log('[fetchGoodsListFromApi] 成功处理商品列表, 数量:', goodsList.length);
     return goodsList;
   } catch (error) {
     console.error('[fetchGoodsListFromApi] 处理失败:', error);
@@ -107,9 +95,6 @@ async function fetchGoodsListFromApi(pageIndex = 1, pageSize = 20) {
 
 /** 获取商品列表 */
 export function fetchGoodsList(pageIndex = 1, pageSize = 20) {
-  console.log('[fetchGoodsList] 开始调用, 页码:', pageIndex, '每页数量:', pageSize);
-
   // 直接使用API获取数据
-  console.log('[fetchGoodsList] 使用真实 API');
   return fetchGoodsListFromApi(pageIndex, pageSize);
 }

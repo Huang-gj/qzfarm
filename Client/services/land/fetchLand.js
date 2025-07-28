@@ -27,7 +27,7 @@ export async function fetchLand(landId) {
       return null;
     }
     
-    console.log('[fetchLand] 获取到土地数据:', land);
+
     
     // 转换图片URL
     let primaryImageUrl = '';
@@ -117,7 +117,6 @@ export async function fetchLand(landId) {
       sale_time: land.sale_time
     };
     
-    console.log('[fetchLand] 转换后的土地数据:', convertedLand);
     return convertedLand;
     
   } catch (error) {

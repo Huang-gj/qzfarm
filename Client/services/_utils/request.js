@@ -28,13 +28,15 @@ export function request(options = {}) {
     const baseUrl = 'http://localhost:8889'; // 开发阶段写死
     const url = options.url.startsWith('http') ? options.url : `${baseUrl}${options.url}`;
 
-    console.log('发送请求:', {
+
+
+    console.log('[request] 发送请求:', {
       url: url,
       method: options.method || 'GET',
-      headers: headers,
-      data: options.data || {}
+      data: options.data || {},
+      header: headers
     });
-
+    
     wx.request({
       url: url,
       method: options.method || 'GET',
@@ -42,7 +44,7 @@ export function request(options = {}) {
       header: headers,
       timeout: options.timeout || 10000,
       success: (res) => {
-        console.log('请求成功:', res);
+
         // 检查响应状态码
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data);

@@ -5,17 +5,11 @@ import { genPicURL } from '../../utils/genURL';
 
 /** 获取土地列表 */
 async function fetchLandsListFromApi(pageIndex = 1, pageSize = 20) {
-  console.log('[fetchLandsListFromApi] 开始获取土地列表, 页码:', pageIndex, '每页数量:', pageSize);
-
   try {
     // 调用API获取所有土地数据
     const response = await getAllLandsApi({
       user_id: 0
     }); // 暂时使用默认用户ID
-
-    console.log('[fetchLandsListFromApi] API响应:', response);
-    console.log('[fetchLandsListFromApi] response.lands_list:', response.lands_list);
-    console.log('[fetchLandsListFromApi] response.lands_list类型:', typeof response.lands_list);
 
     // 确保lands_list是数组
     if (!response || !response.lands_list) {
@@ -34,41 +28,24 @@ async function fetchLandsListFromApi(pageIndex = 1, pageSize = 20) {
     const endIndex = startIndex + pageSize;
     const paginatedLands = response.lands_list.slice(startIndex, endIndex);
 
-    console.log('[fetchLandsListFromApi] 分页后的土地数据:', paginatedLands);
-    console.log('[fetchLandsListFromApi] 分页数据长度:', paginatedLands.length);
-
     // 处理土地列表数据，转换为前端需要的格式
     const landsList = await Promise.all(paginatedLands.map(async (item, index) => {
-      console.log(`[fetchLandsListFromApi] 处理第${index}个土地项:`, item);
       // 转换图片URL
       let thumbUrl = '';
-      console.log(`[fetchLandsListFromApi] 第${index}个土地项的image_urls:`, item.image_urls);
       
-      if (item.image_urls && Array.isArray(item.image_urls) && item.image_urls.length > 0) {
-        try {
-          thumbUrl = await genPicURL(item.image_urls[0]);
-          console.log('[fetchLandsListFromApi] 图片URL转换成功:', {
-            original: item.image_urls[0],
-            converted: thumbUrl
-          });
-        } catch (error) {
-          console.error('[fetchLandsListFromApi] 图片URL转换失败:', error);
-          thumbUrl = item.image_urls[0]; // 转换失败时使用原始URL
+              if (item.image_urls && Array.isArray(item.image_urls) && item.image_urls.length > 0) {
+          try {
+            thumbUrl = await genPicURL(item.image_urls[0]);
+          } catch (error) {
+            console.error('[fetchLandsListFromApi] 图片URL转换失败:', error);
+            thumbUrl = item.image_urls[0]; // 转换失败时使用原始URL
+          }
         }
-      } else {
-        console.log(`[fetchLandsListFromApi] 第${index}个土地项没有图片或图片格式不正确`);
-      }
 
       // 基于 sale_status 字段计算可用状态
       const saleStatus = item.sale_status || 0;
       const hasArea = saleStatus === 0; // 0-出售中 1-已被租赁
       const isSoldOut = saleStatus === 1; // 已被租赁
-      
-      console.log(`[fetchLandsListFromApi] 第${index}个土地项的租赁状态:`, {
-        sale_status: saleStatus,
-        hasArea: hasArea,
-        isSoldOut: isSoldOut
-      });
       
       const processedItem = {
         // 原有渲染需要的字段
@@ -109,15 +86,10 @@ async function fetchLandsListFromApi(pageIndex = 1, pageSize = 20) {
           }]
         }]
       };
-      
-      // 打印每一个土地信息
-      console.log(`[fetchLandsListFromApi] 第${index}个土地项处理完成:`, processedItem);
 
       return processedItem;
     }));
 
-    console.log('[fetchLandsListFromApi] 所有土地项处理完成，最终结果:', landsList);
-    console.log('[fetchLandsListFromApi] 成功处理土地列表, 数量:', landsList.length);
     return landsList;
   } catch (error) {
     console.error('[fetchLandsListFromApi] 处理失败:', error);
@@ -128,9 +100,6 @@ async function fetchLandsListFromApi(pageIndex = 1, pageSize = 20) {
 
 /** 获取土地列表 */
 export function fetchLandsList(pageIndex = 1, pageSize = 20) {
-  console.log('[fetchLandsList] 开始调用, 页码:', pageIndex, '每页数量:', pageSize);
-
   // 直接使用API获取数据
-  console.log('[fetchLandsList] 使用真实 API');
   return fetchLandsListFromApi(pageIndex, pageSize);
 } 

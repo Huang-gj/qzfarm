@@ -79,16 +79,27 @@ Page({
 
 
           // 更新全局状态
-          // console.log(res.data)
+          console.log('[handleLogin] 登录成功，设置全局数据');
+          console.log('[handleLogin] 原始响应数据:', res.data);
+          console.log('[handleLogin] 用户信息:', res.data.user_info);
+
           app.globalData.isLoggedIn = true;
-          app.globalData.userInfo = {
+          const userInfo = {
             user_id: res.data.user_info.user_id,
             phone_number: res.data.user_info.phone_number,
             nickname: res.data.user_info.nickname,
-            avatar: res.data.user_info.avatar,
+            avatar: res.data.user_info.avatar || 'http://tmp/j7Lzt6rRFF03aee2ac14977047342291b43da5a4dfae.jpg',
             address: res.data.user_info.address,
-
+            gender: res.data.user_info.gender
           };
+
+          app.globalData.userInfo = userInfo;
+
+          // 保存到本地存储
+          wx.setStorageSync('userInfo', userInfo);
+
+          console.log('[handleLogin] 设置后的全局数据:', app.globalData);
+          console.log('[handleLogin] 保存到本地存储:', userInfo);
 
           // 显示成功提示后跳转
           wx.showToast({

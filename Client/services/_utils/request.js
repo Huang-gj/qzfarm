@@ -10,7 +10,7 @@
  * @param {number} options.timeout - 超时时间
  * @returns {Promise} 请求结果
  */
-export function request(options = {}) {
+function request(options = {}) {
   return new Promise((resolve, reject) => {
     // 获取存储的token
     const tokenData = wx.getStorageSync('token');
@@ -19,16 +19,14 @@ export function request(options = {}) {
       ...options.header
     };
 
-    // 如果有token，添加到请求头
-    if (tokenData && tokenData.accessToken) {
+    // 如果有token且请求头中没有Authorization，才添加
+    if (tokenData && tokenData.accessToken && !headers['Authorization']) {
       headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
     }
 
     // 构建完整的URL - 开发阶段写死后端地址
     const baseUrl = 'http://localhost:8889'; // 开发阶段写死
     const url = options.url.startsWith('http') ? options.url : `${baseUrl}${options.url}`;
-
-
 
     console.log('[request] 发送请求:', {
       url: url,
@@ -68,7 +66,7 @@ export function request(options = {}) {
  * @param {Object} options - 其他选项
  * @returns {Promise}
  */
-export function get(url, params = {}, options = {}) {
+function get(url, params = {}, options = {}) {
   // 将参数转换为查询字符串
   const queryString = Object.keys(params)
     .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
@@ -90,7 +88,7 @@ export function get(url, params = {}, options = {}) {
  * @param {Object} options - 其他选项
  * @returns {Promise}
  */
-export function post(url, data = {}, options = {}) {
+function post(url, data = {}, options = {}) {
   return request({
     url: url,
     method: 'POST',
@@ -106,7 +104,7 @@ export function post(url, data = {}, options = {}) {
  * @param {Object} options - 其他选项
  * @returns {Promise}
  */
-export function put(url, data = {}, options = {}) {
+function put(url, data = {}, options = {}) {
   return request({
     url: url,
     method: 'PUT',
@@ -121,10 +119,18 @@ export function put(url, data = {}, options = {}) {
  * @param {Object} options - 其他选项
  * @returns {Promise}
  */
-export function del(url, options = {}) {
+function del(url, options = {}) {
   return request({
     url: url,
     method: 'DELETE',
     ...options
   });
-} 
+}
+
+module.exports = {
+  request,
+  get,
+  post,
+  put,
+  del
+}; 

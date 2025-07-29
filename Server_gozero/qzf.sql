@@ -100,7 +100,7 @@ CREATE TABLE `good_order`
     del_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
     good_order_id INT          NOT NULL COMMENT '分布式唯一ID',
-    image_urls  TEXT COMMENT '图片信息',
+    image_urls    TEXT COMMENT '图片信息',
     good_id       INT          NOT NULL COMMENT '关联商品名称',
     farm_id       INT          NOT NULL COMMENT '商品所属农场id',
     user_id       INT          NOT NULL COMMENT '关联用户id',
@@ -109,8 +109,8 @@ CREATE TABLE `good_order`
     price         FLOAT        NOT NULL DEFAULT 0.0 COMMENT '价格',
     units         VARCHAR(10)  NOT NULL DEFAULT '' COMMENT '单位,个/斤/千克等',
     count         INT          NOT NULL DEFAULT 0 COMMENT '购买数量',
-    detail        TEXT COMMENT '详情'
-
+    detail        TEXT COMMENT '详情',
+    order_status VARCHAR(10) NOT NULL COMMENT '订单状态'
 
 )ENGINE = InnoDB
 CHARACTER SET = utf8mb4
@@ -126,15 +126,15 @@ CREATE TABLE `land_order`
     del_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
     land_order_id INT          NOT NULL COMMENT '分布式唯一ID',
-    image_urls  TEXT COMMENT '图片信息',
+    image_urls    TEXT COMMENT '图片信息',
     land_id       INT          NOT NULL COMMENT '关联土地名称',
     farm_id       INT          NOT NULL COMMENT '商品所属农场id',
-    user_id       VARCHAR(128) NOT NULL COMMENT '关联用户id',
+    user_id       INT          NOT NULL COMMENT '关联用户id',
     farm_address  VARCHAR(128) NOT NULL COMMENT '农场所在地址',
     price         FLOAT        NOT NULL DEFAULT 0.0 COMMENT '价格',
     count         INT          NOT NULL DEFAULT 0 COMMENT '租赁时长',
-    detail        TEXT COMMENT '详情'
-
+    detail        TEXT COMMENT '详情',
+    order_status VARCHAR(10) NOT NULL COMMENT '订单状态'
 )ENGINE = InnoDB
 CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci

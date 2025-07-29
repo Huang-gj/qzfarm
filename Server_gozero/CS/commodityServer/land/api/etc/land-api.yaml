@@ -6,7 +6,7 @@ Log:
   ServiceName: "LandClient-srv"
   Mode: file
   Encoding: json
-  Path: logs
+  Path: logs/Land
   Level: debug
   Stat: true
 

@@ -12,7 +12,7 @@ Log:
   ServiceName: "idClient-srv"
   Mode: file
   Encoding: json
-  Path: logs
+  Path: logs/user
   Level: debug
   Stat: true
 

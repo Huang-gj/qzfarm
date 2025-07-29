@@ -11,6 +11,9 @@ import {
   getCartCount
 } from '../../../services/cart/cart';
 // import {
+//   addLandOrder
+// } from '../../../services/order/addLandOrder';
+// import {
 //   getLandDetailsCommentList,
 //   getLandDetailsCommentsCount,
 // } from '../../../services/land/fetchLandDetails';
@@ -21,6 +24,9 @@ import {
 import {
   cdnBase
 } from '../../../config/index';
+
+// 使用require方式导入
+const { addLandOrder } = require('../../../services/order/addLandOrder');
 
 const imgPrefix = `${cdnBase}/`;
 
@@ -273,22 +279,45 @@ Page({
       return;
     }
 
-    // 准备添加到购物车的商品信息
-    const goodsInfo = {
-      good_id: details.good_id || details.good_id, // 优先使用good_id，兼容原有good_id
-      skuId: selectItem.skuId,
-      title: details.title,
-      price: selectItem.price || details.minSalePrice,
-      originPrice: details.maxLinePrice,
-      primaryImage: details.primaryImage,
-      quantity: buyNum,
-      stockQuantity: selectItem.quantity,
-      specInfo: selectItem.specInfo || []
+    // 获取用户信息
+    const app = getApp();
+    const userInfo = app.globalData.userInfo;
+    if (!userInfo || !userInfo.user_id) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '请先登录',
+        icon: 'error',
+        duration: 2000,
+      });
+      return;
+    }
+
+    // 准备土地订单数据
+    const orderData = {
+      land_id: details.land_id || details.id, // 兼容不同的字段名
+      farm_id: details.farm_id || 1,
+      user_id: userInfo.user_id,
+      farm_address: details.farm_address || '',
+      price: selectItem.price || details.minSalePrice || details.price || 0,
+      count: buyNum, // 租赁时长（月数）
+      detail: details.detail || details.title || '',
+      image_urls: details.image_urls || details.primaryImage || ''
     };
 
-    // 调用添加到购物车服务
-    addToCart(goodsInfo).then(res => {
-      if (res.code === 'Success') {
+    console.log('[addCart] 准备添加土地订单:', orderData);
+    console.log('[addCart] 土地详情数据:', details);
+    console.log('[addCart] 选择的规格:', selectItem);
+    console.log('[addCart] 用户信息:', userInfo);
+
+    // 调用添加土地订单API
+    addLandOrder(orderData).then(res => {
+      console.log('[addCart] API响应:', res);
+      
+      if (res.code === 200) {
+        // 同时添加到本地购物车
+        this.addToLocalCart(details, selectItem, buyNum);
+        
         Toast({
           context: this,
           selector: '#t-toast',
@@ -306,13 +335,13 @@ Page({
         Toast({
           context: this,
           selector: '#t-toast',
-          message: '加入购物车失败',
+          message: res.msg || '加入购物车失败',
           icon: 'close-circle',
           duration: 1000,
         });
       }
     }).catch(err => {
-      console.error('加入购物车失败:', err);
+      console.error('[addCart] 加入购物车失败:', err);
       Toast({
         context: this,
         selector: '#t-toast',
@@ -320,6 +349,36 @@ Page({
         icon: 'close-circle',
         duration: 1000,
       });
+    });
+  },
+
+  // 添加到本地购物车
+  addToLocalCart(details, selectItem, buyNum) {
+    // 准备添加到购物车的土地信息
+    const goodsInfo = {
+      good_id: details.land_id || details.id, // 使用land_id作为good_id
+      skuId: selectItem.skuId || details.land_id || details.id,
+      title: details.title || `土地${details.land_id}`,
+      price: selectItem.price || details.minSalePrice || details.price || 0,
+      originPrice: details.maxLinePrice || details.price || 0,
+      primaryImage: details.primaryImage || details.image_urls,
+      quantity: buyNum,
+      stockQuantity: 999, // 土地库存设为较大值
+      specInfo: selectItem.specInfo || [{
+        specTitle: '租赁时长',
+        specValue: `${buyNum}个月`
+      }]
+    };
+
+    // 调用本地购物车服务
+    addToCart(goodsInfo).then(res => {
+      if (res.code === 'Success') {
+        console.log('[addToLocalCart] 本地购物车添加成功');
+      } else {
+        console.error('[addToLocalCart] 本地购物车添加失败:', res);
+      }
+    }).catch(err => {
+      console.error('[addToLocalCart] 本地购物车添加失败:', err);
     });
   },
 

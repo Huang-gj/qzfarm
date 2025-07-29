@@ -9,10 +9,6 @@ function mockFetchGoodCategory() {
 
 /** 获取商品列表 */
 export function getCategoryList() {
-  if (config.useMock) {
-    return mockFetchGoodCategory();
-  }
-  return new Promise((resolve) => {
-    resolve('real api');
-  });
+  // 暂时总是使用mock数据，因为真实API还没有实现
+  return mockFetchGoodCategory();
 }

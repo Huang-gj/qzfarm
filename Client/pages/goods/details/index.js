@@ -10,6 +10,9 @@ import {
   updateCartNum,
   getCartCount
 } from '../../../services/cart/cart';
+// import {
+//   addGoodOrder
+// } from '../../../services/order/addGoodOrder';
 import {
   getGoodsDetailsCommentList,
   getGoodsDetailsCommentsCount,
@@ -21,6 +24,13 @@ import {
 import {
   cdnBase
 } from '../../../config/index';
+
+// 使用require方式导入
+const { addGoodOrder } = require('../../../services/order/addGoodOrder');
+
+// 添加调试信息
+console.log('[goods/details] addGoodOrder函数:', typeof addGoodOrder);
+console.log('[goods/details] addGoodOrder函数内容:', addGoodOrder);
 
 const imgPrefix = `${cdnBase}/`;
 
@@ -273,22 +283,62 @@ Page({
       return;
     }
 
-    // 准备添加到购物车的商品信息
-    const goodsInfo = {
-      good_id: details.good_id || details.good_id, // 优先使用good_id，兼容原有good_id
-      skuId: selectItem.skuId,
-      title: details.title,
-      price: selectItem.price || details.minSalePrice,
-      originPrice: details.maxLinePrice,
-      primaryImage: details.primaryImage,
-      quantity: buyNum,
-      stockQuantity: selectItem.quantity,
-      specInfo: selectItem.specInfo || []
+    // 获取用户信息
+    const app = getApp();
+    const userInfo = app.globalData.userInfo;
+    if (!userInfo || !userInfo.user_id) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '请先登录',
+        icon: 'error',
+        duration: 2000,
+      });
+      return;
+    }
+
+    // 准备订单数据
+    const orderData = {
+      good_id: details.good_id || details.id, // 兼容不同的字段名
+      farm_id: details.farm_id || 1,
+      user_id: userInfo.user_id,
+      user_address: userInfo.address || '',
+      farm_address: details.farm_address || '',
+      price: selectItem.price || details.minSalePrice || details.price || 0,
+      units: selectItem.units || details.units || '个',
+      count: buyNum,
+      detail: details.detail || details.title || '',
+      image_urls: details.image_urls || details.primaryImage || ''
     };
 
-    // 调用添加到购物车服务
-    addToCart(goodsInfo).then(res => {
-      if (res.code === 'Success') {
+    console.log('[addCart] 准备添加商品订单:', orderData);
+    console.log('[addCart] 商品详情数据:', details);
+    console.log('[addCart] 选择的规格:', selectItem);
+    console.log('[addCart] 用户信息:', userInfo);
+    console.log('[addCart] addGoodOrder函数类型:', typeof addGoodOrder);
+    console.log('[addCart] addGoodOrder函数内容:', addGoodOrder);
+
+    // 检查addGoodOrder函数是否存在
+    if (typeof addGoodOrder !== 'function') {
+      console.error('[addCart] addGoodOrder不是函数:', addGoodOrder);
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '系统错误：函数未正确加载',
+        icon: 'error',
+        duration: 2000,
+      });
+      return;
+    }
+
+    // 调用添加商品订单API
+    addGoodOrder(orderData).then(res => {
+      console.log('[addCart] API响应:', res);
+      
+      if (res.code === 200) {
+        // 同时添加到本地购物车
+        this.addToLocalCart(details, selectItem, buyNum);
+        
         Toast({
           context: this,
           selector: '#t-toast',
@@ -306,13 +356,13 @@ Page({
         Toast({
           context: this,
           selector: '#t-toast',
-          message: '加入购物车失败',
+          message: res.msg || '加入购物车失败',
           icon: 'close-circle',
           duration: 1000,
         });
       }
     }).catch(err => {
-      console.error('加入购物车失败:', err);
+      console.error('[addCart] 加入购物车失败:', err);
       Toast({
         context: this,
         selector: '#t-toast',
@@ -320,6 +370,33 @@ Page({
         icon: 'close-circle',
         duration: 1000,
       });
+    });
+  },
+
+  // 添加到本地购物车
+  addToLocalCart(details, selectItem, buyNum) {
+    // 准备添加到购物车的商品信息
+    const goodsInfo = {
+      good_id: details.good_id || details.id,
+      skuId: selectItem.skuId || details.good_id || details.id,
+      title: details.title,
+      price: selectItem.price || details.minSalePrice || details.price || 0,
+      originPrice: details.maxLinePrice || details.price || 0,
+      primaryImage: details.primaryImage || details.image_urls,
+      quantity: buyNum,
+      stockQuantity: selectItem.quantity || details.repertory || 100,
+      specInfo: selectItem.specInfo || []
+    };
+
+    // 调用本地购物车服务
+    addToCart(goodsInfo).then(res => {
+      if (res.code === 'Success') {
+        console.log('[addToLocalCart] 本地购物车添加成功');
+      } else {
+        console.error('[addToLocalCart] 本地购物车添加失败:', res);
+      }
+    }).catch(err => {
+      console.error('[addToLocalCart] 本地购物车添加失败:', err);
     });
   },
 
@@ -471,28 +548,28 @@ Page({
           })) : []
         };
         
-   
         skuArray.push(defaultSku);
       }
       
       const promotionArray = [];
-      activityList.forEach((item) => {
-        promotionArray.push({
-          tag: item.promotionSubCode === 'MYJ' ? '满减' : '满折',
-          label: '满100元减99.9元',
+      // 添加安全检查，确保activityList是数组
+      if (activityList && Array.isArray(activityList)) {
+        activityList.forEach((item) => {
+          promotionArray.push({
+            tag: item.promotionSubCode === 'MYJ' ? '满减' : '满折',
+            label: '满100元减99.9元',
+          });
         });
-      });
+      }
       
       // 基于 repertory 字段判断库存状态
       const stockQuantity = repertory || 0;
       const hasStock = stockQuantity > 0;
       const isSoldOut = stockQuantity <= 0;
       
-     
-      
       this.setData({
         details,
-        activityList,
+        activityList: activityList || [], // 确保activityList不为undefined
         isStock: hasStock,
         maxSalePrice: maxSalePrice ? parseInt(maxSalePrice) : (price ? parseInt(price) : 0),
         maxLinePrice: maxLinePrice ? parseInt(maxLinePrice) : (price ? parseInt(price) : 0),
@@ -524,23 +601,30 @@ Page({
         homePageComments
       } = data;
       if (code.toUpperCase() === 'SUCCESS') {
+        // 添加安全检查，确保homePageComments是数组
+        const commentsList = Array.isArray(homePageComments) ? homePageComments.map((item) => {
+          return {
+            goodsSpu: item.good_id || item.good_id, // 优先使用good_id，兼容原有good_id
+            userName: item.userName || '',
+            commentScore: item.commentScore,
+            commentContent: item.commentContent || '用户未填写评价',
+            userHeadUrl: item.isAnonymity ?
+              this.anonymityAvatar :
+              item.userHeadUrl || this.anonymityAvatar,
+          };
+        }) : [];
+        
         const nextState = {
-          commentsList: homePageComments.map((item) => {
-            return {
-              goodsSpu: item.good_id || item.good_id, // 优先使用good_id，兼容原有good_id
-              userName: item.userName || '',
-              commentScore: item.commentScore,
-              commentContent: item.commentContent || '用户未填写评价',
-              userHeadUrl: item.isAnonymity ?
-                this.anonymityAvatar :
-                item.userHeadUrl || this.anonymityAvatar,
-            };
-          }),
+          commentsList: commentsList,
         };
         this.setData(nextState);
       }
     } catch (error) {
       console.error('comments error:', error);
+      // 设置默认的空评论列表
+      this.setData({
+        commentsList: []
+      });
     }
   },
 
@@ -567,7 +651,7 @@ Page({
     try {
       const code = 'Success';
       const data = await getGoodsDetailsCommentsCount();
-      if (code.toUpperCase() === 'SUCCESS') {
+      if (code.toUpperCase() === 'SUCCESS' && data) {
         const {
           badCount,
           commentCount,
@@ -578,19 +662,30 @@ Page({
         } = data;
         const nextState = {
           commentsStatistics: {
-            badCount: parseInt(`${badCount}`),
-            commentCount: parseInt(`${commentCount}`),
-            goodCount: parseInt(`${goodCount}`),
+            badCount: parseInt(`${badCount || 0}`),
+            commentCount: parseInt(`${commentCount || 0}`),
+            goodCount: parseInt(`${goodCount || 0}`),
             /** 后端返回百分比后数据但没有限制位数 */
-            goodRate: Math.floor(goodRate * 10) / 10,
-            hasImageCount: parseInt(`${hasImageCount}`),
-            middleCount: parseInt(`${middleCount}`),
+            goodRate: Math.floor((goodRate || 0) * 10) / 10,
+            hasImageCount: parseInt(`${hasImageCount || 0}`),
+            middleCount: parseInt(`${middleCount || 0}`),
           },
         };
         this.setData(nextState);
       }
     } catch (error) {
-      console.error('comments statiistics error:', error);
+      console.error('comments statistics error:', error);
+      // 设置默认的评论统计
+      this.setData({
+        commentsStatistics: {
+          badCount: 0,
+          commentCount: 0,
+          goodCount: 0,
+          goodRate: 0,
+          hasImageCount: 0,
+          middleCount: 0,
+        }
+      });
     }
   },
 
@@ -609,13 +704,12 @@ Page({
     // 确保goodId是数字类型
     const goodIdNum = parseInt(goodId, 10);
 
-    
     this.setData({
       goodId: goodIdNum,
     });
     this.getDetail(goodIdNum);
-    this.getCommentsList(goodIdNum);
-    this.getCommentsStatistics(goodIdNum);
+    this.getCommentsList(); // 移除参数
+    this.getCommentsStatistics(); // 移除参数
 
     // 加载云存储图片链接
     this.loadCustomIcons();

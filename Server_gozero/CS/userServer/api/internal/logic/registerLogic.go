@@ -43,7 +43,6 @@ func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Regist
 		return &types.RegisterResponse{Code: 400, Msg: "用户名已存在"}, errors.New("用户名已存在")
 	}
 
-	// 👇 密码加密
 	h := md5.New()
 	h.Write([]byte(req.Password))
 	h.Write(secret)
@@ -53,7 +52,7 @@ func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Regist
 		logx.Errorw("分布式唯一id获取错误！", logx.Field("err", err))
 		return &types.RegisterResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")
 	}
-	// 👇 构建用户对象
+
 	user := &userModel.User{
 		UserId:      userid,
 		PhoneNumber: req.PhoneNumber,

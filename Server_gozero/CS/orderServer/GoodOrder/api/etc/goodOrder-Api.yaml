@@ -1,12 +1,18 @@
-Name: good-api
-Host: 127.0.0.1
-Port: 8889
+Name: good_order-api
+Host: 0.0.0.0
+Port: 8891
+
+IdRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: isender.ISender
 
 Log:
-  ServiceName: "GoodClient-srv"
+  ServiceName: "GoodOrder-srv"
   Mode: file
   Encoding: json
-  Path: logs/Good
+  Path: logs/GoodOrder
   Level: debug
   Stat: true
 

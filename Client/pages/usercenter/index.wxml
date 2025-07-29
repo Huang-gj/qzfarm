@@ -8,9 +8,40 @@
   bind:gotoUserEditPage="gotoUserEditPage"
 />
 <view class="content-wrapper">
-  <view class="order-group-wrapper">
-    <t-order-group orderTagInfos="{{orderTagInfos}}" bind:onClickTop="jumpAllOrder" bind:onClickItem="jumpNav" />
+  <!-- 订单类型切换按钮 -->
+  <view class="order-type-switch">
+    <view 
+      class="switch-btn {{currentOrderType === 'goods' ? 'active' : ''}}" 
+      bindtap="switchToGoods"
+    >
+      商品订单
+    </view>
+    <view 
+      class="switch-btn {{currentOrderType === 'lands' ? 'active' : ''}}" 
+      bindtap="switchToLands"
+    >
+      土地订单
+    </view>
   </view>
+  
+  <!-- 商品订单模块 -->
+  <view class="order-group-wrapper" wx:if="{{currentOrderType === 'goods'}}">
+    <t-order-group 
+      orderTagInfos="{{goodsOrderTagInfos}}" 
+      bind:onClickTop="jumpAllGoodsOrder" 
+      bind:onClickItem="jumpGoodsOrderNav" 
+    />
+  </view>
+  
+  <!-- 土地订单模块 -->
+  <view class="order-group-wrapper" wx:if="{{currentOrderType === 'lands'}}">
+    <t-order-group 
+      orderTagInfos="{{landsOrderTagInfos}}" 
+      bind:onClickTop="jumpAllLandsOrder" 
+      bind:onClickItem="jumpLandsOrderNav" 
+    />
+  </view>
+  
   <view wx:for="{{menuData}}" wx:key="item" class="cell-box">
     <t-cell-group>
       <t-cell

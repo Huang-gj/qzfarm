@@ -1,12 +1,18 @@
-Name: good-api
-Host: 127.0.0.1
-Port: 8889
+Name: land_order-api
+Host: 0.0.0.0
+Port: 8892
+
+IdRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: isender.ISender
 
 Log:
-  ServiceName: "GoodClient-srv"
+  ServiceName: "LandOrder-srv"
   Mode: file
   Encoding: json
-  Path: logs/Good
+  Path: logs/LandOrder
   Level: debug
   Stat: true
 

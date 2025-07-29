@@ -37,7 +37,6 @@ export function fetchHome() {
   if (config.useMock) {
     return mockFetchHome();
   }
-  return new Promise((resolve) => {
-    resolve('real api');
-  });
+  // 当不使用mock时，仍然返回mock数据作为默认值
+  return mockFetchHome();
 }

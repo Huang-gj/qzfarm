@@ -58,6 +58,10 @@ Page({
       index: 0,
       num: 20
     };
+    this.landListPagination = {
+      index: 0,
+      num: 20
+    };
     this.privateData = {
       tabIndex: 0
     };
@@ -89,28 +93,46 @@ Page({
     this.setData({
       pageLoading: true,
     });
+    
+    console.log('[loadHomePage] 开始加载首页数据');
+    
     fetchHome().then(({
       swiper,
       tabList
     }) => {
+      console.log('[loadHomePage] 获取到首页数据:', { swiper, tabList });
+      
       this.setData({
         tabList,
         imgSrcs: swiper,
         pageLoading: false,
+        currentTabIndex: 0, // 初始化当前tab索引为0（农产品）
       });
+      
+      console.log('[loadHomePage] 设置页面数据完成，开始加载商品列表');
       this.loadGoodsList(true);
+    }).catch(error => {
+      console.error('[loadHomePage] 加载首页数据失败:', error);
+      this.setData({
+        pageLoading: false,
+      });
     });
   },
 
   tabChangeHandle(e) {
     const tabIndex = Number(e.detail.value); // 取value字段
+    console.log('[tabChangeHandle] tab切换:', tabIndex, 'e.detail:', e.detail);
+    
     this.privateData.tabIndex = tabIndex;
     this.setData({
       currentTabIndex: tabIndex
     });
+    
     if (tabIndex === 0) {
+      console.log('[tabChangeHandle] 切换到农产品tab，加载商品列表');
       this.loadGoodsList(true);
     } else if (tabIndex === 1) {
+      console.log('[tabChangeHandle] 切换到土地认养tab，加载土地列表');
       this.loadLandsList(true);
     }
   },
@@ -124,6 +146,8 @@ Page({
   },
 
   async loadGoodsList(fresh = false) {
+    console.log('[loadGoodsList] 开始加载商品列表, fresh:', fresh);
+    
     if (fresh) {
       wx.pageScrollTo({
         scrollTop: 0,
@@ -134,6 +158,15 @@ Page({
       goodsListLoadStatus: 1
     });
 
+    // 确保 goodListPagination 存在
+    if (!this.goodListPagination) {
+      console.log('[loadGoodsList] goodListPagination不存在，重新初始化');
+      this.goodListPagination = {
+        index: 0,
+        num: 20
+      };
+    }
+
     const pageSize = this.goodListPagination.num;
     let pageIndex = this.privateData.tabIndex * pageSize + this.goodListPagination.index + 1;
     if (fresh) {
@@ -141,7 +174,10 @@ Page({
     }
 
     try {
+      console.log('[loadGoodsList] 调用fetchGoodsList, pageIndex:', pageIndex, 'pageSize:', pageSize);
       const nextList = await fetchGoodsList(pageIndex, pageSize);
+      console.log('[loadGoodsList] 获取到商品数据:', nextList);
+      
       this.setData({
         goodsList: fresh ? nextList : this.data.goodsList.concat(nextList),
         goodsListLoadStatus: 0,
@@ -150,6 +186,7 @@ Page({
       this.goodListPagination.num = pageSize;
 
     } catch (err) {
+      console.error('[loadGoodsList] 加载商品列表失败:', err);
       this.setData({
         goodsListLoadStatus: 3
       });
@@ -157,6 +194,8 @@ Page({
   },
 
   async loadLandsList(fresh = false) {
+    console.log('[loadLandsList] 开始加载土地列表, fresh:', fresh);
+    
     if (fresh) {
       wx.pageScrollTo({
         scrollTop: 0,
@@ -167,6 +206,15 @@ Page({
       landsListLoadStatus: 1
     });
 
+    // 确保 landListPagination 存在
+    if (!this.landListPagination) {
+      console.log('[loadLandsList] landListPagination不存在，重新初始化');
+      this.landListPagination = {
+        index: 0,
+        num: 20
+      };
+    }
+
     const pageSize = this.landListPagination.num;
     let pageIndex = this.privateData.tabIndex * pageSize + this.landListPagination.index + 1;
     if (fresh) {
@@ -174,7 +222,10 @@ Page({
     }
 
     try {
+      console.log('[loadLandsList] 调用fetchLandsList, pageIndex:', pageIndex, 'pageSize:', pageSize);
       const nextList = await fetchLandsList(pageIndex, pageSize);
+      console.log('[loadLandsList] 获取到土地数据:', nextList);
+      
       this.setData({
         landsList: fresh ? nextList : this.data.landsList.concat(nextList),
         landsListLoadStatus: 0,
@@ -183,6 +234,7 @@ Page({
       this.landListPagination.num = pageSize;
 
     } catch (err) {
+      console.error('[loadLandsList] 加载土地列表失败:', err);
       this.setData({
         landsListLoadStatus: 3
       });

@@ -6,13 +6,10 @@ import {
   fetchActivityList
 } from '../../../services/activity/fetchActivityList';
 import {
-  addToCart,
+  addGoodsToCart,
   updateCartNum,
   getCartCount
 } from '../../../services/cart/cart';
-// import {
-//   addGoodOrder
-// } from '../../../services/order/addGoodOrder';
 import {
   getGoodsDetailsCommentList,
   getGoodsDetailsCommentsCount,
@@ -299,7 +296,7 @@ Page({
 
     // 准备订单数据
     const orderData = {
-      good_id: details.good_id || details.id, // 兼容不同的字段名
+      good_id: details.good_id, // 直接使用good_id，不使用fallback
       farm_id: details.farm_id || 1,
       user_id: userInfo.user_id,
       user_address: userInfo.address || '',
@@ -313,6 +310,8 @@ Page({
 
     console.log('[addCart] 准备添加商品订单:', orderData);
     console.log('[addCart] 商品详情数据:', details);
+    console.log('[addCart] details.good_id:', details.good_id);
+    console.log('[addCart] details.id:', details.id);
     console.log('[addCart] 选择的规格:', selectItem);
     console.log('[addCart] 用户信息:', userInfo);
     console.log('[addCart] addGoodOrder函数类型:', typeof addGoodOrder);
@@ -377,19 +376,23 @@ Page({
   addToLocalCart(details, selectItem, buyNum) {
     // 准备添加到购物车的商品信息
     const goodsInfo = {
-      good_id: details.good_id || details.id,
-      skuId: selectItem.skuId || details.good_id || details.id,
+      good_id: details.good_id, // 直接使用good_id
+      skuId: details.good_id, // 直接使用good_id作为skuId
       title: details.title,
       price: selectItem.price || details.minSalePrice || details.price || 0,
       originPrice: details.maxLinePrice || details.price || 0,
-      primaryImage: details.primaryImage || details.image_urls,
+      primaryImage: details.image_urls,
       quantity: buyNum,
-      stockQuantity: selectItem.quantity || details.repertory || 100,
+      stockQuantity: details.repertory || 100,
       specInfo: selectItem.specInfo || []
     };
 
+    console.log('[addToLocalCart] 准备添加到购物车的商品信息:', goodsInfo);
+    console.log('[addToLocalCart] details.good_id:', details.good_id);
+    console.log('[addToLocalCart] details.id:', details.id);
+
     // 调用本地购物车服务
-    addToCart(goodsInfo).then(res => {
+    addGoodsToCart(goodsInfo).then(res => {
       if (res.code === 'Success') {
         console.log('[addToLocalCart] 本地购物车添加成功');
       } else {
@@ -419,7 +422,7 @@ Page({
     const query = {
       quantity: buyNum,
       storeId: '1',
-      good_id: this.data.goodId,
+      good_id: this.data.details.good_id, // 直接使用good_id
       goodsName: this.data.details.title,
       skuId: type === 1 ? this.data.skuList[0].skuId : this.data.selectItem.skuId,
       available: this.data.details.available,
@@ -429,7 +432,7 @@ Page({
         specValue: item.specValueList[0].specValue,
       })),
       primaryImage: this.data.details.primaryImage,
-      good_id: this.data.details.good_id || this.data.details.good_id, // 优先使用good_id，兼容原有good_id
+      good_id: this.data.details.good_id, // 直接使用good_id
       thumb: this.data.details.primaryImage,
       title: this.data.details.title,
     };
@@ -458,11 +461,16 @@ Page({
     const { buyNum } = e.detail;
     const { stockQuantity = 0 } = this.data;
     
+    console.log('[changeNum] 接收到数量变化事件:', e.detail);
+    console.log('[changeNum] 当前stockQuantity:', stockQuantity);
+    console.log('[changeNum] 请求的buyNum:', buyNum);
+    
     // 确保购买数量不超过库存
     const maxQuantity = Math.max(0, stockQuantity);
     const finalBuyNum = Math.min(buyNum, maxQuantity);
     
- 
+    console.log('[changeNum] 计算后的maxQuantity:', maxQuantity);
+    console.log('[changeNum] 最终buyNum:', finalBuyNum);
     
     this.setData({
       buyNum: finalBuyNum,
@@ -505,6 +513,11 @@ Page({
       }
       
       console.log('[getDetail] 获取到商品数据:', details);
+      console.log('[getDetail] details.good_id:', details.good_id);
+      console.log('[getDetail] details.id:', details.id);
+      console.log('[getDetail] 解构的good_id:', good_id);
+      console.log('[getDetail] 原始goodId参数:', goodId);
+      console.log('[getDetail] 完整的details对象:', JSON.stringify(details, null, 2));
       
       const skuArray = [];
       const {
@@ -538,7 +551,7 @@ Page({
       } else {
         // 为新数据格式创建默认的sku
         const defaultSku = {
-          skuId: good_id || goodId,
+          skuId: good_id, // 直接使用good_id
           quantity: repertory || 0,
           repertory: repertory || 0, // 添加 repertory 字段
           specInfo: specList ? specList.map(spec => ({
@@ -567,6 +580,13 @@ Page({
       const hasStock = stockQuantity > 0;
       const isSoldOut = stockQuantity <= 0;
       
+      console.log('[getDetail] 库存相关数据:', {
+        repertory,
+        stockQuantity,
+        hasStock,
+        isSoldOut
+      });
+      
       this.setData({
         details,
         activityList: activityList || [], // 确保activityList不为undefined
@@ -579,7 +599,8 @@ Page({
         primaryImage: primaryImage || (image_urls && image_urls.length > 0 ? image_urls[0] : ''),
         soldout: isSoldOut,
         soldNum: soldNum || 0,
-        goodId: good_id || goodId, // 保存good_id
+        goodId: good_id, // 直接使用good_id
+        good_id: good_id, // 直接使用good_id
         // 添加库存数量信息
         stockQuantity: stockQuantity,
         maxPurchaseQuantity: stockQuantity
@@ -604,7 +625,7 @@ Page({
         // 添加安全检查，确保homePageComments是数组
         const commentsList = Array.isArray(homePageComments) ? homePageComments.map((item) => {
           return {
-            goodsSpu: item.good_id || item.good_id, // 优先使用good_id，兼容原有good_id
+            goodsSpu: item.good_id, // 直接使用good_id
             userName: item.userName || '',
             commentScore: item.commentScore,
             commentContent: item.commentContent || '用户未填写评价',
@@ -697,12 +718,44 @@ Page({
   },
 
   onLoad(query) {
+    console.log('[onLoad] 商品详情页面接收到的参数:', query);
     const {
       goodId
     } = query;
     
+    console.log('[onLoad] 原始goodId:', goodId);
+    
+    // 验证参数
+    if (!goodId || goodId === 'undefined' || goodId === 'null') {
+      console.error('[onLoad] goodId参数无效:', goodId);
+      wx.showToast({
+        title: '商品信息不完整',
+        icon: 'none'
+      });
+      // 返回上一页
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 1500);
+      return;
+    }
+    
     // 确保goodId是数字类型
     const goodIdNum = parseInt(goodId, 10);
+    console.log('[onLoad] 转换后的goodId:', goodIdNum);
+    
+    // 验证转换后的数字是否有效
+    if (isNaN(goodIdNum) || goodIdNum < 0) {
+      console.error('[onLoad] goodId转换失败或无效:', goodIdNum);
+      wx.showToast({
+        title: '商品ID无效',
+        icon: 'none'
+      });
+      // 返回上一页
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 1500);
+      return;
+    }
 
     this.setData({
       goodId: goodIdNum,

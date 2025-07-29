@@ -97,6 +97,11 @@ async function fetchGoodFromApi(goodId = 0) {
         detail: good.detail
       };
       
+      console.log('[fetchGoodFromApi] 原始API数据:', good);
+      console.log('[fetchGoodFromApi] 转换后的数据:', convertedGood);
+      console.log('[fetchGoodFromApi] good.id:', good.id);
+      console.log('[fetchGoodFromApi] good.good_id:', good.good_id);
+      
       return convertedGood;
     } else {
       return null;

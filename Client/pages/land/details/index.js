@@ -6,7 +6,7 @@ import {
   fetchActivityList
 } from '../../../services/activity/fetchActivityList';
 import {
-  addToCart,
+  addLandToCart,
   updateCartNum,
   getCartCount
 } from '../../../services/cart/cart';
@@ -315,6 +315,7 @@ Page({
       console.log('[addCart] API响应:', res);
       
       if (res.code === 200) {
+        console.log('[addCart] API调用成功，开始添加到本地购物车');
         // 同时添加到本地购物车
         this.addToLocalCart(details, selectItem, buyNum);
         
@@ -332,6 +333,7 @@ Page({
         // 关闭规格选择弹窗
         this.handlePopupHide();
       } else {
+        console.error('[addCart] API调用失败:', res);
         Toast({
           context: this,
           selector: '#t-toast',
@@ -354,14 +356,20 @@ Page({
 
   // 添加到本地购物车
   addToLocalCart(details, selectItem, buyNum) {
+    console.log('[addToLocalCart] 开始添加土地到本地购物车');
+    console.log('[addToLocalCart] details:', details);
+    console.log('[addToLocalCart] selectItem:', selectItem);
+    console.log('[addToLocalCart] buyNum:', buyNum);
+    
     // 准备添加到购物车的土地信息
     const goodsInfo = {
-      good_id: details.land_id || details.id, // 使用land_id作为good_id
+      good_id: details.land_id, // 直接使用land_id，不使用fallback
       skuId: selectItem.skuId || details.land_id || details.id,
-      title: details.title || `土地${details.land_id}`,
+      title: details.land_name || details.title || `土地${details.land_id || details.id}`, // 优先使用land_name
       price: selectItem.price || details.minSalePrice || details.price || 0,
       originPrice: details.maxLinePrice || details.price || 0,
-      primaryImage: details.primaryImage || details.image_urls,
+      primaryImage: details.primaryImage || details.image_urls || '',
+      thumb: details.primaryImage || details.image_urls || '', // 添加thumb字段
       quantity: buyNum,
       stockQuantity: 999, // 土地库存设为较大值
       specInfo: selectItem.specInfo || [{
@@ -370,8 +378,13 @@ Page({
       }]
     };
 
+    console.log('[addToLocalCart] 准备添加到购物车的土地信息:', goodsInfo);
+    console.log('[addToLocalCart] details.land_id:', details.land_id);
+    console.log('[addToLocalCart] details.id:', details.id);
+
     // 调用本地购物车服务
-    addToCart(goodsInfo).then(res => {
+    addLandToCart(goodsInfo).then(res => {
+      console.log('[addToLocalCart] 购物车服务响应:', res);
       if (res.code === 'Success') {
         console.log('[addToLocalCart] 本地购物车添加成功');
       } else {
@@ -401,7 +414,7 @@ Page({
     const query = {
       quantity: buyNum,
       storeId: '1',
-      good_id: this.data.goodId,
+      good_id: this.data.details.land_id, // 直接使用land_id
       goodsName: this.data.details.title,
       skuId: type === 1 ? this.data.skuList[0].skuId : this.data.selectItem.skuId,
       available: this.data.details.available,
@@ -411,7 +424,7 @@ Page({
         specValue: item.specValueList[0].specValue,
       })),
       primaryImage: this.data.details.primaryImage,
-      good_id: this.data.details.good_id || this.data.details.good_id, // 优先使用good_id，兼容原有good_id
+      good_id: this.data.details.land_id, // 直接使用land_id
       thumb: this.data.details.primaryImage,
       title: this.data.details.title,
     };
@@ -438,13 +451,11 @@ Page({
 
   changeNum(e) {
     const { buyNum } = e.detail;
-    const { stockQuantity = 0 } = this.data;
     
-    // 确保购买数量不超过库存
-    const maxQuantity = Math.max(0, stockQuantity);
-    const finalBuyNum = Math.min(buyNum, maxQuantity);
+    // 土地购买量固定为1，因为土地不存在库存概念
+    const finalBuyNum = 1;
     
- 
+    console.log('[changeNum] 土地购买量固定为1，原始buyNum:', buyNum, '最终buyNum:', finalBuyNum);
     
     this.setData({
       buyNum: finalBuyNum,
@@ -473,8 +484,13 @@ Page({
   },
 
   getDetail(landId) {
+    console.log('[getDetail] 开始获取土地详情, landId:', landId);
+    
     Promise.all([fetchLand(landId), fetchActivityList()]).then((res) => {
       const [details, activityList] = res;
+      
+      console.log('[getDetail] 获取到的土地数据:', details);
+      console.log('[getDetail] 获取到的活动数据:', activityList);
       
       // 检查是否成功获取到土地数据
       if (!details) {
@@ -538,12 +554,17 @@ Page({
       }
       
       const promotionArray = [];
-      activityList.forEach((item) => {
-        promotionArray.push({
-          tag: item.promotionSubCode === 'MYJ' ? '满减' : '满折',
-          label: '满100元减99.9元',
+      // 检查activityList是否为数组
+      if (activityList && Array.isArray(activityList)) {
+        activityList.forEach((item) => {
+          promotionArray.push({
+            tag: item.promotionSubCode === 'MYJ' ? '满减' : '满折',
+            label: '满100元减99.9元',
+          });
         });
-      });
+      } else {
+        console.log('[getDetail] activityList不是数组或为空:', activityList);
+      }
       
       // 基于 sale_status 字段判断租赁状态
       const saleStatus = sale_status || 0;
@@ -675,11 +696,38 @@ Page({
     
     console.log('[onLoad] 原始landId:', landId);
     
+    // 验证参数
+    if (!landId || landId === 'undefined' || landId === 'null') {
+      console.error('[onLoad] landId参数无效:', landId);
+      wx.showToast({
+        title: '土地信息不完整',
+        icon: 'none'
+      });
+      // 返回上一页
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 1500);
+      return;
+    }
+    
     // 确保landId是数字类型
     const landIdNum = parseInt(landId, 10);
     console.log('[onLoad] 转换后的landId:', landIdNum);
-
     
+    // 验证转换后的数字是否有效
+    if (isNaN(landIdNum) || landIdNum < 0) {
+      console.error('[onLoad] landId转换失败或无效:', landIdNum);
+      wx.showToast({
+        title: '土地ID无效',
+        icon: 'none'
+      });
+      // 返回上一页
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 1500);
+      return;
+    }
+
     this.setData({
       landId: landIdNum,
     });

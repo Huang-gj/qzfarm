@@ -24,7 +24,7 @@ function addLandOrder(orderData) {
   }
   
   // 验证必需字段
-  if (!orderData.land_id) {
+  if (orderData.land_id === undefined || orderData.land_id === null) {
     console.error('[addLandOrder] 缺少land_id字段');
     return Promise.reject(new Error('缺少土地ID'));
   }

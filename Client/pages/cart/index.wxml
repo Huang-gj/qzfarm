@@ -1,3 +1,22 @@
+<!-- 购物车类型切换 -->
+<view class="cart-type-switch">
+  <t-tabs 
+    value="{{currentCartType}}" 
+    bind:change="onCartTypeChange"
+    theme="card"
+    placement="top"
+  >
+    <t-tab-panel 
+      label="农产品" 
+      value="goods"
+    />
+    <t-tab-panel 
+      label="土地" 
+      value="land"
+    />
+  </t-tabs>
+</view>
+
 <!-- 分层购物车 -->
 <block wx:if="{{cartGroupData.isNotEmpty}}">
   <cart-group
@@ -29,7 +48,7 @@
 <cart-empty 
   wx:else 
   cloud-img-url="{{emptyCartImage}}"
-  tip="购物车还是空的，快去选择喜欢的商品吧~"
+  tip="{{currentCartType === 'goods' ? '农产品购物车还是空的，快去选择喜欢的农产品吧~' : '土地购物车还是空的，快去选择喜欢的土地吧~'}}"
   bind:handleClick="onGotoHome" 
 />
 <t-toast id="t-toast" />

@@ -56,7 +56,18 @@
             购买数量
             <view class="limit-text" wx:if="{{limitBuyInfo}}"> ({{limitBuyInfo}}) </view>
           </view>
-          <t-stepper value="{{buyNum}}" min="{{limitMinCount}}" max="{{limitMaxCount}}" theme="filled" bind:change="handleBuyNumChange" />
+          <!-- 土地购买量固定为1，隐藏数量选择器 -->
+          <view class="land-fixed-quantity" wx:if="{{isLand}}">
+            <text>1</text>
+          </view>
+          <t-stepper 
+            wx:if="{{!isLand}}" 
+            value="{{buyNum}}" 
+            min="{{limitMinCount}}" 
+            max="{{limitMaxCount}}" 
+            theme="filled" 
+            bind:change="handleBuyNumChange" 
+          />
         </view>
       </view>
     </view>

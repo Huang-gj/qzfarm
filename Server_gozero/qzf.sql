@@ -133,6 +133,7 @@ CREATE TABLE `land_order`
     farm_address  VARCHAR(128) NOT NULL COMMENT '农场所在地址',
     price         FLOAT        NOT NULL DEFAULT 0.0 COMMENT '价格',
     count         INT          NOT NULL DEFAULT 0 COMMENT '租赁时长',
+
     detail        TEXT COMMENT '详情',
     order_status VARCHAR(10) NOT NULL COMMENT '订单状态'
 )ENGINE = InnoDB

@@ -145,19 +145,37 @@ export function getGoodById(goodId, userId = 0) {
       headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
     }
 
+    // 确保参数类型正确
+    const numericGoodId = parseInt(goodId, 10);
+    const numericUserId = parseInt(userId, 10);
+    
+    console.log('[getGoodById] 原始参数:', { goodId, userId });
+    console.log('[getGoodById] 转换后参数:', { numericGoodId, numericUserId });
+    console.log('[getGoodById] 发送请求参数:', {
+      user_id: numericUserId,
+      good_id: numericGoodId
+    });
+
     wx.request({
       url: 'http://localhost:8889/api/getGood',
       method: 'POST',
       data: {
-        user_id: userId,
-        good_id: goodId
+        user_id: numericUserId,
+        good_id: numericGoodId
       },
       header: headers,
       timeout: 10000,
       success: (res) => {
+        console.log('[getGoodById] 响应状态码:', res.statusCode);
+        console.log('[getGoodById] 响应数据:', res.data);
 
         if (res.statusCode >= 200 && res.statusCode < 300) {
           const response = res.data;
+          console.log('[getGoodById] 完整API响应:', response);
+          console.log('[getGoodById] response.good:', response.good);
+          console.log('[getGoodById] response.good.id:', response.good?.id);
+          console.log('[getGoodById] response.good.good_id:', response.good?.good_id);
+          
           if (response.code === 200) {
             // 如果 image_urls 是字符串，尝试解析为数组
             const good = {
@@ -165,16 +183,21 @@ export function getGoodById(goodId, userId = 0) {
               image_urls: parseImageUrls(response.good.image_urls)
             };
             
+            console.log('[getGoodById] 解析后的商品数据:', good);
+            console.log('[getGoodById] 最终good.id:', good.id);
+            console.log('[getGoodById] 最终good.good_id:', good.good_id);
             resolve(good);
           } else {
+            console.error('[getGoodById] API返回错误:', response);
             reject(new Error(response.msg || '获取商品详情失败'));
           }
         } else {
-          reject(new Error(`HTTP ${res.statusCode}: ${res.data.msg || '请求失败'}`));
+          console.error('[getGoodById] HTTP错误:', res.statusCode, res.data);
+          reject(new Error(`HTTP ${res.statusCode}: ${res.data?.msg || '请求失败'}`));
         }
       },
       fail: (err) => {
-        console.error('获取商品详情失败:', err);
+        console.error('[getGoodById] 网络请求失败:', err);
         reject(new Error(err.errMsg || '网络请求失败'));
       }
     });

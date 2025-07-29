@@ -29,6 +29,8 @@ type (
 		FindOne(ctx context.Context, id int64) (*LandOrder, error)
 		Update(ctx context.Context, data *LandOrder) error
 		Delete(ctx context.Context, id int64) error
+		FindOneByUIDAndOID(ctx context.Context, userId, landOrderId int64) (*LandOrder, error)
+		FindAll(ctx context.Context, userId int64) ([]*LandOrder, error)
 	}
 
 	defaultLandOrderModel struct {
@@ -95,4 +97,28 @@ func (m *defaultLandOrderModel) Update(ctx context.Context, data *LandOrder) err
 
 func (m *defaultLandOrderModel) tableName() string {
 	return m.table
+}
+
+func (m *defaultLandOrderModel) FindAll(ctx context.Context, userId int64) ([]*LandOrder, error) {
+	query := fmt.Sprintf("select %s from %s where `user_id` = ?", landOrderRows, m.table)
+	var resp []*LandOrder
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, userId)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (m *defaultLandOrderModel) FindOneByUIDAndOID(ctx context.Context, userId, landOrderId int64) (*LandOrder, error) {
+	query := fmt.Sprintf("select %s from %s where `user_id` = ? and `land_order_id` = ? limit 1", landOrderRows, m.table)
+	var resp LandOrder
+	err := m.conn.QueryRowCtx(ctx, &resp, query, userId, landOrderId)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlx.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
 }

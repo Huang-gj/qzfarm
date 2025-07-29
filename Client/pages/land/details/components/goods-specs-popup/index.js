@@ -25,6 +25,10 @@ Component({
       type: Boolean,
       value: true,
     },
+    isLand: {
+      type: Boolean,
+      value: false,
+    },
     limitMaxCount: {
       type: Number,
       value: 999,

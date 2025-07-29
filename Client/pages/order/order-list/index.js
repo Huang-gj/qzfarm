@@ -162,11 +162,11 @@ Page({
       createTime: order.create_time || '',
       // 商品信息
       goodsList: [{
-        id: order.good_id || 0,
+        id: order.good_id, // 直接使用good_id
         thumb: this.getGoodOrderImage(order.image_urls),
-        title: `商品${order.good_id}`,
-        skuId: order.good_id || 0,
-        good_id: order.good_id || 0,
+        title: order.title || `商品${order.good_id}`,
+        skuId: order.good_id, // 直接使用good_id
+        good_id: order.good_id, // 直接使用good_id
         specs: [{
           specValue: order.units || '个'
         }],

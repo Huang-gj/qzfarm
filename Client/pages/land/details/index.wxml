@@ -127,6 +127,7 @@
     bind:buyNow="gotoBuy"
     bind:specsConfirm="specsConfirm"
     isStock="{{isStock}}"
+    isLand="{{true}}"
     outOperateStatus="{{outOperateStatus}}"
     limitMaxCount="{{stockQuantity}}"
   >

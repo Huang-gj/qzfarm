@@ -26,7 +26,7 @@ function addGoodOrder(orderData) {
   }
   
   // 验证必需字段
-  if (!orderData.good_id) {
+  if (orderData.good_id === undefined || orderData.good_id === null) {
     console.error('[addGoodOrder] 缺少good_id字段');
     return Promise.reject(new Error('缺少商品ID'));
   }

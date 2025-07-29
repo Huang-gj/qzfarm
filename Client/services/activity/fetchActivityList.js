@@ -10,11 +10,6 @@ function mockFetchActivityList(pageIndex = 1, pageSize = 20) {
 
 /** 获取活动列表 */
 export function fetchActivityList(pageIndex = 1, pageSize = 20) {
-  if (config.useMock) {
-    return mockFetchActivityList(pageIndex, pageSize);
-  }
-
-  return new Promise((resolve) => {
-    resolve('real api');
-  });
+  // 暂时总是使用mock数据，因为真实API还没有实现
+  return mockFetchActivityList(pageIndex, pageSize);
 }

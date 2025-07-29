@@ -134,16 +134,31 @@ export function getLandById(landId, userId = 0) {
     if (tokenData && tokenData.accessToken) {
       headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
     }
+    
+    // 确保参数类型正确
+    const numericLandId = parseInt(landId, 10);
+    const numericUserId = parseInt(userId, 10);
+    
+    console.log('[getLandById] 原始参数:', { landId, userId });
+    console.log('[getLandById] 转换后参数:', { numericLandId, numericUserId });
+    console.log('[getLandById] 发送请求参数:', {
+      user_id: numericUserId,
+      land_id: numericLandId
+    });
+    
     wx.request({
       url: 'http://127.0.0.1:8890/api/getLand',
       method: 'POST',
       data: {
-        user_id: userId,
-        land_id: landId
+        user_id: numericUserId,
+        land_id: numericLandId
       },
       header: headers,
       timeout: 10000,
       success: (res) => {
+        console.log('[getLandById] 响应状态码:', res.statusCode);
+        console.log('[getLandById] 响应数据:', res.data);
+        
         if (res.statusCode >= 200 && res.statusCode < 300) {
           const response = res.data;
           if (response.code === 200) {
@@ -151,16 +166,19 @@ export function getLandById(landId, userId = 0) {
               ...response.land,
               image_urls: parseImageUrls(response.land.image_urls)
             };
+            console.log('[getLandById] 解析后的土地数据:', land);
             resolve(land);
           } else {
+            console.error('[getLandById] API返回错误:', response);
             reject(new Error(response.msg || '获取土地详情失败'));
           }
         } else {
+          console.error('[getLandById] HTTP错误:', res.statusCode, res.data);
           reject(new Error(`HTTP ${res.statusCode}: ${res.data?.msg || '请求失败'}`));
         }
       },
       fail: (err) => {
-        console.error('获取土地详情失败:', err);
+        console.error('[getLandById] 网络请求失败:', err);
         reject(new Error(err.errMsg || '网络请求失败'));
       }
     });

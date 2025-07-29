@@ -3,8 +3,20 @@
 
 package types
 
+type AddLandOrder struct {
+	ImageUrls   string  `json:"image_urls"`   // 图片信息
+	LandId      int64   `json:"land_id"`      // 关联土地ID
+	FarmId      int64   `json:"farm_id"`      // 所属农场ID
+	UserId      int64   `json:"user_id"`      // 用户ID
+	FarmAddress string  `json:"farm_address"` // 农场地址
+	Price       float64 `json:"price"`        // 租赁价格
+	Count       int64   `json:"count"`        // 租赁时长
+	Detail      string  `json:"detail"`       // 订单详情
+	OrderStatus string  `json:"order_status"`
+}
+
 type AddLandOrderRequest struct {
-	Land_order LandOrder `json:"land_order"`
+	Land_order AddLandOrder `json:"land_order"`
 }
 
 type AddLandOrderResponse struct {
@@ -47,4 +59,5 @@ type LandOrder struct {
 	Price       float64 `json:"price"`         // 租赁价格
 	Count       int64   `json:"count"`         // 租赁时长
 	Detail      string  `json:"detail"`        // 订单详情
+	OrderStatus string  `json:"order_status"`
 }

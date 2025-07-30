@@ -45,6 +45,17 @@ type GetLandOrderResponse struct {
 	Land_order []*LandOrder `json:"land_order"`
 }
 
+type GetOrderByStatusRequest struct {
+	UserID      int    `json:"user_id"`
+	OrderStatus string `json:"order_status"`
+}
+
+type GetOrderByStatusResponse struct {
+	Code       int          `json:"code"`
+	Msg        string       `json:"msg"`
+	Land_order []*LandOrder `json:"land_order"`
+}
+
 type LandOrder struct {
 	Id          int64   `json:"id"`            // 主键ID
 	DelState    int64   `json:"del_state"`     // 0-正常 1-删除
@@ -60,4 +71,15 @@ type LandOrder struct {
 	Count       int64   `json:"count"`         // 租赁时长
 	Detail      string  `json:"detail"`        // 订单详情
 	OrderStatus string  `json:"order_status"`
+}
+
+type UpdateOrderCountRequest struct {
+	LandOrderID int `json:"land_order_id"`
+	UserID      int `json:"user_id"`
+	Count       int `json:"count"`
+}
+
+type UpdateOrderCountResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
 }

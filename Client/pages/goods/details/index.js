@@ -6,14 +6,38 @@ import {
   fetchActivityList
 } from '../../../services/activity/fetchActivityList';
 import {
-  addGoodsToCart,
+  addGoodsToCart as originalAddGoodsToCart,
   updateCartNum,
   getCartCount
 } from '../../../services/cart/cart';
-import {
-  getGoodsDetailsCommentList,
-  getGoodsDetailsCommentsCount,
-} from '../../../services/good/fetchGoodsDetailsComments';
+
+// 确保addGoodsToCart返回Promise
+const addGoodsToCart = (goodsInfo) => {
+  console.log('[goods/details] 调用addGoodsToCart，参数:', goodsInfo);
+  console.log('[goods/details] originalAddGoodsToCart类型:', typeof originalAddGoodsToCart);
+  
+  if (typeof originalAddGoodsToCart === 'function') {
+    const result = originalAddGoodsToCart(goodsInfo);
+    console.log('[goods/details] originalAddGoodsToCart返回结果:', result);
+    
+    if (result && typeof result.then === 'function') {
+      return result;
+    } else {
+      // 如果不是Promise，包装成Promise
+      return Promise.resolve(result);
+    }
+  } else {
+    console.error('[goods/details] originalAddGoodsToCart不是函数:', originalAddGoodsToCart);
+    return Promise.reject(new Error('addGoodsToCart函数未正确加载'));
+  }
+};
+// import {
+//   addGoodOrder
+// } from '../../../services/order/addGoodOrder';
+// import {
+//   getGoodDetailsCommentList,
+//   getGoodDetailsCommentsCount,
+// } from '../../../services/good/fetchGoodDetails';
 import {
   genPicURL
 } from '../../../utils/genURL';
@@ -28,6 +52,8 @@ const { addGoodOrder } = require('../../../services/order/addGoodOrder');
 // 添加调试信息
 console.log('[goods/details] addGoodOrder函数:', typeof addGoodOrder);
 console.log('[goods/details] addGoodOrder函数内容:', addGoodOrder);
+console.log('[goods/details] addGoodsToCart函数:', typeof addGoodsToCart);
+console.log('[goods/details] addGoodsToCart函数内容:', addGoodsToCart);
 
 const imgPrefix = `${cdnBase}/`;
 
@@ -262,7 +288,7 @@ Page({
     }
   },
 
-  addCart() {
+  async addCart() {
     const {
       isAllSelectedSku,
       selectItem,
@@ -294,86 +320,77 @@ Page({
       return;
     }
 
-    // 准备订单数据
-    const orderData = {
-      good_id: details.good_id, // 直接使用good_id，不使用fallback
-      farm_id: details.farm_id || 1,
-      user_id: userInfo.user_id,
-      user_address: userInfo.address || '',
-      farm_address: details.farm_address || '',
-      price: selectItem.price || details.minSalePrice || details.price || 0,
-      units: selectItem.units || details.units || '个',
-      count: buyNum,
-      detail: details.detail || details.title || '',
-      image_urls: details.image_urls || details.primaryImage || ''
-    };
-
-    console.log('[addCart] 准备添加商品订单:', orderData);
-    console.log('[addCart] 商品详情数据:', details);
-    console.log('[addCart] details.good_id:', details.good_id);
-    console.log('[addCart] details.id:', details.id);
-    console.log('[addCart] 选择的规格:', selectItem);
-    console.log('[addCart] 用户信息:', userInfo);
-    console.log('[addCart] addGoodOrder函数类型:', typeof addGoodOrder);
-    console.log('[addCart] addGoodOrder函数内容:', addGoodOrder);
-
-    // 检查addGoodOrder函数是否存在
-    if (typeof addGoodOrder !== 'function') {
-      console.error('[addCart] addGoodOrder不是函数:', addGoodOrder);
+    // 注释掉后端API调用，只保留本地购物车功能
+    console.log('[addCart] 加入购物车 - 仅添加到本地购物车，不调用后端API');
+    
+    try {
+      // 只添加到本地购物车
+      await this.addToLocalCart(details, selectItem, buyNum);
+      
       Toast({
         context: this,
         selector: '#t-toast',
-        message: '系统错误：函数未正确加载',
-        icon: 'error',
-        duration: 2000,
+        message: '加入购物车成功',
+        icon: 'check-circle',
+        duration: 1000,
       });
-      return;
-    }
 
-    // 调用添加商品订单API
-    addGoodOrder(orderData).then(res => {
-      console.log('[addCart] API响应:', res);
-      
-      if (res.code === 200) {
-        // 同时添加到本地购物车
-        this.addToLocalCart(details, selectItem, buyNum);
-        
-        Toast({
-          context: this,
-          selector: '#t-toast',
-          message: '加入购物车成功',
-          icon: 'check-circle',
-          duration: 1000,
-        });
+      // 更新购物车数量显示
+      this.updateCartBadge();
 
-        // 更新购物车数量显示
-        this.updateCartBadge();
-
-        // 关闭规格选择弹窗
-        this.handlePopupHide();
-      } else {
-        Toast({
-          context: this,
-          selector: '#t-toast',
-          message: res.msg || '加入购物车失败',
-          icon: 'close-circle',
-          duration: 1000,
-        });
-      }
-    }).catch(err => {
-      console.error('[addCart] 加入购物车失败:', err);
+      // 关闭规格选择弹窗
+      this.handlePopupHide();
+    } catch (error) {
+      console.error('[addCart] 添加到本地购物车失败:', error);
       Toast({
         context: this,
         selector: '#t-toast',
         message: '加入购物车失败',
-        icon: 'close-circle',
-        duration: 1000,
+        icon: 'error',
+        duration: 2000,
       });
-    });
+    }
   },
 
   // 添加到本地购物车
-  addToLocalCart(details, selectItem, buyNum) {
+  async addToLocalCart(details, selectItem, buyNum) {
+    console.log('[addToLocalCart] 开始添加到本地购物车');
+    console.log('[addToLocalCart] details.image_urls:', details.image_urls);
+    
+    // 转换图片URL
+    let imageUrl = details.image_urls;
+    console.log('[addToLocalCart] 原始image_urls类型:', typeof imageUrl);
+    console.log('[addToLocalCart] 原始image_urls值:', imageUrl);
+    
+    // 确保imageUrl是字符串类型
+    if (Array.isArray(imageUrl)) {
+      // 如果是数组，取第一个元素
+      imageUrl = imageUrl[0] || '';
+      console.log('[addToLocalCart] 从数组中取第一个图片URL:', imageUrl);
+    } else if (typeof imageUrl !== 'string') {
+      // 如果不是字符串，转换为字符串或使用默认值
+      imageUrl = String(imageUrl || '');
+      console.log('[addToLocalCart] 转换为字符串:', imageUrl);
+    }
+    
+    // 检查是否为云存储URL
+    if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('cloud://')) {
+      try {
+        console.log('[addToLocalCart] 转换图片URL:', imageUrl);
+        imageUrl = await genPicURL(imageUrl);
+        console.log('[addToLocalCart] 转换后的图片URL:', imageUrl);
+      } catch (error) {
+        console.error('[addToLocalCart] 图片URL转换失败:', error);
+        // 如果转换失败，使用默认图片
+        imageUrl = 'https://via.placeholder.com/150x150?text=商品图片';
+        console.log('[addToLocalCart] 使用默认图片URL:', imageUrl);
+      }
+    } else if (!imageUrl || imageUrl === '') {
+      // 如果没有图片URL，使用默认图片
+      imageUrl = 'https://via.placeholder.com/150x150?text=商品图片';
+      console.log('[addToLocalCart] 使用默认图片URL:', imageUrl);
+    }
+    
     // 准备添加到购物车的商品信息
     const goodsInfo = {
       good_id: details.good_id, // 直接使用good_id
@@ -381,7 +398,7 @@ Page({
       title: details.title,
       price: selectItem.price || details.minSalePrice || details.price || 0,
       originPrice: details.maxLinePrice || details.price || 0,
-      primaryImage: details.image_urls,
+      primaryImage: imageUrl, // 使用转换后的图片URL
       quantity: buyNum,
       stockQuantity: details.repertory || 100,
       specInfo: selectItem.specInfo || []
@@ -392,15 +409,22 @@ Page({
     console.log('[addToLocalCart] details.id:', details.id);
 
     // 调用本地购物车服务
-    addGoodsToCart(goodsInfo).then(res => {
-      if (res.code === 'Success') {
-        console.log('[addToLocalCart] 本地购物车添加成功');
-      } else {
-        console.error('[addToLocalCart] 本地购物车添加失败:', res);
-      }
-    }).catch(err => {
-      console.error('[addToLocalCart] 本地购物车添加失败:', err);
-    });
+    console.log('[addToLocalCart] addGoodsToCart函数类型:', typeof addGoodsToCart);
+    console.log('[addToLocalCart] addGoodsToCart函数内容:', addGoodsToCart);
+    
+    try {
+      addGoodsToCart(goodsInfo).then(res => {
+        if (res.code === 'Success') {
+          console.log('[addToLocalCart] 本地购物车添加成功');
+        } else {
+          console.error('[addToLocalCart] 本地购物车添加失败:', res);
+        }
+      }).catch(err => {
+        console.error('[addToLocalCart] 本地购物车添加失败:', err);
+      });
+    } catch (error) {
+      console.error('[addToLocalCart] 调用addGoodsToCart时出错:', error);
+    }
   },
 
   gotoBuy(type) {
@@ -446,13 +470,100 @@ Page({
     });
   },
 
-  specsConfirm() {
+  async specsConfirm() {
     const {
-      buyType
+      buyType,
+      isAllSelectedSku,
+      selectItem,
+      buyNum,
+      details
     } = this.data;
+    
+    if (!isAllSelectedSku) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '请选择规格',
+        icon: '',
+        duration: 1000,
+      });
+      return;
+    }
+
     if (buyType === 1) {
-      this.gotoBuy();
+      // 立即购买 - 调用后端API创建订单
+      console.log('[specsConfirm] 立即购买 - 调用后端API创建订单');
+      
+      // 获取用户信息
+      const app = getApp();
+      const userInfo = app.globalData.userInfo;
+      if (!userInfo || !userInfo.user_id) {
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '请先登录',
+          icon: 'error',
+          duration: 2000,
+        });
+        return;
+      }
+
+      // 准备订单数据
+      const orderData = {
+        good_id: details.good_id,
+        farm_id: details.farm_id || 1,
+        user_id: userInfo.user_id,
+        user_address: userInfo.address || '',
+        farm_address: details.farm_address || '',
+        price: selectItem.price || details.minSalePrice || details.price || 0,
+        units: selectItem.units || details.units || '个',
+        count: buyNum,
+        detail: details.detail || details.title || '',
+        image_urls: details.image_urls || details.primaryImage || ''
+      };
+
+      console.log('[specsConfirm] 准备创建商品订单:', orderData);
+
+      try {
+        // 调用添加商品订单API
+        const res = await addGoodOrder(orderData);
+        console.log('[specsConfirm] API响应:', res);
+        
+        if (res.code === 200) {
+          Toast({
+            context: this,
+            selector: '#t-toast',
+            message: '订单创建成功',
+            icon: 'check-circle',
+            duration: 1000,
+          });
+
+          // 关闭规格选择弹窗
+          this.handlePopupHide();
+          
+          // 跳转到订单确认页面
+          this.gotoBuy();
+        } else {
+          Toast({
+            context: this,
+            selector: '#t-toast',
+            message: res.msg || '订单创建失败',
+            icon: 'close-circle',
+            duration: 1000,
+          });
+        }
+      } catch (error) {
+        console.error('[specsConfirm] 创建订单失败:', error);
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '订单创建失败',
+          icon: 'close-circle',
+          duration: 1000,
+        });
+      }
     } else {
+      // 加入购物车
       this.addCart();
     }
   },
@@ -587,8 +698,21 @@ Page({
         isSoldOut
       });
       
+      // 处理图片URL，确保是字符串类型
+      let processedImageUrls = image_urls;
+      if (Array.isArray(image_urls)) {
+        processedImageUrls = image_urls[0] || '';
+      } else if (typeof image_urls !== 'string') {
+        processedImageUrls = String(image_urls || '');
+      }
+      
+      console.log('[getDetail] 处理后的图片URL:', processedImageUrls);
+      
       this.setData({
-        details,
+        details: {
+          ...details,
+          image_urls: processedImageUrls // 确保image_urls是字符串
+        },
         activityList: activityList || [], // 确保activityList不为undefined
         isStock: hasStock,
         maxSalePrice: maxSalePrice ? parseInt(maxSalePrice) : (price ? parseInt(price) : 0),
@@ -596,7 +720,7 @@ Page({
         minSalePrice: minSalePrice ? parseInt(minSalePrice) : (price ? parseInt(price) : 0),
         list: promotionArray,
         skuArray: skuArray,
-        primaryImage: primaryImage || (image_urls && image_urls.length > 0 ? image_urls[0] : ''),
+        primaryImage: primaryImage || processedImageUrls,
         soldout: isSoldOut,
         soldNum: soldNum || 0,
         goodId: good_id, // 直接使用good_id
@@ -772,9 +896,15 @@ Page({
       // 更新购物车数量
       this.updateCartBadge();
       
-      // 监听购物车更新事件
+      // 监听购物车更新事件（避免重复绑定）
       if (wx.eventCenter && typeof wx.eventCenter.on === 'function') {
+        // 先移除之前的监听器
+        if (this.cartUpdateListener) {
+          wx.eventCenter.off('cartUpdate', this.cartUpdateListener);
+        }
+        
         this.cartUpdateListener = (data) => {
+          console.log('[goods/details] 收到购物车更新事件:', data);
           this.setData({ cartNum: data.count });
           // 更新buy-bar组件的购物车数量
           const buyBar = this.selectComponent('.goods-details-card');
@@ -783,6 +913,7 @@ Page({
           }
         };
         wx.eventCenter.on('cartUpdate', this.cartUpdateListener);
+        console.log('[goods/details] 购物车更新监听器已绑定');
       }
     });
   },

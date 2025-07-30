@@ -22,6 +22,7 @@
   <cart-group
     store-goods="{{ cartGroupData.storeGoods }}"
     invalid-good-items="{{ cartGroupData.invalidGoodItems }}"
+    cart-type="{{currentCartType}}"
     bindselectgoods="onGoodsSelect"
     bindselectstore="onStoreSelect"
     bindchangequantity="onQuantityChange"

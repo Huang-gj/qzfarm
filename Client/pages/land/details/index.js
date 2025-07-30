@@ -293,22 +293,52 @@ Page({
       return;
     }
 
+    // 注释掉后端API调用，只保留本地购物车功能
+    console.log('[addCart] 加入购物车 - 仅添加到本地购物车，不调用后端API');
+    
+    try {
+      // 只添加到本地购物车
+      this.addToLocalCart(details, selectItem, buyNum);
+      
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '加入购物车成功',
+        icon: 'check-circle',
+        duration: 1000,
+      });
+
+      // 更新购物车数量显示
+      this.updateCartBadge();
+
+      // 关闭规格选择弹窗
+      this.handlePopupHide();
+    } catch (error) {
+      console.error('[addCart] 添加到本地购物车失败:', error);
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '加入购物车失败',
+        icon: 'error',
+        duration: 2000,
+      });
+    }
+
+    // 注释掉的后端API调用代码
+    /*
     // 准备土地订单数据
     const orderData = {
-      land_id: details.land_id || details.id, // 兼容不同的字段名
+      land_id: details.land_id || details.id,
       farm_id: details.farm_id || 1,
       user_id: userInfo.user_id,
       farm_address: details.farm_address || '',
       price: selectItem.price || details.minSalePrice || details.price || 0,
-      count: buyNum, // 租赁时长（月数）
+      count: buyNum,
       detail: details.detail || details.title || '',
       image_urls: details.image_urls || details.primaryImage || ''
     };
 
     console.log('[addCart] 准备添加土地订单:', orderData);
-    console.log('[addCart] 土地详情数据:', details);
-    console.log('[addCart] 选择的规格:', selectItem);
-    console.log('[addCart] 用户信息:', userInfo);
 
     // 调用添加土地订单API
     addLandOrder(orderData).then(res => {
@@ -352,6 +382,7 @@ Page({
         duration: 1000,
       });
     });
+    */
   },
 
   // 添加到本地购物车
@@ -370,11 +401,11 @@ Page({
       originPrice: details.maxLinePrice || details.price || 0,
       primaryImage: details.primaryImage || details.image_urls || '',
       thumb: details.primaryImage || details.image_urls || '', // 添加thumb字段
-      quantity: buyNum,
-      stockQuantity: 999, // 土地库存设为较大值
+      quantity: 1, // 土地商品数量固定为1
+      stockQuantity: 1, // 土地库存设为1，限制最大购买数量
       specInfo: selectItem.specInfo || [{
         specTitle: '租赁时长',
-        specValue: `${buyNum}个月`
+        specValue: '1个月'
       }]
     };
 
@@ -438,13 +469,98 @@ Page({
     });
   },
 
-  specsConfirm() {
+  async specsConfirm() {
     const {
-      buyType
+      buyType,
+      isAllSelectedSku,
+      selectItem,
+      buyNum,
+      details
     } = this.data;
+    
+    if (!isAllSelectedSku) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '请选择规格',
+        icon: '',
+        duration: 1000,
+      });
+      return;
+    }
+
     if (buyType === 1) {
-      this.gotoBuy();
+      // 立即购买 - 调用后端API创建订单
+      console.log('[specsConfirm] 立即购买 - 调用后端API创建土地订单');
+      
+      // 获取用户信息
+      const app = getApp();
+      const userInfo = app.globalData.userInfo;
+      if (!userInfo || !userInfo.user_id) {
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '请先登录',
+          icon: 'error',
+          duration: 2000,
+        });
+        return;
+      }
+
+      // 准备土地订单数据
+      const orderData = {
+        land_id: details.land_id || details.id,
+        farm_id: details.farm_id || 1,
+        user_id: userInfo.user_id,
+        farm_address: details.farm_address || '',
+        price: selectItem.price || details.minSalePrice || details.price || 0,
+        count: buyNum,
+        detail: details.detail || details.title || '',
+        image_urls: details.image_urls || details.primaryImage || ''
+      };
+
+      console.log('[specsConfirm] 准备创建土地订单:', orderData);
+
+      try {
+        // 调用添加土地订单API
+        const res = await addLandOrder(orderData);
+        console.log('[specsConfirm] API响应:', res);
+        
+        if (res.code === 200) {
+          Toast({
+            context: this,
+            selector: '#t-toast',
+            message: '订单创建成功',
+            icon: 'check-circle',
+            duration: 1000,
+          });
+
+          // 关闭规格选择弹窗
+          this.handlePopupHide();
+          
+          // 跳转到订单确认页面
+          this.gotoBuy();
+        } else {
+          Toast({
+            context: this,
+            selector: '#t-toast',
+            message: res.msg || '订单创建失败',
+            icon: 'close-circle',
+            duration: 1000,
+          });
+        }
+      } catch (error) {
+        console.error('[specsConfirm] 创建土地订单失败:', error);
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '订单创建失败',
+          icon: 'close-circle',
+          duration: 1000,
+        });
+      }
     } else {
+      // 加入购物车
       this.addCart();
     }
   },

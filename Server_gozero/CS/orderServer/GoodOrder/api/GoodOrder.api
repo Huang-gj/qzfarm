@@ -71,6 +71,28 @@ type AddGoodOrderResponse {
 	Msg  string `json:"msg"`
 }
 
+type UpdateOrderCountRequest {
+	GoodOrderID int `json:"good_order_id"`
+	UserID      int `json:"user_id"`
+	Count       int `json:"count"`
+}
+
+type UpdateOrderCountResponse {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type GetOrderByStatusRequest {
+	UserID      int    `json:"user_id"`
+	OrderStatus string `json:"order_status"`
+}
+
+type GetOrderByStatusResponse {
+	Code       int          `json:"code"`
+	Msg        string       `json:"msg"`
+	good_order []*GoodOrder `json:"good_order"`
+}
+
 @server (
 	prefix: api
 	jwt:    Auth
@@ -84,5 +106,11 @@ service good_order-api {
 
 	@handler AddGoodOrder
 	post /AddGoodOrder (AddGoodOrderRequest) returns (AddGoodOrderResponse)
+
+	@handler UpdateOrderCount
+	post /UpdateOrderCount (UpdateOrderCountRequest) returns (UpdateOrderCountResponse)
+
+	@handler GetOrderByStatus
+	post /GetOrderByStatus (GetOrderByStatusRequest) returns (GetOrderByStatusResponse)
 }
 

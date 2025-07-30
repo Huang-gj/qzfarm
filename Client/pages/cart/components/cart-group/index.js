@@ -10,17 +10,38 @@ Component({
     storeGoods: {
       type: Array,
       observer(storeGoods) {
+        console.log('[cart-group] storeGoods observer 被调用:', storeGoods);
+        
         for (const store of storeGoods) {
+          console.log('[cart-group] 处理店铺:', store.storeName);
+          console.log('[cart-group] promotionGoodsList:', store.promotionGoodsList);
+          
           for (const activity of store.promotionGoodsList) {
+            console.log('[cart-group] 处理活动:', activity);
+            console.log('[cart-group] goodsPromotionList:', activity.goodsPromotionList);
+            
             for (const goods of activity.goodsPromotionList) {
-              goods.specs = goods.specInfo.map((item) => item.specValue); // 目前仅展示商品已选规格的值
+              console.log('[cart-group] 处理商品:', goods);
+              // 安全地处理 specInfo
+              if (goods.specInfo && Array.isArray(goods.specInfo)) {
+                goods.specs = goods.specInfo.map((item) => item.specValue);
+              } else {
+                goods.specs = [];
+              }
             }
           }
+          
           for (const goods of store.shortageGoodsList) {
-            goods.specs = goods.specInfo.map((item) => item.specValue); // 目前仅展示商品已选规格的值
+            // 安全地处理 specInfo
+            if (goods.specInfo && Array.isArray(goods.specInfo)) {
+              goods.specs = goods.specInfo.map((item) => item.specValue);
+            } else {
+              goods.specs = [];
+            }
           }
         }
 
+        console.log('[cart-group] 设置 _storeGoods:', storeGoods);
         this.setData({
           _storeGoods: storeGoods
         });
@@ -29,9 +50,18 @@ Component({
     invalidGoodItems: {
       type: Array,
       observer(invalidGoodItems) {
+        console.log('[cart-group] invalidGoodItems observer 被调用:', invalidGoodItems);
+        
         invalidGoodItems.forEach((goods) => {
-          goods.specs = goods.specInfo.map((item) => item.specValue); // 目前仅展示商品已选规格的值
+          // 安全地处理 specInfo
+          if (goods.specInfo && Array.isArray(goods.specInfo)) {
+            goods.specs = goods.specInfo.map((item) => item.specValue);
+          } else {
+            goods.specs = [];
+          }
         });
+        
+        console.log('[cart-group] 设置 _invalidGoodItems:', invalidGoodItems);
         this.setData({
           _invalidGoodItems: invalidGoodItems
         });
@@ -42,6 +72,11 @@ Component({
     },
     thumbHeight: {
       type: null
+    },
+    // 添加购物车类型属性
+    cartType: {
+      type: String,
+      value: 'goods' // 默认为农产品
     },
   },
 
@@ -68,6 +103,8 @@ Component({
 
     // 确认是否删除商品（从stepper减到0时调用）
     confirmDeleteGoods(goods) {
+      console.log('[confirmDeleteGoods] 确认删除商品:', goods);
+      
       wx.showModal({
         title: '提示',
         content: '确定将该商品从购物车中移除吗？',
@@ -76,11 +113,13 @@ Component({
         success: (res) => {
           if (res.confirm) {
             // 用户点击确定，触发删除事件
+            console.log('[confirmDeleteGoods] 用户确认删除，触发删除事件');
             this.triggerEvent('delete', {
               goods
             });
           } else {
             // 用户点击取消，恢复数量为1
+            console.log('[confirmDeleteGoods] 用户取消删除，恢复数量为1');
             this.changeQuantity(1, goods);
           }
         }
@@ -117,12 +156,34 @@ Component({
         goods
       } = e.currentTarget.dataset;
       let num = value;
-      if (value > goods.stack) {
-        num = goods.stack;
+      
+      // 根据购物车类型设置最大数量限制
+      const { cartType } = this.data;
+      let maxQuantity = goods.stockQuantity;
+      
+      if (cartType === 'land') {
+        // 土地购物车最大数量限制为1
+        maxQuantity = 1;
+        console.log('[changeStepper] 土地购物车，最大数量限制为1');
       }
+      
+      // 检查数量是否超过限制
+      if (value > maxQuantity) {
+        num = maxQuantity;
+        console.log('[changeStepper] 数量超过限制，调整为:', num);
+      }
+
+      console.log('[changeStepper] 数量变化:', { 
+        value, 
+        num, 
+        stockQuantity: goods.stockQuantity, 
+        maxQuantity, 
+        cartType 
+      });
 
       // 当数量变为0时，弹出确认框询问是否删除
       if (num === 0) {
+        console.log('[changeStepper] 数量为0，触发删除确认');
         this.confirmDeleteGoods(goods);
         return;
       }
@@ -149,7 +210,15 @@ Component({
         return;
       }
 
-      const text = '同一商品最多购买999件';
+      const { cartType } = this.data;
+      let text = '同一商品最多购买999件';
+      
+      if (cartType === 'land') {
+        text = '土地商品最多购买1件';
+      }
+      
+      console.log('[overlimit] 数量超出限制:', { cartType, text });
+      
       Toast({
         context: this,
         selector: '#t-toast',

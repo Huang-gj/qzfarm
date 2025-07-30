@@ -31,6 +31,9 @@ type (
 		Delete(ctx context.Context, id int64) error
 		FindOneByUIDAndOID(ctx context.Context, userId, landOrderId int64) (*LandOrder, error)
 		FindAll(ctx context.Context, userId int64) ([]*LandOrder, error)
+		FindOneByUidAndStatus(ctx context.Context, userId int64, orderStatus string) ([]*LandOrder, error)
+		UpdateOrderCount(ctx context.Context, userId, landOrderId, newCount int64) error
+		DeleteSoft(ctx context.Context, userId, landOrderId int64) error
 	}
 
 	defaultLandOrderModel struct {
@@ -121,4 +124,26 @@ func (m *defaultLandOrderModel) FindOneByUIDAndOID(ctx context.Context, userId, 
 	default:
 		return nil, err
 	}
+}
+
+func (m *defaultLandOrderModel) FindOneByUidAndStatus(ctx context.Context, userId int64, orderStatus string) ([]*LandOrder, error) {
+	query := fmt.Sprintf("select %s from %s where `user_id` = ? and `order_status` = ?", landOrderRows, m.table)
+	var resp []*LandOrder
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, userId, orderStatus)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (m *defaultLandOrderModel) UpdateOrderCount(ctx context.Context, userId, landOrderId, newCount int64) error {
+	query := fmt.Sprintf("update %s set `count` = ? where `user_id` = ? and `land_order_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, newCount, userId, landOrderId)
+	return err
+}
+
+func (m *defaultLandOrderModel) DeleteSoft(ctx context.Context, userId, landOrderId int64) error {
+	query := fmt.Sprintf("update %s set `del_state` = 1, `del_time` = ? where `user_id` = ? and `land_order_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, time.Now(), userId, landOrderId)
+	return err
 }

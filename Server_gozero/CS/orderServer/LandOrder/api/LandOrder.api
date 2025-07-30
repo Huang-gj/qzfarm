@@ -67,6 +67,28 @@ type AddLandOrderResponse {
 	Msg  string `json:"msg"`
 }
 
+type UpdateOrderCountRequest {
+	LandOrderID int `json:"land_order_id"`
+	UserID      int `json:"user_id"`
+	Count       int `json:"count"`
+}
+
+type UpdateOrderCountResponse {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type GetOrderByStatusRequest {
+	UserID      int    `json:"user_id"`
+	OrderStatus string `json:"order_status"`
+}
+
+type GetOrderByStatusResponse {
+	Code       int          `json:"code"`
+	Msg        string       `json:"msg"`
+	land_order []*LandOrder `json:"land_order"`
+}
+
 @server (
 	prefix: api
 	jwt:    Auth
@@ -80,5 +102,11 @@ service land_order-api {
 
 	@handler AddLandOrder
 	post /AddLandOrder (AddLandOrderRequest) returns (AddLandOrderResponse)
+
+	@handler UpdateOrderCount
+	post /UpdateOrderCount (UpdateOrderCountRequest) returns (UpdateOrderCountResponse)
+
+	@handler GetOrderByStatus
+	post /GetOrderByStatus (GetOrderByStatusRequest) returns (GetOrderByStatusResponse)
 }
 

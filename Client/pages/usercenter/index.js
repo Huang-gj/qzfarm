@@ -400,7 +400,7 @@ Page({
 
   jumpAllOrder() {
     wx.navigateTo({
-      url: '/pages/order/list/index'
+      url: '/pages/order/order-list/index'
     });
   },
 
@@ -411,7 +411,22 @@ Page({
   },
 
   jumpGoodsOrderNav(e) {
-    const { item } = e.detail;
+    console.log('[jumpGoodsOrderNav] 接收到事件:', e);
+    console.log('[jumpGoodsOrderNav] e.detail:', e.detail);
+    
+    if (!e.detail) {
+      console.error('[jumpGoodsOrderNav] e.detail 为空');
+      return;
+    }
+    
+    const item = e.detail;
+    console.log('[jumpGoodsOrderNav] 获取到的item:', item);
+    
+    if (!item || !item.tabType) {
+      console.error('[jumpGoodsOrderNav] item 或 item.tabType 为空');
+      return;
+    }
+    
     console.log('[jumpGoodsOrderNav] 跳转到商品订单详情, tabType:', item.tabType);
     this.fetchOrderData('goods', item.tabType);
   },
@@ -423,7 +438,22 @@ Page({
   },
 
   jumpLandsOrderNav(e) {
-    const { item } = e.detail;
+    console.log('[jumpLandsOrderNav] 接收到事件:', e);
+    console.log('[jumpLandsOrderNav] e.detail:', e.detail);
+    
+    if (!e.detail) {
+      console.error('[jumpLandsOrderNav] e.detail 为空');
+      return;
+    }
+    
+    const item = e.detail;
+    console.log('[jumpLandsOrderNav] 获取到的item:', item);
+    
+    if (!item || !item.tabType) {
+      console.error('[jumpLandsOrderNav] item 或 item.tabType 为空');
+      return;
+    }
+    
     console.log('[jumpLandsOrderNav] 跳转到土地订单详情, tabType:', item.tabType);
     this.fetchOrderData('lands', item.tabType);
   },
@@ -479,7 +509,7 @@ Page({
       }
 
       // 构建跳转URL
-      let url = '/pages/order/list/index';
+      let url = '/pages/order/order-list/index';
       const params = [`orderType=${orderType}`];
       
       if (tabType !== null) {
@@ -524,7 +554,7 @@ Page({
   jumpNav(e) {
     const { item } = e.detail;
     wx.navigateTo({
-      url: `/pages/order/list/index?tabType=${item.tabType}`
+      url: `/pages/order/order-list/index?tabType=${item.tabType}`
     });
   },
 

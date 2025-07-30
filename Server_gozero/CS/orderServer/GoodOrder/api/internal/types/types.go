@@ -47,6 +47,17 @@ type GetGoodOrderResponse struct {
 	Good_order []*GoodOrder `json:"good_order"`
 }
 
+type GetOrderByStatusRequest struct {
+	UserID      int    `json:"user_id"`
+	OrderStatus string `json:"order_status"`
+}
+
+type GetOrderByStatusResponse struct {
+	Code       int          `json:"code"`
+	Msg        string       `json:"msg"`
+	Good_order []*GoodOrder `json:"good_order"`
+}
+
 type GoodOrder struct {
 	Id          int64   `json:"id"`
 	DelState    int64   `json:"del_state"`     // 0-正常 1-删除
@@ -64,4 +75,15 @@ type GoodOrder struct {
 	Count       int64   `json:"count"`         // 购买数量
 	Detail      string  `json:"detail"`        // 订单详情
 	OrderStatus string  `json:"order_status"`
+}
+
+type UpdateOrderCountRequest struct {
+	GoodOrderID int `json:"good_order_id"`
+	UserID      int `json:"user_id"`
+	Count       int `json:"count"`
+}
+
+type UpdateOrderCountResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
 }

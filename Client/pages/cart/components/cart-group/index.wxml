@@ -73,7 +73,7 @@
                     classname="stepper-info"
                     value="{{goods.quantity}}"
                     min="{{0}}"
-                    max="{{999}}"
+                    max="{{cartType === 'land' ? 1 : 999}}"
                     data-goods="{{goods}}"
                     data-gi="{{gi}}"
                     data-si="{{si}}"

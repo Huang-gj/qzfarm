@@ -60,17 +60,8 @@ App({
   }
 // ... existing code ...
 
-    // 测试云文件URL转换
-    const {
-      genPicURL
-    } = require('./utils/genURL');
-    const testFileID = 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/toBar/TdesignHome.jpg';
-
-    genPicURL(testFileID).then(url => {
-      console.log('云文件转换测试成功:', url);
-    }).catch(err => {
-      console.error('云文件转换测试失败:', err);
-    });
+    // 移除云文件转换测试，避免在应用启动时进行不必要的测试
+    // 如果需要测试，可以在开发时手动调用
   },
   onShow: function () {
     updateManager();

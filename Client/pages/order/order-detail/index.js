@@ -9,6 +9,7 @@ import {
   fetchBusinessTime,
   fetchOrderDetail,
 } from '../../../services/order/orderDetail';
+import { genPicURL } from '../../../utils/genURL';
 import Toast from 'tdesign-miniprogram/toast/index';
 import {
   getAddressPromise
@@ -91,60 +92,166 @@ Page({
     return this.getDetail().then(() => callback && callback());
   },
 
-  getDetail() {
+  async getDetail() {
+    console.log('[getDetail] 获取订单详情，orderNo:', this.orderNo);
+    
     const params = {
       parameter: this.orderNo,
     };
-    return fetchOrderDetail(params).then((res) => {
-      const order = res.data;
-      const _order = {
-        id: order.orderId,
-        orderNo: order.orderNo,
-        parentOrderNo: order.parentOrderNo,
-        storeId: order.storeId,
-        storeName: order.storeName,
-        status: order.orderStatus,
-        statusDesc: order.orderStatusName,
-        amount: order.paymentAmount,
-        totalAmount: order.goodsAmountApp,
-        logisticsNo: order.logisticsVO.logisticsNo,
-        goodsList: (order.orderItemVOs || []).map((goods) =>
-          Object.assign({}, goods, {
-            id: goods.id,
-            thumb: goods.goodsPictureUrl,
-            title: goods.goodsName,
-            skuId: goods.skuId,
-            good_id: goods.good_id,
-            specs: (goods.specifications || []).map((s) => s.specValue),
-            price: goods.tagPrice ? goods.tagPrice : goods.actualPrice, // 商品销售单价, 优先取限时活动价
-            num: goods.buyQuantity,
-            titlePrefixTags: goods.tagText ? [{
-              text: goods.tagText
-            }] : [],
-            buttons: goods.buttonVOs || [],
-          }),
-        ),
-        buttons: order.buttonVOs || [],
-        createTime: order.createTime,
-        receiverAddress: this.composeAddress(order),
-        groupInfoVo: order.groupInfoVo,
-      };
+    return fetchOrderDetail(params).then(async (res) => {
+      console.log('[getDetail] 完整响应:', res);
+      
+      // 检查响应数据结构
+      if (!res) {
+        console.error('[getDetail] 响应数据为空，orderNo:', this.orderNo);
+        wx.showToast({
+          title: '订单不存在',
+          icon: 'none'
+        });
+        return;
+      }
+      
+      // 判断是商品订单还是土地订单
+      let order;
+      if (res.good_order) {
+        // 商品订单
+        order = res.good_order;
+        console.log('[getDetail] 获取到的商品订单数据:', order);
+      } else if (res.land_order) {
+        // 土地订单
+        order = res.land_order;
+        console.log('[getDetail] 获取到的土地订单数据:', order);
+      } else {
+        console.error('[getDetail] 订单数据为空，orderNo:', this.orderNo);
+        wx.showToast({
+          title: '订单不存在',
+          icon: 'none'
+        });
+        return;
+      }
+      
+      // 根据订单类型处理数据
+      let _order;
+      if (order.good_order_id) {
+        // 商品订单 - 处理图片URL
+        const processedImageUrl = await this.processImageUrl(order.image_urls);
+        _order = {
+          id: order.good_order_id,
+          orderNo: order.good_order_id.toString(),
+          parentOrderNo: order.good_order_id.toString(),
+          storeId: order.farm_id || 0,
+          storeName: `农场${order.farm_id}`,
+          status: 1, // 待付款状态
+          statusDesc: '待付款',
+          amount: order.price || 0,
+          totalAmount: (order.price * order.count) || 0,
+          logisticsNo: '', // 商品订单暂无物流信息
+          goodsList: [{
+            id: order.good_id,
+            thumb: processedImageUrl,
+            title: order.title || `商品${order.good_id}`,
+            skuId: order.good_id,
+            good_id: order.good_id,
+            specs: [order.units || '个'],
+            price: order.price || 0,
+            num: order.count || 0,
+            titlePrefixTags: [],
+            buttons: [],
+          }],
+          buttons: [],
+          createTime: order.create_time || '',
+          receiverAddress: '',
+          groupInfoVo: null,
+        };
+      } else if (order.land_order_id) {
+        // 土地订单 - 处理图片URL
+        const processedImageUrl = await this.processImageUrl(order.image_urls);
+        _order = {
+          id: order.land_order_id,
+          orderNo: order.land_order_id.toString(),
+          parentOrderNo: order.land_order_id.toString(),
+          storeId: order.farm_id || 0,
+          storeName: `农场${order.farm_id}`,
+          status: 1, // 待付款状态
+          statusDesc: '待付款',
+          amount: order.price || 0,
+          totalAmount: (order.price * order.count) || 0,
+          logisticsNo: '', // 土地订单暂无物流信息
+          goodsList: [{
+            id: order.land_id,
+            thumb: processedImageUrl,
+            title: `土地${order.land_id}`,
+            skuId: order.land_id,
+            land_id: order.land_id,
+            specs: [`租赁${order.count}个月`],
+            price: order.price || 0,
+            num: order.count || 0,
+            titlePrefixTags: [],
+            buttons: [],
+          }],
+          buttons: [],
+          createTime: order.create_time || '',
+          receiverAddress: '',
+          groupInfoVo: null,
+        };
+      } else {
+        // 兼容原有数据结构
+        _order = {
+          id: order.orderId,
+          orderNo: order.orderNo,
+          parentOrderNo: order.parentOrderNo,
+          storeId: order.storeId,
+          storeName: order.storeName,
+          status: order.orderStatus,
+          statusDesc: order.orderStatusName,
+          amount: order.paymentAmount,
+          totalAmount: order.goodsAmountApp,
+          logisticsNo: order.logisticsVO?.logisticsNo || '',
+          goodsList: (order.orderItemVOs || []).map((goods) =>
+            Object.assign({}, goods, {
+              id: goods.id,
+              thumb: goods.goodsPictureUrl,
+              title: goods.goodsName,
+              skuId: goods.skuId,
+              good_id: goods.good_id,
+              specs: (goods.specifications || []).map((s) => s.specValue),
+              price: goods.tagPrice ? goods.tagPrice : goods.actualPrice,
+              num: goods.buyQuantity,
+              titlePrefixTags: goods.tagText ? [{
+                text: goods.tagText
+              }] : [],
+              buttons: goods.buttonVOs || [],
+            }),
+          ),
+          buttons: order.buttonVOs || [],
+          createTime: order.createTime,
+          receiverAddress: this.composeAddress(order),
+          groupInfoVo: order.groupInfoVo,
+        };
+      }
+      
+      // 处理时间格式
+      let formattedCreateTime = '';
+      if (_order.createTime) {
+        console.log('[getDetail] 原始创建时间:', _order.createTime);
+        // 直接使用 dayjs 处理时间字符串，不需要 parseFloat
+        formattedCreateTime = formatTime(_order.createTime, 'YYYY-MM-DD HH:mm');
+        console.log('[getDetail] 格式化后的创建时间:', formattedCreateTime);
+      }
+      
       this.setData({
         order,
         _order,
-        formatCreateTime: formatTime(
-          parseFloat(`${order.createTime}`),
-          'YYYY-MM-DD HH:mm',
-        ), // 格式化订单创建时间
+        formatCreateTime: formattedCreateTime,
         countDownTime: this.computeCountDownTime(order),
         addressEditable: [OrderStatus.PENDING_PAYMENT, OrderStatus.PENDING_DELIVERY].includes(
-          order.orderStatus,
-        ) && order.orderSubStatus !== -1, // 订单正在取消审核时不允许修改地址（但是返回的状态码与待发货一致）
-        isPaid: !!order.paymentVO.paySuccessTime,
-        invoiceStatus: this.datermineInvoiceStatus(order),
-        invoiceDesc: order.invoiceDesc,
-        invoiceType: order.invoiceVO?.invoiceType === 5 ? '电子普通发票' : '不开发票', //是否开票 0-不开 5-电子发票
-        logisticsNodes: this.flattenNodes(order.trajectoryVos || []),
+          _order.status,
+        ),
+        isPaid: false, // 简化处理
+        invoiceStatus: 3, // 未开票
+        invoiceDesc: '',
+        invoiceType: '不开发票',
+        logisticsNodes: [],
       });
     });
   },
@@ -187,9 +294,27 @@ Page({
 
   getStoreDetail() {
     fetchBusinessTime().then((res) => {
+      console.log('[getStoreDetail] 获取到的数据:', res);
+      
+      // 添加安全检查
+      if (!res || !res.data) {
+        console.error('[getStoreDetail] 数据为空');
+        return;
+      }
+      
       const storeDetail = {
-        storeTel: res.data.telphone,
-        storeBusiness: res.data.businessTime.join('\n'),
+        storeTel: res.data.telphone || '暂无',
+        storeBusiness: res.data.businessTime ? res.data.businessTime.join('\n') : '暂无营业时间',
+      };
+      this.setData({
+        storeDetail
+      });
+    }).catch((error) => {
+      console.error('[getStoreDetail] 获取商店详情失败:', error);
+      // 设置默认值
+      const storeDetail = {
+        storeTel: '暂无',
+        storeBusiness: '暂无营业时间',
       };
       this.setData({
         storeDetail
@@ -310,5 +435,57 @@ Page({
     wx.navigateTo({
       url: `/pages/order/invoice/index?orderNo=${this.orderNo}`,
     });
+  },
+
+  /**
+   * 处理图片URL，使用genPicURL转换云存储路径
+   * @param {string} imageUrls - 图片URL字符串
+   * @returns {Promise<string>} 处理后的图片URL
+   */
+  async processImageUrl(imageUrls) {
+    console.log('[processImageUrl] 原始图片URL:', imageUrls);
+    
+    if (!imageUrls) {
+      return 'https://via.placeholder.com/150x150?text=暂无图片';
+    }
+    
+    try {
+      // 处理图片URL（可能是JSON字符串、逗号分隔或单个URL）
+      let imageUrl;
+      if (typeof imageUrls === 'string') {
+        if (imageUrls.startsWith('[') || imageUrls.includes(',')) {
+          // JSON数组或逗号分隔的多个URL，取第一个
+          const urls = imageUrls.startsWith('[') 
+            ? JSON.parse(imageUrls) 
+            : imageUrls.split(',');
+          imageUrl = urls[0];
+        } else {
+          // 单个URL
+          imageUrl = imageUrls;
+        }
+      } else {
+        imageUrl = imageUrls;
+      }
+      
+      console.log('[processImageUrl] 解析后的图片URL:', imageUrl);
+      
+      // 如果是云存储路径，使用genPicURL转换
+      if (imageUrl && (imageUrl.startsWith('cloud://') || imageUrl.includes('cloud'))) {
+        const processedUrl = await genPicURL(imageUrl);
+        console.log('[processImageUrl] 转换后的图片URL:', processedUrl);
+        return processedUrl;
+      } else if (imageUrl && imageUrl.startsWith('http')) {
+        // 已经是HTTP URL，直接返回
+        console.log('[processImageUrl] 使用原始HTTP URL:', imageUrl);
+        return imageUrl;
+      } else {
+        // 其他情况，返回占位图
+        console.log('[processImageUrl] 使用占位图');
+        return 'https://via.placeholder.com/150x150?text=暂无图片';
+      }
+    } catch (error) {
+      console.error('[processImageUrl] 处理图片URL失败:', error);
+      return 'https://via.placeholder.com/150x150?text=图片加载失败';
+    }
   },
 });

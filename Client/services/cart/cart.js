@@ -69,6 +69,51 @@ export function fetchGoodsCartData() {
   
   console.log('[fetchGoodsCartData] 从本地存储获取农产品购物车数据:', cartData);
   
+  // 处理旧格式数据（数组格式）转换为新格式
+  if (Array.isArray(cartData)) {
+    console.log('[fetchGoodsCartData] 检测到旧格式数据，正在转换...');
+    const convertedData = {
+      goodsList: cartData.map(item => ({
+        uid: item.uid || `${Date.now()}${Math.floor(Math.random() * 1000)}`,
+        saasId: item.saasId || '88888888',
+        storeId: item.storeId || '1',
+        good_id: item.good_id,
+        skuId: item.skuId,
+        isSelected: item.isSelected || 1,
+        thumb: item.thumb || item.primaryImage,
+        title: item.title,
+        primaryImage: item.primaryImage,
+        quantity: item.quantity,
+        stockStatus: item.stockStatus || true,
+        stockQuantity: item.stockQuantity || 999,
+        price: item.price || '0',
+        originPrice: item.originPrice || item.price || '0',
+        tagPrice: item.tagPrice || null,
+        titlePrefixTags: item.titlePrefixTags || null,
+        roomId: item.roomId || null,
+        specInfo: item.specInfo || [],
+        joinCartTime: item.joinCartTime || new Date().toISOString(),
+        available: item.available || 1,
+        putOnSale: item.putOnSale || 1,
+        etitle: item.etitle || null,
+        cartType: item.cartType || 'goods'
+      })),
+      invalidGoodItems: [],
+      isAllSelected: false,
+      selectedGoodsCount: 0,
+      totalAmount: '0',
+      totalDiscountAmount: '0',
+    };
+    
+    // 更新购物车总价和选中商品数量
+    updateCartTotalPrice(convertedData);
+    
+    // 保存转换后的数据
+    wx.setStorageSync('goods_cart_data', convertedData);
+    cartData = convertedData;
+    console.log('[fetchGoodsCartData] 数据转换完成:', cartData);
+  }
+  
   if (!cartData) {
     cartData = {
       goodsList: [],
@@ -118,51 +163,100 @@ export function addGoodsToCart(goodsInfo) {
   console.log('[addGoodsToCart] goodsInfo.good_id:', goodsInfo.good_id);
   console.log('[addGoodsToCart] goodsInfo的类型:', typeof goodsInfo.good_id);
   
-  try {
-    // 获取现有的购物车数据
-    const cartData = wx.getStorageSync('goods_cart_data') || [];
-    console.log('[addGoodsToCart] 现有购物车数据:', cartData);
-    
-    // 检查商品是否已存在
-    const existingIndex = cartData.findIndex(item => 
-      item.good_id === goodsInfo.good_id && item.skuId === goodsInfo.skuId
-    );
-    
-    console.log('[addGoodsToCart] 查找现有商品索引:', existingIndex);
-    console.log('[addGoodsToCart] 查找条件 - good_id:', goodsInfo.good_id, 'skuId:', goodsInfo.skuId);
-    
-    if (existingIndex !== -1) {
-      // 如果商品已存在，更新数量
-      cartData[existingIndex].quantity += goodsInfo.quantity;
-      console.log('[addGoodsToCart] 更新现有商品数量:', cartData[existingIndex]);
-    } else {
-      // 如果商品不存在，添加新商品
-      const newItem = {
-        ...goodsInfo,
-        cartType: 'goods'
-      };
-      cartData.push(newItem);
-      console.log('[addGoodsToCart] 添加新商品:', newItem);
+  return new Promise((resolve, reject) => {
+    try {
+      // 获取现有的购物车数据，确保格式正确
+      let cartData = wx.getStorageSync('goods_cart_data');
+      console.log('[addGoodsToCart] 现有购物车数据:', cartData);
+      
+      // 如果数据不存在或格式不正确，初始化为正确的格式
+      if (!cartData || !cartData.goodsList) {
+        cartData = {
+          goodsList: [],
+          invalidGoodItems: [],
+          isAllSelected: false,
+          selectedGoodsCount: 0,
+          totalAmount: '0',
+          totalDiscountAmount: '0',
+        };
+        console.log('[addGoodsToCart] 初始化新的购物车数据格式');
+      }
+      
+      // 检查商品是否已存在
+      const existingIndex = cartData.goodsList.findIndex(item => 
+        item.good_id === goodsInfo.good_id && item.skuId === goodsInfo.skuId
+      );
+      
+      console.log('[addGoodsToCart] 查找现有商品索引:', existingIndex);
+      console.log('[addGoodsToCart] 查找条件 - good_id:', goodsInfo.good_id, 'skuId:', goodsInfo.skuId);
+      
+      if (existingIndex !== -1) {
+        // 如果商品已存在，更新数量
+        cartData.goodsList[existingIndex].quantity += goodsInfo.quantity;
+        console.log('[addGoodsToCart] 更新现有商品数量:', cartData.goodsList[existingIndex]);
+      } else {
+        // 如果商品不存在，添加新商品
+        // 确保图片URL是字符串类型
+        let processedPrimaryImage = goodsInfo.primaryImage;
+        if (Array.isArray(processedPrimaryImage)) {
+          processedPrimaryImage = processedPrimaryImage[0] || '';
+        } else if (typeof processedPrimaryImage !== 'string') {
+          processedPrimaryImage = String(processedPrimaryImage || '');
+        }
+        
+        console.log('[addGoodsToCart] 处理后的图片URL:', processedPrimaryImage);
+        
+        const newItem = {
+          uid: `${Date.now()}${Math.floor(Math.random() * 1000)}`,
+          saasId: '88888888',
+          storeId: '1',
+          good_id: goodsInfo.good_id,
+          skuId: goodsInfo.skuId,
+          isSelected: 1,
+          thumb: processedPrimaryImage,
+          title: goodsInfo.title,
+          primaryImage: processedPrimaryImage,
+          quantity: goodsInfo.quantity,
+          stockStatus: true,
+          stockQuantity: goodsInfo.stockQuantity || 999,
+          price: goodsInfo.price || '0',
+          originPrice: goodsInfo.originPrice || goodsInfo.price || '0',
+          tagPrice: null,
+          titlePrefixTags: null,
+          roomId: null,
+          specInfo: goodsInfo.specInfo || [],
+          joinCartTime: new Date().toISOString(),
+          available: 1,
+          putOnSale: 1,
+          etitle: null,
+          cartType: 'goods'
+        };
+        cartData.goodsList.push(newItem);
+        console.log('[addGoodsToCart] 添加新商品:', newItem);
+      }
+      
+      // 更新购物车总价和选中商品数量
+      updateCartTotalPrice(cartData);
+      
+      // 保存到本地存储
+      wx.setStorageSync('goods_cart_data', cartData);
+      console.log('[addGoodsToCart] 保存后的购物车数据:', cartData);
+      
+      // 更新购物车数量
+      updateCartNum();
+      
+      resolve({
+        code: 'Success',
+        message: '添加成功'
+      });
+    } catch (error) {
+      console.error('[addGoodsToCart] 添加商品到购物车失败:', error);
+      reject({
+        code: 'Error',
+        message: error.message
+      });
     }
-    
-    // 保存到本地存储
-    wx.setStorageSync('goods_cart_data', cartData);
-    console.log('[addGoodsToCart] 保存后的购物车数据:', cartData);
-    
-    // 更新购物车数量
-    updateCartNum();
-    
-    return {
-      code: 'Success',
-      message: '添加成功'
-    };
-  } catch (error) {
-    console.error('[addGoodsToCart] 添加商品到购物车失败:', error);
-    return {
-      code: 'Error',
-      message: error.message
-    };
-  }
+  });
 }
 
 /** 添加土地到购物车 */
@@ -186,8 +280,8 @@ export function addLandToCart(goodsInfo) {
   let found = false;
   for (let i = 0; i < cartData.goodsList.length; i++) {
     if (cartData.goodsList[i].good_id === goodsInfo.good_id && cartData.goodsList[i].skuId === goodsInfo.skuId) {
-      // 土地已存在，增加数量
-      cartData.goodsList[i].quantity += goodsInfo.quantity || 1;
+      // 土地已存在，但土地商品数量限制为1，不增加数量
+      console.log('[addLandToCart] 土地已存在于购物车中，不增加数量');
       found = true;
       break;
     }
@@ -205,7 +299,7 @@ export function addLandToCart(goodsInfo) {
       thumb: goodsInfo.thumb || goodsInfo.primaryImage,
       title: goodsInfo.title,
       primaryImage: goodsInfo.primaryImage,
-      quantity: goodsInfo.quantity || 1,
+      quantity: 1, // 土地商品数量固定为1
       stockStatus: true,
       stockQuantity: goodsInfo.stockQuantity || 999, // 土地库存设为较大值
       price: goodsInfo.price || '0',
@@ -267,27 +361,47 @@ function updateCartTotalPrice(cartData) {
   return cartData;
 }
 
+// 防重复调用标志
+let isUpdatingCartNum = false;
+
 /** 更新购物车角标数量 */
 export function updateCartNum() {
-  let goodsCartData = wx.getStorageSync('goods_cart_data');
-  let landCartData = wx.getStorageSync('land_cart_data');
-  let count = 0;
-
-  // 计算农产品购物车数量
-  if (goodsCartData && goodsCartData.goodsList) {
-    goodsCartData.goodsList.forEach(goods => {
-      count += goods.quantity;
-    });
+  // 防止重复调用
+  if (isUpdatingCartNum) {
+    console.log('[updateCartNum] 正在更新中，跳过重复调用');
+    return 0;
   }
-
-  // 计算土地购物车数量
-  if (landCartData && landCartData.goodsList) {
-    landCartData.goodsList.forEach(goods => {
-      count += goods.quantity;
-    });
-  }
-
+  
+  isUpdatingCartNum = true;
+  
   try {
+    let goodsCartData = wx.getStorageSync('goods_cart_data');
+    let landCartData = wx.getStorageSync('land_cart_data');
+    let count = 0;
+
+    // 计算农产品购物车数量
+    if (goodsCartData) {
+      // 兼容旧格式（数组）和新格式（对象）
+      if (Array.isArray(goodsCartData)) {
+        goodsCartData.forEach(goods => {
+          count += goods.quantity || 0;
+        });
+      } else if (goodsCartData.goodsList) {
+        goodsCartData.goodsList.forEach(goods => {
+          count += goods.quantity || 0;
+        });
+      }
+    }
+
+    // 计算土地购物车数量
+    if (landCartData && landCartData.goodsList) {
+      landCartData.goodsList.forEach(goods => {
+        count += goods.quantity || 0;
+      });
+    }
+
+    console.log('[updateCartNum] 计算出的购物车数量:', count);
+
     // 更新全局数据
     const app = getApp();
     if (app) {
@@ -307,11 +421,15 @@ export function updateCartNum() {
     if (wx.eventCenter && typeof wx.eventCenter.emit === 'function') {
       wx.eventCenter.emit('cartUpdate', { count });
     }
+    
+    return count;
   } catch (err) {
-    console.log('更新购物车数量失败', err);
+    console.error('[updateCartNum] 更新购物车数量失败', err);
+    return 0;
+  } finally {
+    // 重置标志
+    isUpdatingCartNum = false;
   }
-
-  return count;
 }
 
 /** 获取购物车商品数量 */

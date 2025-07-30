@@ -44,11 +44,12 @@ Component({
   methods: {
     handleSelectAll() {
       const { isAllSelected } = this.data;
+      const newIsAllSelected = !isAllSelected;
       this.setData({
-        isAllSelected: !isAllSelected,
+        isAllSelected: newIsAllSelected,
       });
       this.triggerEvent('handleSelectAll', {
-        isAllSelected: isAllSelected,
+        isAllSelected: newIsAllSelected,
       });
     },
 

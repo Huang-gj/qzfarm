@@ -31,6 +31,9 @@ type (
 		Delete(ctx context.Context, id int64) error
 		FindAll(ctx context.Context, userId int64) ([]*GoodOrder, error)
 		FindOneByUIDAndOID(ctx context.Context, userId, goodOrderId int64) (*GoodOrder, error)
+		FindOneByUidAndStatus(ctx context.Context, userId int64, orderStatus string) ([]*GoodOrder, error)
+		UpdateOrderCount(ctx context.Context, userId, goodOrderId, newCount int64) error
+		DeleteSoft(ctx context.Context, userId, goodOrderId int64) error
 	}
 
 	defaultGoodOrderModel struct {
@@ -123,4 +126,27 @@ func (m *defaultGoodOrderModel) FindOneByUIDAndOID(ctx context.Context, userId, 
 	default:
 		return nil, err
 	}
+}
+
+
+func (m *defaultGoodOrderModel) FindOneByUidAndStatus(ctx context.Context, userId int64, orderStatus string) ([]*GoodOrder, error) {
+	query := fmt.Sprintf("select %s from %s where `user_id` = ? and `order_status` = ?", goodOrderRows, m.table)
+	var resp []*GoodOrder
+	err := m.conn.QueryRowsCtx(ctx, &resp, query, userId, orderStatus)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (m *defaultGoodOrderModel) UpdateOrderCount(ctx context.Context, userId, goodOrderId, newCount int64) error {
+	query := fmt.Sprintf("update %s set `count` = ? where `user_id` = ? and `good_order_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, newCount, userId, goodOrderId)
+	return err
+}
+
+func (m *defaultGoodOrderModel) DeleteSoft(ctx context.Context, userId, goodOrderId int64) error {
+	query := fmt.Sprintf("update %s set `del_state` = 1, `del_time` = ? where `user_id` = ? and `good_order_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, time.Now(), userId, goodOrderId)
+	return err
 }

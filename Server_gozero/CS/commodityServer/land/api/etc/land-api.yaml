@@ -12,7 +12,7 @@ Log:
 
 Auth:
   AccessSecret: 江城路
-  AccessExpire: 3600
+  AccessExpire: 100000
 
 Mysql:
   DataSource: root:root@tcp(127.0.0.1:3306)/qzf?parseTime=true

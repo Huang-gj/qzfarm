@@ -1217,7 +1217,103 @@ export function genOrderDetail(params) {
   const {
     parameter
   } = params;
-  const resp = orderResps.find((r) => r.data.orderNo === parameter);
+  console.log('[genOrderDetail] 查找订单，参数:', parameter);
+  
+  // 首先尝试在原有mock数据中查找
+  let resp = orderResps.find((r) => r.data.orderNo === parameter);
+  
+  // 如果没有找到，尝试生成新的商品订单或土地订单数据
+  if (!resp) {
+    console.log('[genOrderDetail] 未找到原有订单，生成新订单数据');
+    
+    // 判断是商品订单还是土地订单（通过参数格式或类型判断）
+    const isGoodsOrder = parameter.toString().includes('1001') || parameter.toString().includes('1002');
+    const isLandOrder = parameter.toString().includes('2001') || parameter.toString().includes('2002');
+    
+    if (isGoodsOrder) {
+      // 生成商品订单数据
+      resp = {
+        data: {
+          good_order_id: parameter,
+          good_id: parameter,
+          farm_id: 1,
+          title: '橘子',
+          price: 100,
+          count: 1,
+          units: '个',
+          image_urls: 'https://via.placeholder.com/150x150?text=橘子',
+          create_time: new Date().toISOString(),
+        },
+        code: 'Success',
+        msg: null,
+        requestId: mockReqId(),
+        clientIp: mockIp(),
+        rt: 89,
+        success: true,
+      };
+    } else if (isLandOrder) {
+      // 生成土地订单数据
+      resp = {
+        data: {
+          land_order_id: parameter,
+          land_id: parameter,
+          farm_id: 1,
+          price: 500,
+          count: 1,
+          image_urls: 'https://via.placeholder.com/150x150?text=土地',
+          create_time: new Date().toISOString(),
+        },
+        code: 'Success',
+        msg: null,
+        requestId: mockReqId(),
+        clientIp: mockIp(),
+        rt: 89,
+        success: true,
+      };
+    } else {
+      // 生成默认订单数据
+      resp = {
+        data: {
+          orderId: parameter,
+          orderNo: parameter,
+          parentOrderNo: parameter,
+          storeId: '1',
+          storeName: '测试商店',
+          orderStatus: 1,
+          orderStatusName: '待付款',
+          paymentAmount: 100,
+          goodsAmountApp: 100,
+          createTime: new Date().toISOString(),
+          orderItemVOs: [{
+            id: '1',
+            good_id: '1',
+            skuId: '1',
+            goodsName: '测试商品',
+            goodsPictureUrl: 'https://via.placeholder.com/150x150?text=商品',
+            specifications: [{
+              specTitle: '规格',
+              specValue: '默认'
+            }],
+            tagPrice: 100,
+            actualPrice: 100,
+            buyQuantity: 1,
+            buttonVOs: []
+          }],
+          logisticsVO: {
+            logisticsNo: ''
+          }
+        },
+        code: 'Success',
+        msg: null,
+        requestId: mockReqId(),
+        clientIp: mockIp(),
+        rt: 89,
+        success: true,
+      };
+    }
+  }
+  
+  console.log('[genOrderDetail] 返回订单数据:', resp);
   return resp;
 }
 

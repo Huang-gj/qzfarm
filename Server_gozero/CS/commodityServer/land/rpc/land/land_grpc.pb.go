@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Land_GetLand_FullMethodName = "/land.land/getLand"
+	Land_GetLand_FullMethodName      = "/land.land/getLand"
+	Land_UpdateStatus_FullMethodName = "/land.land/updateStatus"
 )
 
 // LandClient is the client API for Land service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LandClient interface {
 	GetLand(ctx context.Context, in *GetLandRepReq, opts ...grpc.CallOption) (*GetLandRepResp, error)
+	UpdateStatus(ctx context.Context, in *UpdateStatusReq, opts ...grpc.CallOption) (*UpdateStatusResp, error)
 }
 
 type landClient struct {
@@ -47,11 +49,22 @@ func (c *landClient) GetLand(ctx context.Context, in *GetLandRepReq, opts ...grp
 	return out, nil
 }
 
+func (c *landClient) UpdateStatus(ctx context.Context, in *UpdateStatusReq, opts ...grpc.CallOption) (*UpdateStatusResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateStatusResp)
+	err := c.cc.Invoke(ctx, Land_UpdateStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LandServer is the server API for Land service.
 // All implementations must embed UnimplementedLandServer
 // for forward compatibility.
 type LandServer interface {
 	GetLand(context.Context, *GetLandRepReq) (*GetLandRepResp, error)
+	UpdateStatus(context.Context, *UpdateStatusReq) (*UpdateStatusResp, error)
 	mustEmbedUnimplementedLandServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedLandServer struct{}
 
 func (UnimplementedLandServer) GetLand(context.Context, *GetLandRepReq) (*GetLandRepResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLand not implemented")
+}
+func (UnimplementedLandServer) UpdateStatus(context.Context, *UpdateStatusReq) (*UpdateStatusResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateStatus not implemented")
 }
 func (UnimplementedLandServer) mustEmbedUnimplementedLandServer() {}
 func (UnimplementedLandServer) testEmbeddedByValue()              {}
@@ -104,6 +120,24 @@ func _Land_GetLand_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Land_UpdateStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateStatusReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LandServer).UpdateStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Land_UpdateStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LandServer).UpdateStatus(ctx, req.(*UpdateStatusReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Land_ServiceDesc is the grpc.ServiceDesc for Land service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var Land_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "getLand",
 			Handler:    _Land_GetLand_Handler,
+		},
+		{
+			MethodName: "updateStatus",
+			Handler:    _Land_UpdateStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

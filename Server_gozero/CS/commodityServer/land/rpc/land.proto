@@ -12,6 +12,15 @@ message getLandRepResp {
   int64 sale_status = 1;
 }
 
+message updateStatusReq{
+  int64 LandID =1;
+  int64 sale_status = 2;
+}
+
+message updateStatusResp{
+
+}
 service land {
   rpc getLand(getLandRepReq) returns (getLandRepResp);
+  rpc updateStatus(updateStatusReq) returns(updateStatusResp);
 }

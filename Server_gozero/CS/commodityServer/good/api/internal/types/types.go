@@ -47,6 +47,6 @@ type Good struct {
 	ImageUrls  string  `json:"image_urls"`  // 图片信息（JSON字符串或逗号分隔）
 	Price      float64 `json:"price"`       // 价格
 	Units      string  `json:"units"`       // 单位，如个/斤/千克等
-	Repertory  float64 `json:"repertory"`   // 库存
+	Repertory  int64 `json:"repertory"`   // 库存
 	Detail     string  `json:"detail"`      // 商品详情
 }

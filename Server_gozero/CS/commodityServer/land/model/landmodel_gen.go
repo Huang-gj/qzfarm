@@ -31,7 +31,9 @@ type (
 		Delete(ctx context.Context, id int64) error
 		GetAllLand(ctx context.Context) ([]*Land, error)
 		GetLandByTag(ctx context.Context, landTag string) ([]*Land, error)
-	}
+		UpdateStatus(ctx context.Context, landId int64, status int64) error
+
+}
 
 	defaultLandModel struct {
 		conn  sqlx.SqlConn
@@ -119,4 +121,10 @@ func (m *defaultLandModel) GetAllLand(ctx context.Context) ([]*Land, error) {
 		return nil, err
 	}
 	return lands, nil
+}
+
+func (m *defaultLandModel) UpdateStatus(ctx context.Context, landId int64, status int64) error {
+	query := fmt.Sprintf("UPDATE %s SET sale_status = ? WHERE land_id = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, status, landId)
+	return err
 }

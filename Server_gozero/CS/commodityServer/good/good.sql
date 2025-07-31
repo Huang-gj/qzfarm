@@ -12,7 +12,7 @@ CREATE TABLE `good`
     image_urls  TEXT COMMENT '图片信息',
     price       FLOAT       NOT NULL DEFAULT 0.0 COMMENT '价格',
     units       VARCHAR(10) NOT NULL DEFAULT '' COMMENT '单位,个/斤/千克等',
-    repertory   FLOAT       NOT NULL DEFAULT 0.0 COMMENT '库存',
+    repertory   INT       NOT NULL DEFAULT 0.0 COMMENT '库存',
     detail      TEXT COMMENT '详情'
 
 )ENGINE = InnoDB

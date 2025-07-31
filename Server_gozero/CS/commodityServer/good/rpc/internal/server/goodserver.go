@@ -27,3 +27,8 @@ func (s *GoodServer) GetGood(ctx context.Context, in *good.GetGoodRepReq) (*good
 	l := logic.NewGetGoodLogic(ctx, s.svcCtx)
 	return l.GetGood(in)
 }
+
+func (s *GoodServer) UpdateRep(ctx context.Context, in *good.UpdateRepReq) (*good.UpdateRepResp, error) {
+	l := logic.NewUpdateRepLogic(ctx, s.svcCtx)
+	return l.UpdateRep(in)
+}

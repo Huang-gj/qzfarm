@@ -27,3 +27,8 @@ func (s *LandServer) GetLand(ctx context.Context, in *land.GetLandRepReq) (*land
 	l := logic.NewGetLandLogic(ctx, s.svcCtx)
 	return l.GetLand(in)
 }
+
+func (s *LandServer) UpdateStatus(ctx context.Context, in *land.UpdateStatusReq) (*land.UpdateStatusResp, error) {
+	l := logic.NewUpdateStatusLogic(ctx, s.svcCtx)
+	return l.UpdateStatus(in)
+}

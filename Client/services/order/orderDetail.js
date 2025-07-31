@@ -1,9 +1,15 @@
-import { config } from '../../config/index';
+import {
+  config
+} from '../../config/index';
 
 /** 获取订单详情mock数据 */
 function mockFetchOrderDetail(params) {
-  const { delay } = require('../_utils/delay');
-  const { genOrderDetail } = require('../../model/order/orderDetail');
+  const {
+    delay
+  } = require('../_utils/delay');
+  const {
+    genOrderDetail
+  } = require('../../model/order/orderDetail');
 
   return delay().then(() => genOrderDetail(params));
 }
@@ -15,23 +21,23 @@ export function fetchOrderDetail(params) {
   }
 
   console.log('[fetchOrderDetail] 请求参数:', params);
-  
+
   // 获取用户信息
   const userInfo = wx.getStorageSync('userInfo') || {};
   const userId = userInfo.user_id;
-  
+
   if (!userId) {
     console.error('[fetchOrderDetail] 用户未登录');
     return Promise.reject(new Error('用户未登录'));
   }
-  
+
   // 判断订单类型（通过参数格式判断）
   const orderId = params.parameter;
   const isGoodsOrder = orderId.toString().includes('1001') || orderId.toString().includes('1002');
   const isLandOrder = orderId.toString().includes('2001') || orderId.toString().includes('2002');
-  
+
   let url, requestData;
-  
+
   if (isGoodsOrder) {
     // 商品订单
     url = 'http://localhost:8891/api/GetGoodOrderDetail';
@@ -41,7 +47,7 @@ export function fetchOrderDetail(params) {
     };
   } else if (isLandOrder) {
     // 土地订单
-    url = 'http://localhost:8891/api/GetLandOrderDetail';
+    url = 'http://localhost:8892/api/GetLandOrderDetail';
     requestData = {
       user_id: userId,
       land_order_id: parseInt(orderId)
@@ -54,10 +60,14 @@ export function fetchOrderDetail(params) {
       good_order_id: parseInt(orderId)
     };
   }
-  
-  console.log('[fetchOrderDetail] 订单类型判断:', { isGoodsOrder, isLandOrder, orderId });
+
+  console.log('[fetchOrderDetail] 订单类型判断:', {
+    isGoodsOrder,
+    isLandOrder,
+    orderId
+  });
   console.log('[fetchOrderDetail] 发送请求数据:', requestData);
-  
+
   // 获取存储的token
   const tokenData = wx.getStorageSync('token');
   let headers = {
@@ -71,7 +81,7 @@ export function fetchOrderDetail(params) {
   } else {
     console.warn('[fetchOrderDetail] 未找到token，可能影响认证');
   }
-  
+
   return new Promise((resolve, reject) => {
     wx.request({
       url: url,
@@ -98,8 +108,12 @@ export function fetchOrderDetail(params) {
 
 /** 获取客服mock数据 */
 function mockFetchBusinessTime(params) {
-  const { delay } = require('../_utils/delay');
-  const { genBusinessTime } = require('../../model/order/orderDetail');
+  const {
+    delay
+  } = require('../_utils/delay');
+  const {
+    genBusinessTime
+  } = require('../../model/order/orderDetail');
 
   return delay().then(() => genBusinessTime(params));
 }

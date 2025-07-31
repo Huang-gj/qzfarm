@@ -31,7 +31,9 @@ type (
 		FindOne(ctx context.Context, id int64) (*Good, error)
 		Update(ctx context.Context, data *Good) error
 		Delete(ctx context.Context, id int64) error
-	}
+		UpdateRepertory(ctx context.Context, goodId int64, repertory int64) error
+
+}
 
 	defaultGoodModel struct {
 		conn  sqlx.SqlConn
@@ -50,7 +52,7 @@ type (
 		ImageUrls  sql.NullString `db:"image_urls"`  // 图片信息
 		Price      float64        `db:"price"`       // 价格
 		Units      string         `db:"units"`       // 单位,个/斤/千克等
-		Repertory  float64        `db:"repertory"`   // 库存
+		Repertory  int64        `db:"repertory"`   // 库存
 		Detail     sql.NullString `db:"detail"`      // 详情
 	}
 )
@@ -120,4 +122,10 @@ func (m *defaultGoodModel) FindAllByGoodTag(ctx context.Context, goodTag string)
 		return nil, err
 	}
 	return goods, nil
+}
+
+func (m *defaultGoodModel) UpdateRepertory(ctx context.Context, goodId int64, repertory int64) error {
+	query := fmt.Sprintf("UPDATE %s SET repertory = ? WHERE good_id = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, repertory, goodId)
+	return err
 }

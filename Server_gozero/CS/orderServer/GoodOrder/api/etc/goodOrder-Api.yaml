@@ -31,3 +31,8 @@ GoodRPC:
     Hosts:
       - 127.0.0.1:2379
     Key: good.rpc
+
+RedisLockConf:
+  Type: node
+  Host: localhost:6379
+

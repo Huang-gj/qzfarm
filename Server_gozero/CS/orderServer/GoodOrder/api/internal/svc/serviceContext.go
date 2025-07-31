@@ -6,6 +6,7 @@ import (
 	"Server_gozero/CS/orderServer/GoodOrder/api/internal/config"
 	"Server_gozero/CS/orderServer/GoodOrder/model"
 	"context"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/zrpc"
 
@@ -17,11 +18,16 @@ type ServiceContext struct {
 	Ident     IDGenerator.Ident
 	GoodOrder model.GoodOrderModel
 	GoodRPC   goodclient.Good
+	RedisLock *redis.Redis
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	sqlxConn := sqlx.NewMysql(c.Mysql.DataSource)
 	Ident, err := IDGenerator.NewIdent(context.Background(), id.NewID(zrpc.MustNewClient(c.IDRpc)))
+	rds, err := redis.NewRedis(redis.RedisConf{
+		Host: c.RedisLockConf.Host,
+		Type: c.RedisLockConf.Type,
+	})
 	if err != nil {
 		println(err.Error())
 	}
@@ -30,5 +36,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Ident:     *Ident,
 		GoodOrder: model.NewGoodOrderModel(sqlxConn),
 		GoodRPC:   goodclient.NewGood(zrpc.MustNewClient(c.GoodRPC)),
+		RedisLock: rds,
 	}
 }

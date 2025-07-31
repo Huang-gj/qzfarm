@@ -67,7 +67,7 @@ func newLandOrderModel(conn sqlx.SqlConn) *defaultLandOrderModel {
 }
 
 func (m *defaultLandOrderModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	query := fmt.Sprintf("delete from %s where `land_id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }

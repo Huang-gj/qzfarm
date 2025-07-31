@@ -2,23 +2,16 @@
 // goctl 1.8.4
 // Source: good.proto
 
-package goodclient
+package good
 
 import (
 	"context"
-
-	"Server_gozero/CS/commodityServer/good/rpc/good"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 )
 
 type (
-	GetGoodRepReq  = good.GetGoodRepReq
-	GetGoodRepResp = good.GetGoodRepResp
-	UpdateRepReq   = good.UpdateRepReq
-	UpdateRepResp  = good.UpdateRepResp
-
 	Good interface {
 		GetGood(ctx context.Context, in *GetGoodRepReq, opts ...grpc.CallOption) (*GetGoodRepResp, error)
 		UpdateRep(ctx context.Context, in *UpdateRepReq, opts ...grpc.CallOption) (*UpdateRepResp, error)
@@ -36,11 +29,11 @@ func NewGood(cli zrpc.Client) Good {
 }
 
 func (m *defaultGood) GetGood(ctx context.Context, in *GetGoodRepReq, opts ...grpc.CallOption) (*GetGoodRepResp, error) {
-	client := good.NewGoodClient(m.cli.Conn())
+	client := NewGoodClient(m.cli.Conn())
 	return client.GetGood(ctx, in, opts...)
 }
 
 func (m *defaultGood) UpdateRep(ctx context.Context, in *UpdateRepReq, opts ...grpc.CallOption) (*UpdateRepResp, error) {
-	client := good.NewGoodClient(m.cli.Conn())
+	client := NewGoodClient(m.cli.Conn())
 	return client.UpdateRep(ctx, in, opts...)
 }

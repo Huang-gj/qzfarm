@@ -109,6 +109,94 @@ func (x *GetLandRepResp) GetSaleStatus() int64 {
 	return 0
 }
 
+type UpdateStatusReq struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LandID        int64                  `protobuf:"varint,1,opt,name=LandID,proto3" json:"LandID,omitempty"`
+	SaleStatus    int64                  `protobuf:"varint,2,opt,name=sale_status,json=saleStatus,proto3" json:"sale_status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateStatusReq) Reset() {
+	*x = UpdateStatusReq{}
+	mi := &file_land_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateStatusReq) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateStatusReq) ProtoMessage() {}
+
+func (x *UpdateStatusReq) ProtoReflect() protoreflect.Message {
+	mi := &file_land_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateStatusReq.ProtoReflect.Descriptor instead.
+func (*UpdateStatusReq) Descriptor() ([]byte, []int) {
+	return file_land_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UpdateStatusReq) GetLandID() int64 {
+	if x != nil {
+		return x.LandID
+	}
+	return 0
+}
+
+func (x *UpdateStatusReq) GetSaleStatus() int64 {
+	if x != nil {
+		return x.SaleStatus
+	}
+	return 0
+}
+
+type UpdateStatusResp struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateStatusResp) Reset() {
+	*x = UpdateStatusResp{}
+	mi := &file_land_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateStatusResp) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateStatusResp) ProtoMessage() {}
+
+func (x *UpdateStatusResp) ProtoReflect() protoreflect.Message {
+	mi := &file_land_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateStatusResp.ProtoReflect.Descriptor instead.
+func (*UpdateStatusResp) Descriptor() ([]byte, []int) {
+	return file_land_proto_rawDescGZIP(), []int{3}
+}
+
 var File_land_proto protoreflect.FileDescriptor
 
 const file_land_proto_rawDesc = "" +
@@ -119,9 +207,15 @@ const file_land_proto_rawDesc = "" +
 	"\x06LandID\x18\x01 \x01(\x03R\x06LandID\"1\n" +
 	"\x0egetLandRepResp\x12\x1f\n" +
 	"\vsale_status\x18\x01 \x01(\x03R\n" +
-	"saleStatus2<\n" +
+	"saleStatus\"J\n" +
+	"\x0fupdateStatusReq\x12\x16\n" +
+	"\x06LandID\x18\x01 \x01(\x03R\x06LandID\x12\x1f\n" +
+	"\vsale_status\x18\x02 \x01(\x03R\n" +
+	"saleStatus\"\x12\n" +
+	"\x10updateStatusResp2{\n" +
 	"\x04land\x124\n" +
-	"\agetLand\x12\x13.land.getLandRepReq\x1a\x14.land.getLandRepRespB\bZ\x06./landb\x06proto3"
+	"\agetLand\x12\x13.land.getLandRepReq\x1a\x14.land.getLandRepResp\x12=\n" +
+	"\fupdateStatus\x12\x15.land.updateStatusReq\x1a\x16.land.updateStatusRespB\bZ\x06./landb\x06proto3"
 
 var (
 	file_land_proto_rawDescOnce sync.Once
@@ -135,16 +229,20 @@ func file_land_proto_rawDescGZIP() []byte {
 	return file_land_proto_rawDescData
 }
 
-var file_land_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_land_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_land_proto_goTypes = []any{
-	(*GetLandRepReq)(nil),  // 0: land.getLandRepReq
-	(*GetLandRepResp)(nil), // 1: land.getLandRepResp
+	(*GetLandRepReq)(nil),    // 0: land.getLandRepReq
+	(*GetLandRepResp)(nil),   // 1: land.getLandRepResp
+	(*UpdateStatusReq)(nil),  // 2: land.updateStatusReq
+	(*UpdateStatusResp)(nil), // 3: land.updateStatusResp
 }
 var file_land_proto_depIdxs = []int32{
 	0, // 0: land.land.getLand:input_type -> land.getLandRepReq
-	1, // 1: land.land.getLand:output_type -> land.getLandRepResp
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: land.land.updateStatus:input_type -> land.updateStatusReq
+	1, // 2: land.land.getLand:output_type -> land.getLandRepResp
+	3, // 3: land.land.updateStatus:output_type -> land.updateStatusResp
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -161,7 +259,7 @@ func file_land_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_land_proto_rawDesc), len(file_land_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

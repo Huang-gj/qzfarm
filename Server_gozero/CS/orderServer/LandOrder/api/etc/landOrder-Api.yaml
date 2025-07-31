@@ -31,3 +31,7 @@ LandRPC:
     Hosts:
       - 127.0.0.1:2379
     Key: land.rpc
+
+RedisLockConf:
+  Type: node
+  Host: localhost:6379

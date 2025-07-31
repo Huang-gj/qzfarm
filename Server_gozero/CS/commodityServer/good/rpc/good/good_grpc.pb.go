@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Good_GetGood_FullMethodName = "/good.good/getGood"
+	Good_GetGood_FullMethodName   = "/good.good/getGood"
+	Good_UpdateRep_FullMethodName = "/good.good/updateRep"
 )
 
 // GoodClient is the client API for Good service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GoodClient interface {
 	GetGood(ctx context.Context, in *GetGoodRepReq, opts ...grpc.CallOption) (*GetGoodRepResp, error)
+	UpdateRep(ctx context.Context, in *UpdateRepReq, opts ...grpc.CallOption) (*UpdateRepResp, error)
 }
 
 type goodClient struct {
@@ -47,11 +49,22 @@ func (c *goodClient) GetGood(ctx context.Context, in *GetGoodRepReq, opts ...grp
 	return out, nil
 }
 
+func (c *goodClient) UpdateRep(ctx context.Context, in *UpdateRepReq, opts ...grpc.CallOption) (*UpdateRepResp, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateRepResp)
+	err := c.cc.Invoke(ctx, Good_UpdateRep_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GoodServer is the server API for Good service.
 // All implementations must embed UnimplementedGoodServer
 // for forward compatibility.
 type GoodServer interface {
 	GetGood(context.Context, *GetGoodRepReq) (*GetGoodRepResp, error)
+	UpdateRep(context.Context, *UpdateRepReq) (*UpdateRepResp, error)
 	mustEmbedUnimplementedGoodServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedGoodServer struct{}
 
 func (UnimplementedGoodServer) GetGood(context.Context, *GetGoodRepReq) (*GetGoodRepResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGood not implemented")
+}
+func (UnimplementedGoodServer) UpdateRep(context.Context, *UpdateRepReq) (*UpdateRepResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRep not implemented")
 }
 func (UnimplementedGoodServer) mustEmbedUnimplementedGoodServer() {}
 func (UnimplementedGoodServer) testEmbeddedByValue()              {}
@@ -104,6 +120,24 @@ func _Good_GetGood_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Good_UpdateRep_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRepReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GoodServer).UpdateRep(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Good_UpdateRep_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GoodServer).UpdateRep(ctx, req.(*UpdateRepReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Good_ServiceDesc is the grpc.ServiceDesc for Good service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var Good_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "getGood",
 			Handler:    _Good_GetGood_Handler,
+		},
+		{
+			MethodName: "updateRep",
+			Handler:    _Good_UpdateRep_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

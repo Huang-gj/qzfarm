@@ -14,11 +14,14 @@ import (
 )
 
 type (
-	GetLandRepReq  = land.GetLandRepReq
-	GetLandRepResp = land.GetLandRepResp
+	GetLandRepReq    = land.GetLandRepReq
+	GetLandRepResp   = land.GetLandRepResp
+	UpdateStatusReq  = land.UpdateStatusReq
+	UpdateStatusResp = land.UpdateStatusResp
 
 	Land interface {
 		GetLand(ctx context.Context, in *GetLandRepReq, opts ...grpc.CallOption) (*GetLandRepResp, error)
+		UpdateStatus(ctx context.Context, in *UpdateStatusReq, opts ...grpc.CallOption) (*UpdateStatusResp, error)
 	}
 
 	defaultLand struct {
@@ -35,4 +38,9 @@ func NewLand(cli zrpc.Client) Land {
 func (m *defaultLand) GetLand(ctx context.Context, in *GetLandRepReq, opts ...grpc.CallOption) (*GetLandRepResp, error) {
 	client := land.NewLandClient(m.cli.Conn())
 	return client.GetLand(ctx, in, opts...)
+}
+
+func (m *defaultLand) UpdateStatus(ctx context.Context, in *UpdateStatusReq, opts ...grpc.CallOption) (*UpdateStatusResp, error) {
+	client := land.NewLandClient(m.cli.Conn())
+	return client.UpdateStatus(ctx, in, opts...)
 }

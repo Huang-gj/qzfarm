@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package land;
+
+option go_package = "./land";
+
+message getLandRepReq {
+  int64 LandID = 1;
+}
+
+message getLandRepResp {
+  int64 sale_status = 1;
+}
+
+service land {
+  rpc getLand(getLandRepReq) returns (getLandRepResp);
+}

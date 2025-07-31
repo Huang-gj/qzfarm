@@ -150,3 +150,28 @@
 .spec-for-symbol {
   font-size: 24rpx;
 }
+
+/* 状态遮罩样式 */
+.goods-card__status-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx 16rpx 0 0;
+  z-index: 10;
+}
+
+.goods-card__status-text {
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  text-align: center;
+}

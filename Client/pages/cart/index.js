@@ -631,7 +631,7 @@ Page({
     this.updateLocalStorage();
   },
 
-  onToSettle() {
+  async onToSettle() {
     const { currentCartType, cartGroupData } = this.data;
     
     // 获取选中的商品
@@ -663,18 +663,154 @@ Page({
       return;
     }
 
-    // 跳转到结算页面，传递购物车类型
-    const query = {
-      goodsRequestList: JSON.stringify(selectedGoods),
-      cartType: currentCartType
-    };
+    // 获取用户信息
+    const app = getApp();
+    const userInfo = app.globalData.userInfo;
+    if (!userInfo || !userInfo.user_id) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '请先登录',
+        icon: 'error',
+        duration: 2000,
+      });
+      return;
+    }
+
+    console.log('[onToSettle] 开始批量创建订单');
+    console.log('[onToSettle] 购物车类型:', currentCartType);
+    console.log('[onToSettle] 选中的商品数量:', selectedGoods.length);
+    console.log('[onToSettle] 选中的商品:', selectedGoods);
+
+    // 导入订单API
+    const { addGoodOrder } = require('../../services/order/addGoodOrder');
+    const { addLandOrder } = require('../../services/order/addLandOrder');
+
+    try {
+      // 批量创建订单
+      const orderPromises = selectedGoods.map(async (goods) => {
+        console.log('[onToSettle] 处理商品:', goods);
+        
+        if (currentCartType === 'goods') {
+          // 创建商品订单
+          const orderData = {
+            good_id: goods.good_id,
+            farm_id: goods.farm_id || 1,
+            user_id: userInfo.user_id,
+            user_address: userInfo.address || '',
+            farm_address: goods.farm_address || '',
+            price: goods.price || goods.minSalePrice || 0,
+            units: goods.units || '个',
+            count: goods.quantity || 1,
+            detail: goods.detail || goods.title || '',
+            image_urls: goods.primaryImage || goods.thumb || ''
+          };
+          
+          console.log('[onToSettle] 商品订单数据:', orderData);
+          return await addGoodOrder(orderData);
+        } else {
+          // 创建土地订单
+          const orderData = {
+            land_id: goods.good_id, // 土地商品使用good_id作为land_id
+            farm_id: goods.farm_id || 1,
+            user_id: userInfo.user_id,
+            farm_address: goods.farm_address || '',
+            price: goods.price || goods.minSalePrice || 0,
+            count: goods.quantity || 1,
+            detail: goods.detail || goods.title || '',
+            image_urls: goods.primaryImage || goods.thumb || ''
+          };
+          
+          console.log('[onToSettle] 土地订单数据:', orderData);
+          return await addLandOrder(orderData);
+        }
+      });
+
+      // 等待所有订单创建完成
+      const results = await Promise.all(orderPromises);
+      console.log('[onToSettle] 所有订单创建结果:', results);
+
+      // 检查是否所有订单都创建成功
+      const successCount = results.filter(res => res.code === 200).length;
+      const failCount = results.length - successCount;
+
+      if (successCount > 0) {
+        // 从购物车中删除已成功创建订单的商品
+        await this.removeOrderedGoodsFromCart(selectedGoods);
+        
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: `成功创建${successCount}个订单${failCount > 0 ? `，${failCount}个失败` : ''}`,
+          icon: 'check-circle',
+          duration: 2000,
+        });
+
+        // 刷新购物车数据
+        this.refreshData();
+      } else {
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '订单创建失败',
+          icon: 'close-circle',
+          duration: 2000,
+        });
+      }
+    } catch (error) {
+      console.error('[onToSettle] 批量创建订单失败:', error);
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '订单创建失败',
+        icon: 'close-circle',
+        duration: 2000,
+      });
+    }
+  },
+
+  // 从购物车中删除已创建订单的商品
+  async removeOrderedGoodsFromCart(orderedGoods) {
+    console.log('[removeOrderedGoodsFromCart] 开始从购物车删除商品:', orderedGoods);
     
-    let urlQueryStr = Object.keys(query).map(key => `${key}=${encodeURIComponent(query[key])}`).join('&');
-    const path = `/pages/order/order-confirm/index?${urlQueryStr}`;
+    const { currentCartType } = this.data;
     
-    wx.navigateTo({
-      url: path,
+    // 获取当前购物车数据
+    let cartData;
+    if (currentCartType === 'goods') {
+      cartData = wx.getStorageSync('goods_cart_data');
+    } else {
+      cartData = wx.getStorageSync('land_cart_data');
+    }
+
+    if (!cartData || !cartData.goodsList) {
+      console.log('[removeOrderedGoodsFromCart] 购物车数据为空');
+      return;
+    }
+
+    // 删除已创建订单的商品
+    orderedGoods.forEach(goods => {
+      const index = cartData.goodsList.findIndex(item => 
+        item.good_id == goods.good_id && item.skuId == goods.skuId
+      );
+      
+      if (index !== -1) {
+        console.log('[removeOrderedGoodsFromCart] 删除商品:', cartData.goodsList[index]);
+        cartData.goodsList.splice(index, 1);
+      }
     });
+
+    // 更新本地存储
+    if (currentCartType === 'goods') {
+      wx.setStorageSync('goods_cart_data', cartData);
+    } else {
+      wx.setStorageSync('land_cart_data', cartData);
+    }
+
+    // 更新购物车数量
+    updateCartNum();
+    
+    console.log('[removeOrderedGoodsFromCart] 购物车更新完成');
   },
 
   onGotoHome() {

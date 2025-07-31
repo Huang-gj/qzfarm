@@ -178,8 +178,20 @@ Page({
       const nextList = await fetchGoodsList(pageIndex, pageSize);
       console.log('[loadGoodsList] 获取到商品数据:', nextList);
       
+      // 处理商品状态：检查库存
+      const processedList = nextList.map(goods => {
+        const isSoldOut = goods.repertory === 0;
+        return {
+          ...goods,
+          isSoldOut,
+          statusText: isSoldOut ? '已售罄' : ''
+        };
+      });
+      
+      console.log('[loadGoodsList] 处理后的商品数据:', processedList);
+      
       this.setData({
-        goodsList: fresh ? nextList : this.data.goodsList.concat(nextList),
+        goodsList: fresh ? processedList : this.data.goodsList.concat(processedList),
         goodsListLoadStatus: 0,
       });
       this.goodListPagination.index = pageIndex;
@@ -226,8 +238,20 @@ Page({
       const nextList = await fetchLandsList(pageIndex, pageSize);
       console.log('[loadLandsList] 获取到土地数据:', nextList);
       
+      // 处理土地状态：检查租赁状态
+      const processedList = nextList.map(land => {
+        const isRented = land.sale_status === 1;
+        return {
+          ...land,
+          isRented,
+          statusText: isRented ? '已租赁' : ''
+        };
+      });
+      
+      console.log('[loadLandsList] 处理后的土地数据:', processedList);
+      
       this.setData({
-        landsList: fresh ? nextList : this.data.landsList.concat(nextList),
+        landsList: fresh ? processedList : this.data.landsList.concat(processedList),
         landsListLoadStatus: 0,
       });
       this.landListPagination.index = pageIndex;
@@ -245,9 +269,23 @@ Page({
     const {
       index
     } = e.detail;
+    const goods = this.data.goodsList[index];
+    
+    // 检查商品是否已售罄
+    if (goods.isSoldOut) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '该商品已售罄',
+        icon: 'close-circle',
+        duration: 2000,
+      });
+      return;
+    }
+    
     const {
       good_id
-    } = this.data.goodsList[index];
+    } = goods;
     wx.navigateTo({
       url: `/pages/goods/details/index?goodId=${good_id}`,
     });
@@ -268,6 +306,19 @@ Page({
     }
     
     const landItem = this.data.landsList[index];
+    
+    // 检查土地是否已租赁
+    if (landItem.isRented) {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '该土地已租赁',
+        icon: 'close-circle',
+        duration: 2000,
+      });
+      return;
+    }
+    
     const { land_id } = landItem;
     
     if (!land_id) {

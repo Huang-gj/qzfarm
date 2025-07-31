@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package good;
+
+option go_package = "./good";
+
+message getGoodRepReq {
+  int64 GoodID = 1;
+}
+
+message getGoodRepResp {
+  double repertory = 1;
+}
+
+service good {
+  rpc getGood(getGoodRepReq) returns (getGoodRepResp);
+}

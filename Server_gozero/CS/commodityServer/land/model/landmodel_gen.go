@@ -70,7 +70,7 @@ func (m *defaultLandModel) Delete(ctx context.Context, id int64) error {
 }
 
 func (m *defaultLandModel) FindOne(ctx context.Context, id int64) (*Land, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", landRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `land_id` = ? limit 1", landRows, m.table)
 	var resp Land
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {

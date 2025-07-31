@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"Server_gozero/CS/commodityServer/land/rpc/landclient"
 	"Server_gozero/CS/common/ISender/IDGenerator"
 	"Server_gozero/CS/common/ISender/id"
 	"Server_gozero/CS/orderServer/LandOrder/api/internal/config"
@@ -14,6 +15,7 @@ type ServiceContext struct {
 	Config    config.Config
 	Ident     IDGenerator.Ident
 	LandOrder model.LandOrderModel
+	LandRPC   landclient.Land
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -26,5 +28,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:    c,
 		Ident:     *Ident,
 		LandOrder: model.NewLandOrderModel(sqlxConn),
+		LandRPC:   landclient.NewLand(zrpc.MustNewClient(c.LandRPC)),
 	}
 }

@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"Server_gozero/CS/commodityServer/land/rpc/land"
 	"Server_gozero/CS/common/ISender/ISender"
 
 	"Server_gozero/CS/orderServer/LandOrder/model"
@@ -31,6 +32,14 @@ func NewAddLandOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddL
 
 func (l *AddLandOrderLogic) AddLandOrder(req *types.AddLandOrderRequest) (resp *types.AddLandOrderResponse, err error) {
 	// todo: add your logic here and delete this line
+	landStatusResp, err := l.svcCtx.LandRPC.GetLand(l.ctx, &land.GetLandRepReq{LandID: req.Land_order.LandId})
+	if err != nil {
+		logx.Errorw("LandRPC.GetLand ERR！", logx.Field("err", err))
+		return &types.AddLandOrderResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")
+	}
+	if landStatusResp.SaleStatus == 1 {
+		return &types.AddLandOrderResponse{Code: 400, Msg: "该土地已经被租赁！"}, nil
+	}
 	OrderID, err := l.svcCtx.Ident.GetId(l.ctx, &ISender.GetIDReq{BizTag: "land_order"})
 	if err != nil {
 		logx.Errorw("分布式唯一id获取错误！", logx.Field("err", err))

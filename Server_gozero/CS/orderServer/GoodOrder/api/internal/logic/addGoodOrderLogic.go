@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"Server_gozero/CS/commodityServer/good/rpc/good"
 	"Server_gozero/CS/common/ISender/ISender"
 	"Server_gozero/CS/orderServer/GoodOrder/api/internal/svc"
 	"Server_gozero/CS/orderServer/GoodOrder/api/internal/types"
@@ -29,7 +30,14 @@ func NewAddGoodOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddG
 
 func (l *AddGoodOrderLogic) AddGoodOrder(req *types.AddGoodOrderRequest) (resp *types.AddGoodOrderResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	RepertoryResp, err := l.svcCtx.GoodRPC.GetGood(l.ctx, &good.GetGoodRepReq{GoodID: req.Good_order.GoodId})
+	if err != nil {
+		logx.Errorw("GoodRPC.GetGood ERR！", logx.Field("err", err))
+		return &types.AddGoodOrderResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")
+	}
+	if RepertoryResp.Repertory <= 0 {
+		return &types.AddGoodOrderResponse{Code: 400, Msg: "库存不足"}, nil
+	}
 	OrderID, err := l.svcCtx.Ident.GetId(l.ctx, &ISender.GetIDReq{BizTag: "good_order"})
 	if err != nil {
 		logx.Errorw("分布式唯一id获取错误！", logx.Field("err", err))

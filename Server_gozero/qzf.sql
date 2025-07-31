@@ -159,9 +159,30 @@ DROP TABLE IF EXISTS `comment`;
 CREATE TABLE `comment`
 (
     id          INT         NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    biz_tag     VARCHAR(64) NOT NULL DEFAULT '' COMMENT '服务名称',
-    current_id  INT         NOT NULL DEFAULT 0 COMMENT '当前id范围',
-    update_time TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间'
+    create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    text TEXT COMMENT '评论内容',
+    comment_id INT NOT NULL COMMENT '评论分布式唯一id',
+    user_id       INT          NOT NULL COMMENT '评论用户id',
+    avatar       VARCHAR(512) NOT NULL DEFAULT '' COMMENT '用户头像url',
+    nickname     VARCHAR(128) NOT NULL DEFAULT '' COMMENT '用户昵称'
+
+)ENGINE = InnoDB
+CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_general_ci
+ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `comment_reply`;
+CREATE TABLE `comment_reply`
+(
+    id          INT         NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    comment_id INT NOT NULL COMMENT '关联根评论ID',
+    comment_reply_id INT NOT NULL COMMENT '评论回复分布式唯一ID',
+    text TEXT COMMENT '评论内容',
+    user_id       INT          NOT NULL COMMENT '评论用户id',
+    avatar       VARCHAR(512) NOT NULL DEFAULT '' COMMENT '用户头像url',
+    nickname     VARCHAR(128) NOT NULL DEFAULT '' COMMENT '用户昵称'
+
 )ENGINE = InnoDB
 CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci

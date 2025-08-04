@@ -51,39 +51,21 @@ func isRedisConnError(err error) bool {
 func (l *AddLandOrderLogic) AddLandOrder(req *types.AddLandOrderRequest) (resp *types.AddLandOrderResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	lockKey := fmt.Sprintf("lock:land_order:land:%s", req.Land_order.LandId)
-
+	lockKey := fmt.Sprintf("lock:land_order:land:%d", req.Land_order.LandId)
 	lock := redis.NewRedisLock(l.svcCtx.RedisLock, lockKey)
-	lock.SetExpire(5) // 设置锁的过期时间，避免死锁（秒）
+	lock.SetExpire(10)
 
-	ctx, cancel := context.WithTimeout(l.ctx, 3*time.Second) // 控制最多等待 3 秒获取锁
+	ctx, cancel := context.WithTimeout(l.ctx, 5*time.Second)
 	defer cancel()
 
 	ok, err := lock.AcquireCtx(ctx)
-	if err != nil {
-		if isRedisConnError(err) {
-			logx.Errorw("AddLandOrder Redis连接失败", logx.Field("err", err))
-			return &types.AddLandOrderResponse{Code: 503, Msg: "服务暂不可用，请稍后重试"}, err
-		}
-		logx.Errorw("AddLandOrder加锁失败！", logx.Field("err", err))
-		return &types.AddLandOrderResponse{Code: 400, Msg: "内部错误"}, err
+	if err != nil || !ok {
+		logx.Errorw("加锁失败", logx.Field("err", err), logx.Field("ok", ok))
+		return &types.AddLandOrderResponse{Code: 429, Msg: "系统繁忙，请稍后再试"}, err
 	}
-	if !ok {
-		logx.Errorw("AddLandOrder获取锁失败，可能锁已被占用")
-		return &types.AddLandOrderResponse{Code: 429, Msg: "请求过于频繁，请稍后重试"}, errors.New("获取锁失败")
-	}
-
 	defer func() {
-		ok, err := lock.Release()
-		if err != nil {
-			if isRedisConnError(err) {
-				logx.Errorf("AddLandOrder释放锁失败，Redis连接异常: %v", err)
-				return
-			}
-			logx.Errorf("AddLandOrder释放锁失败: %v", err)
-		}
-		if !ok {
-			logx.Error("AddLandOrder释放锁失败，返回false")
+		if released, err := lock.Release(); err != nil || !released {
+			logx.Errorw("释放锁失败", logx.Field("err", err), logx.Field("released", released))
 		}
 	}()
 

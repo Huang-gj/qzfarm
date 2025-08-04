@@ -44,10 +44,13 @@ Page({
     labelValue: '',
     columns: 3,
   },
-  privateData: {
-    verifyTips: '',
-  },
+  
   onLoad(options) {
+    // 初始化privateData
+    this.privateData = {
+      verifyTips: '',
+    };
+    
     const { id } = options;
     this.init(id);
   },
@@ -335,22 +338,5 @@ Page({
     });
 
     wx.navigateBack({ delta: 1 });
-  },
-
-  getWeixinAddress(e) {
-    const { locationState } = this.data;
-    const weixinAddress = e.detail;
-    this.setData(
-      {
-        locationState: { ...locationState, ...weixinAddress },
-      },
-      () => {
-        const { isLegal, tips } = this.onVerifyInputLegal();
-        this.setData({
-          submitActive: isLegal,
-        });
-        this.privateData.verifyTips = tips;
-      },
-    );
   },
 });

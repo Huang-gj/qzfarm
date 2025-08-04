@@ -35,51 +35,136 @@ Page({
       rejectAddress();
     }
   },
+  
+  // 从本地存储获取地址列表
+  getAddressListFromStorage() {
+    try {
+      const addressList = wx.getStorageSync('userAddressList') || [];
+      return addressList;
+    } catch (error) {
+      console.error('获取本地地址列表失败:', error);
+      return [];
+    }
+  },
+  
+  // 保存地址列表到本地存储
+  saveAddressListToStorage(addressList) {
+    try {
+      wx.setStorageSync('userAddressList', addressList);
+    } catch (error) {
+      console.error('保存地址列表失败:', error);
+    }
+  },
+  
   getAddressList() {
     const { id } = this.data;
-    fetchDeliveryAddressList().then((addressList) => {
+    
+    // 从本地存储获取地址列表
+    let addressList = this.getAddressListFromStorage();
+    
+    // 确保addressList是数组
+    if (!Array.isArray(addressList)) {
+      addressList = [];
+    }
+    
+    // 如果有数据，则使用本地存储的数据
+    if (addressList.length > 0) {
       addressList.forEach((address) => {
         if (address.id === id) {
           address.checked = true;
         }
       });
       this.setData({ addressList });
-    });
+    } else {
+      // 如果没有数据，设置空数组
+      this.setData({ addressList: [] });
+    }
   },
-  getWXAddressHandle() {
-    wx.chooseAddress({
+  
+  // 选择默认地址
+  selectDefaultAddress(e) {
+    const { id, address } = e.currentTarget.dataset;
+    
+    // 更新本地状态
+    const addressList = this.data.addressList.map(item => ({
+      ...item,
+      isDefault: item.id === id ? 1 : 0
+    }));
+    
+    this.setData({ addressList });
+    
+    // 保存到本地存储
+    this.saveAddressListToStorage(addressList);
+    
+    // 向后端发送请求
+    this.updateUserAddress(address);
+  },
+  
+  // 更新用户地址信息
+  updateUserAddress(address) {
+    // 从app.globalData获取用户信息
+    const app = getApp();
+    const globalUserInfo = app.globalData.userInfo || {};
+    
+    const userInfo = {
+      user_id: globalUserInfo.user_id || 0,
+      phone_number: globalUserInfo.phone_number || '',
+      avatar: globalUserInfo.avatar || '',
+      nickname: globalUserInfo.nickname || '',
+      address: address.address,
+      gender: globalUserInfo.gender || 0
+    };
+    
+    const requestData = {
+      user_info: userInfo
+    };
+    
+    console.log('发送的用户信息:', userInfo);
+    
+    wx.request({
+      url: 'http://127.0.0.1:8888/api/uploadUserInfo',
+      method: 'POST',
+      header: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${wx.getStorageSync('token') || ''}`
+      },
+      data: requestData,
       success: (res) => {
-        if (res.errMsg.indexOf('ok') === -1) {
+        console.log('更新地址响应:', res.data);
+        if (res.data.code === 200) {
+          // 更新全局用户信息
+          app.globalData.userInfo.address = address.address;
+          
           Toast({
             context: this,
             selector: '#t-toast',
-            message: res.errMsg,
+            message: '默认地址设置成功',
+            theme: 'success',
+            duration: 1000,
+          });
+        } else {
+          Toast({
+            context: this,
+            selector: '#t-toast',
+            message: res.data.msg || '设置失败',
             icon: '',
             duration: 1000,
           });
-          return;
         }
+      },
+      fail: (err) => {
+        console.error('更新地址失败:', err);
         Toast({
           context: this,
           selector: '#t-toast',
-          message: '添加成功',
+          message: '网络错误，请稍后重试',
           icon: '',
           duration: 1000,
         });
-        const { length: len } = this.data.addressList;
-        this.setData({
-          [`addressList[${len}]`]: {
-            name: res.userName,
-            phoneNumber: res.telNumber,
-            address: `${res.provinceName}${res.cityName}${res.countryName}${res.detailInfo}`,
-            isDefault: 0,
-            tag: '微信地址',
-            id: len,
-          },
-        });
-      },
+      }
     });
   },
+  
   confirmDeleteHandle({ detail }) {
     const { id } = detail || {};
     if (id !== undefined) {
@@ -103,11 +188,15 @@ Page({
   },
   deleteAddressHandle(e) {
     const { id } = e.currentTarget.dataset;
+    const newAddressList = this.data.addressList.filter((address) => address.id !== id);
     this.setData({
-      addressList: this.data.addressList.filter((address) => address.id !== id),
+      addressList: newAddressList,
       deleteID: '',
       showDeleteConfirm: false,
     });
+    
+    // 保存到本地存储
+    this.saveAddressListToStorage(newAddressList);
   },
   editAddressHandle({ detail }) {
     this.waitForNewAddress();
@@ -139,13 +228,12 @@ Page({
         newAddress.tag = newAddress.addressTag;
 
         if (!newAddress.addressId) {
-          newAddress.id = `${addressList.length}`;
-          newAddress.addressId = `${addressList.length}`;
+          newAddress.id = `${Date.now()}`; // 使用时间戳作为唯一ID
+          newAddress.addressId = `${Date.now()}`;
 
           if (newAddress.isDefault === 1) {
             addressList = addressList.map((address) => {
               address.isDefault = 0;
-
               return address;
             });
           } else {
@@ -175,6 +263,9 @@ Page({
         this.setData({
           addressList: addressList,
         });
+        
+        // 保存到本地存储
+        this.saveAddressListToStorage(addressList);
       })
       .catch((e) => {
         if (e.message !== 'cancel') {

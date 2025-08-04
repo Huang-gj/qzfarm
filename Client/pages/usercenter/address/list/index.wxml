@@ -16,6 +16,22 @@
 			  bind:onDelete="deleteAddressHandle"
 			  bind:onEdit="editAddressHandle"
 			/>
+			<!-- 添加选择按钮 -->
+			<view class="select-btn-container">
+				<view 
+					class="select-btn {{address.isDefault ? 'selected' : ''}}" 
+					data-id="{{address.id}}"
+					data-address="{{address}}"
+					bind:tap="selectDefaultAddress"
+				>
+					<t-icon 
+						name="{{address.isDefault ? 'check-circle-filled' : 'circle'}}" 
+						size="40rpx" 
+						color="{{address.isDefault ? '#0052d9' : '#c5c5c5'}}"
+					/>
+					<text class="select-text">{{address.isDefault ? '默认地址' : '设为默认'}}</text>
+				</view>
+			</view>
 		</block>
 	</view>
 	<view wx:else class="no-address">
@@ -23,16 +39,6 @@
 	</view>
 	<view class="bottom-fixed">
 		<view class="btn-wrap">
-			<t-location
-			  title="微信地址导入"
-			  isOrderSure="{{isOrderSure}}"
-			  isDisabledBtn="{{addressList.length >= 20}}"
-			  navigateUrl="/pages/usercenter/address/edit/index"
-				navigateEvent="onWeixinAddressPassed"	
-			  t-class="location-btn"
-			  isCustomStyle="{{true}}"
-				bind:navigate="waitForNewAddress"
-			/>
 			<view class="address-btn {{addressList.length >= 20 ? 'btn-default':''}}" bind:tap="createHandle">
 				<t-icon
 				  name="add"

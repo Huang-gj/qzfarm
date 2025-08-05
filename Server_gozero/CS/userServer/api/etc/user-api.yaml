@@ -1,6 +1,6 @@
 Name: idClient-api
 Host: 127.0.0.1
-Port: 8888
+Port: 8893
 
 IdRPC:
   Etcd:

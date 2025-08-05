@@ -5,7 +5,7 @@
 package id
 
 import (
-	ISender2 "Server_gozero/CS/common/ISender/ISender"
+	"Server_gozero/common/ISender/ISender"
 	"context"
 
 	"github.com/zeromicro/go-zero/zrpc"
@@ -13,8 +13,8 @@ import (
 )
 
 type (
-	GetIDReq  = ISender2.GetIDReq
-	GetIDResp = ISender2.GetIDResp
+	GetIDReq  = ISender.GetIDReq
+	GetIDResp = ISender.GetIDResp
 
 	ID interface {
 		GetID(ctx context.Context, in *GetIDReq, opts ...grpc.CallOption) (*GetIDResp, error)
@@ -32,6 +32,6 @@ func NewID(cli zrpc.Client) ID {
 }
 
 func (m *defaultID) GetID(ctx context.Context, in *GetIDReq, opts ...grpc.CallOption) (*GetIDResp, error) {
-	client := ISender2.NewIDClient(m.cli.Conn())
+	client := ISender.NewIDClient(m.cli.Conn())
 	return client.GetID(ctx, in, opts...)
 }

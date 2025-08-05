@@ -2,16 +2,15 @@ package svc
 
 import (
 	"Server_gozero/CS/commodityServer/good/rpc/goodclient"
-	"Server_gozero/CS/common/ISender/IDGenerator"
 	"Server_gozero/CS/orderServer/GoodOrder/api/internal/config"
 	"Server_gozero/CS/orderServer/GoodOrder/model"
+	"Server_gozero/common/ISender/IDGenerator"
+	"Server_gozero/common/ISender/id"
 	"context"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/zrpc"
-
-	"Server_gozero/CS/common/ISender/id"
 )
 
 type ServiceContext struct {

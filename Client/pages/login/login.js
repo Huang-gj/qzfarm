@@ -58,7 +58,7 @@ Page({
 
     // 调用后端登录接口
     wx.request({
-      url: 'http://127.0.0.1:8888/api/userLogin',
+      url: 'http://127.0.0.1:8893/api/userLogin',
       method: 'POST',
       data: {
         phone_number: phone_number,

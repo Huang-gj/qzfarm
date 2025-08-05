@@ -1,4 +1,6 @@
-import { request } from '../_utils/request';
+import {
+  request
+} from '../_utils/request';
 
 /**
  * 更新用户信息
@@ -13,9 +15,9 @@ import { request } from '../_utils/request';
  */
 export function updateUserInfo(userInfo) {
   console.log('[updateUserInfo] 开始更新用户信息:', userInfo);
-  
+
   const requestData = {
-    
+
     user_info: {
       user_id: userInfo.user_id,
       phone_number: userInfo.phone_number || '',
@@ -25,11 +27,11 @@ export function updateUserInfo(userInfo) {
       gender: userInfo.gender || 0,
     }
   };
-  
+
   console.log('[updateUserInfo] 发送的请求数据:', JSON.stringify(requestData, null, 2));
-  
+
   return request({
-    url: 'http://localhost:8888/api/uploadUserInfo',
+    url: 'http://localhost:8893/api/uploadUserInfo',
     method: 'POST',
     data: requestData
   }).then(res => {
@@ -39,4 +41,4 @@ export function updateUserInfo(userInfo) {
     console.error('[updateUserInfo] 更新用户信息失败:', err);
     throw err;
   });
-} 
+}

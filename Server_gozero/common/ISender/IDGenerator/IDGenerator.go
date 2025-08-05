@@ -1,7 +1,7 @@
 package IDGenerator
 
 import (
-	"Server_gozero/CS/common/ISender/ISender"
+	ISender2 "Server_gozero/common/ISender/ISender"
 	"context"
 	"errors"
 	"fmt"
@@ -22,9 +22,9 @@ type idBuffer struct {
 
 // Ident 分布式ID服务
 type Ident struct {
-	idRpcClient    ISender.IDClient // id主节点的rpc客户端
-	pools          sync.Map         // 业务标签池映射 (key: bizTag, value: *idPool)
-	preloadBizTags []string         // 预加载的业务标签列表
+	idRpcClient    ISender2.IDClient // id主节点的rpc客户端
+	pools          sync.Map          // 业务标签池映射 (key: bizTag, value: *idPool)
+	preloadBizTags []string          // 预加载的业务标签列表
 }
 
 // idPool 每个业务标签独立的ID池
@@ -49,7 +49,7 @@ var preloadBizTags = []string{
 // NewIdent 初始化ID服务
 // ctx: 上下文用于控制初始化生命周期
 // idRpcClient: id主节点的rpc客户端
-func NewIdent(ctx context.Context, idRpcClient ISender.IDClient) (*Ident, error) {
+func NewIdent(ctx context.Context, idRpcClient ISender2.IDClient) (*Ident, error) {
 	ident := &Ident{
 		idRpcClient:    idRpcClient,
 		preloadBizTags: preloadBizTags,
@@ -116,7 +116,7 @@ func newIdPool() *idPool {
 }
 
 // 获取分布式ID (线程安全)
-func (l *Ident) GetId(ctx context.Context, in *ISender.GetIDReq) (int64, error) {
+func (l *Ident) GetId(ctx context.Context, in *ISender2.GetIDReq) (int64, error) {
 	// 根据业务标签获取或创建ID池
 	poolVal, ok := l.pools.Load(in.BizTag)
 	if !ok {
@@ -263,7 +263,7 @@ func (l *Ident) fillPrepareAsync(pool *idPool, bizTag string) {
 // fetchIdSegment 从主节点获取ID号码段
 func (l *Ident) fetchIdSegment(ctx context.Context, bizTag string) (*idBuffer, error) {
 	// 调用主节点RPC接口
-	reply, err := l.idRpcClient.GetID(ctx, &ISender.GetIDReq{
+	reply, err := l.idRpcClient.GetID(ctx, &ISender2.GetIDReq{
 		BizTag: bizTag,
 	})
 	if err != nil {

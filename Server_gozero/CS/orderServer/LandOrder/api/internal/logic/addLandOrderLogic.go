@@ -2,7 +2,7 @@ package logic
 
 import (
 	"Server_gozero/CS/commodityServer/land/rpc/land"
-	"Server_gozero/CS/common/ISender/ISender"
+	"Server_gozero/common/ISender/ISender"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"strings"

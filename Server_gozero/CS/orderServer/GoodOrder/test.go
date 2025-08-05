@@ -65,7 +65,7 @@ func loginUser(user UserAccount) (string, error) {
 	}
 
 	body, _ := json.Marshal(loginReq)
-	req, err := http.NewRequest("POST", "http://localhost:8888/api/userLogin", bytes.NewReader(body))
+	req, err := http.NewRequest("POST", "http://localhost:8893/api/userLogin", bytes.NewReader(body))
 	if err != nil {
 		return "", fmt.Errorf("构造登录请求失败: %v", err)
 	}

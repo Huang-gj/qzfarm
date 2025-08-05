@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"Server_gozero/CS/common/ISender/ISender"
-	"Server_gozero/CS/common/ISender/internal/svc"
+	"Server_gozero/common/ISender/ISender"
+	"Server_gozero/common/ISender/internal/svc"
 	"context"
 
 	"github.com/zeromicro/go-zero/core/logx"

@@ -5,15 +5,15 @@
 package server
 
 import (
-	ISender2 "Server_gozero/CS/common/ISender/ISender"
-	"Server_gozero/CS/common/ISender/internal/logic"
-	"Server_gozero/CS/common/ISender/internal/svc"
+	"Server_gozero/common/ISender/ISender"
+	"Server_gozero/common/ISender/internal/logic"
+	"Server_gozero/common/ISender/internal/svc"
 	"context"
 )
 
 type IDServer struct {
 	svcCtx *svc.ServiceContext
-	ISender2.UnimplementedIDServer
+	ISender.UnimplementedIDServer
 }
 
 func NewIDServer(svcCtx *svc.ServiceContext) *IDServer {
@@ -22,7 +22,7 @@ func NewIDServer(svcCtx *svc.ServiceContext) *IDServer {
 	}
 }
 
-func (s *IDServer) GetID(ctx context.Context, in *ISender2.GetIDReq) (*ISender2.GetIDResp, error) {
+func (s *IDServer) GetID(ctx context.Context, in *ISender.GetIDReq) (*ISender.GetIDResp, error) {
 	l := logic.NewGetIDLogic(ctx, s.svcCtx)
 	return l.GetID(in)
 }

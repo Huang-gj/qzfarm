@@ -1,8 +1,15 @@
 /* eslint-disable no-param-reassign */
-import { fetchDeliveryAddressList } from '../../../../services/address/fetchAddress';
+import {
+  fetchDeliveryAddressList
+} from '../../../../services/address/fetchAddress';
 import Toast from 'tdesign-miniprogram/toast/index';
-import { resolveAddress, rejectAddress } from './util';
-import { getAddressPromise } from '../edit/util';
+import {
+  resolveAddress,
+  rejectAddress
+} from './util';
+import {
+  getAddressPromise
+} from '../edit/util';
 
 Page({
   data: {
@@ -18,7 +25,9 @@ Page({
   hasSelect: false,
 
   onLoad(query) {
-    const { selectMode = '', isOrderSure = '', id = '' } = query;
+    const {
+      selectMode = '', isOrderSure = '', id = ''
+    } = query;
     this.setData({
       isOrderSure: !!isOrderSure,
       id,
@@ -35,7 +44,7 @@ Page({
       rejectAddress();
     }
   },
-  
+
   // 从本地存储获取地址列表
   getAddressListFromStorage() {
     try {
@@ -46,7 +55,7 @@ Page({
       return [];
     }
   },
-  
+
   // 保存地址列表到本地存储
   saveAddressListToStorage(addressList) {
     try {
@@ -55,18 +64,20 @@ Page({
       console.error('保存地址列表失败:', error);
     }
   },
-  
+
   getAddressList() {
-    const { id } = this.data;
-    
+    const {
+      id
+    } = this.data;
+
     // 从本地存储获取地址列表
     let addressList = this.getAddressListFromStorage();
-    
+
     // 确保addressList是数组
     if (!Array.isArray(addressList)) {
       addressList = [];
     }
-    
+
     // 如果有数据，则使用本地存储的数据
     if (addressList.length > 0) {
       addressList.forEach((address) => {
@@ -74,38 +85,47 @@ Page({
           address.checked = true;
         }
       });
-      this.setData({ addressList });
+      this.setData({
+        addressList
+      });
     } else {
       // 如果没有数据，设置空数组
-      this.setData({ addressList: [] });
+      this.setData({
+        addressList: []
+      });
     }
   },
-  
+
   // 选择默认地址
   selectDefaultAddress(e) {
-    const { id, address } = e.currentTarget.dataset;
-    
+    const {
+      id,
+      address
+    } = e.currentTarget.dataset;
+
     // 更新本地状态
     const addressList = this.data.addressList.map(item => ({
       ...item,
       isDefault: item.id === id ? 1 : 0
     }));
-    
-    this.setData({ addressList });
-    
+
+    this.setData({
+      addressList
+    });
+
     // 保存到本地存储
     this.saveAddressListToStorage(addressList);
-    
+
     // 向后端发送请求
     this.updateUserAddress(address);
   },
-  
+
   // 更新用户地址信息
   updateUserAddress(address) {
     // 从app.globalData获取用户信息
     const app = getApp();
     const globalUserInfo = app.globalData.userInfo || {};
-    
+
     const userInfo = {
       user_id: globalUserInfo.user_id || 0,
       phone_number: globalUserInfo.phone_number || '',
@@ -114,15 +134,15 @@ Page({
       address: address.address,
       gender: globalUserInfo.gender || 0
     };
-    
+
     const requestData = {
       user_info: userInfo
     };
-    
+
     console.log('发送的用户信息:', userInfo);
-    
+
     wx.request({
-      url: 'http://127.0.0.1:8888/api/uploadUserInfo',
+      url: 'http://127.0.0.1:8893/api/uploadUserInfo',
       method: 'POST',
       header: {
         'Content-Type': 'application/json',
@@ -134,7 +154,7 @@ Page({
         if (res.data.code === 200) {
           // 更新全局用户信息
           app.globalData.userInfo.address = address.address;
-          
+
           Toast({
             context: this,
             selector: '#t-toast',
@@ -164,11 +184,18 @@ Page({
       }
     });
   },
-  
-  confirmDeleteHandle({ detail }) {
-    const { id } = detail || {};
+
+  confirmDeleteHandle({
+    detail
+  }) {
+    const {
+      id
+    } = detail || {};
     if (id !== undefined) {
-      this.setData({ deleteID: id, showDeleteConfirm: true });
+      this.setData({
+        deleteID: id,
+        showDeleteConfirm: true
+      });
       Toast({
         context: this,
         selector: '#t-toast',
@@ -187,35 +214,51 @@ Page({
     }
   },
   deleteAddressHandle(e) {
-    const { id } = e.currentTarget.dataset;
+    const {
+      id
+    } = e.currentTarget.dataset;
     const newAddressList = this.data.addressList.filter((address) => address.id !== id);
     this.setData({
       addressList: newAddressList,
       deleteID: '',
       showDeleteConfirm: false,
     });
-    
+
     // 保存到本地存储
     this.saveAddressListToStorage(newAddressList);
   },
-  editAddressHandle({ detail }) {
+  editAddressHandle({
+    detail
+  }) {
     this.waitForNewAddress();
 
-    const { id } = detail || {};
-    wx.navigateTo({ url: `/pages/usercenter/address/edit/index?id=${id}` });
+    const {
+      id
+    } = detail || {};
+    wx.navigateTo({
+      url: `/pages/usercenter/address/edit/index?id=${id}`
+    });
   },
-  selectHandle({ detail }) {
+  selectHandle({
+    detail
+  }) {
     if (this.selectMode) {
       this.hasSelect = true;
       resolveAddress(detail);
-      wx.navigateBack({ delta: 1 });
+      wx.navigateBack({
+        delta: 1
+      });
     } else {
-      this.editAddressHandle({ detail });
+      this.editAddressHandle({
+        detail
+      });
     }
   },
   createHandle() {
     this.waitForNewAddress();
-    wx.navigateTo({ url: '/pages/usercenter/address/edit/index' });
+    wx.navigateTo({
+      url: '/pages/usercenter/address/edit/index'
+    });
   },
 
   waitForNewAddress() {
@@ -263,7 +306,7 @@ Page({
         this.setData({
           addressList: addressList,
         });
-        
+
         // 保存到本地存储
         this.saveAddressListToStorage(addressList);
       })

@@ -84,7 +84,7 @@ Page({
 
     // 调用后端注册接口
     wx.request({
-      url: 'http://127.0.0.1:8888/api/userRegister',
+      url: 'http://127.0.0.1:8893/api/userRegister',
       method: 'POST',
 
       data: {

@@ -1,9 +1,9 @@
 package svc
 
 import (
-	"Server_gozero/CS/common/ISender/IDGenerator"
-	"Server_gozero/CS/common/ISender/id"
 	"Server_gozero/CS/userServer/model/userModel"
+	"Server_gozero/common/ISender/IDGenerator"
+	"Server_gozero/common/ISender/id"
 	"context"
 
 	"api/internal/config"

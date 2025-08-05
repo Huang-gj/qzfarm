@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"Server_gozero/CS/common/ISender/ISender"
 	"Server_gozero/CS/userServer/model/userModel"
+	"Server_gozero/common/ISender/ISender"
 
 	"context"
 	"crypto/md5"

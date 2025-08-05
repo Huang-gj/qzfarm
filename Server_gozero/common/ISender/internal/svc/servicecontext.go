@@ -1,7 +1,7 @@
 package svc
 
 import (
-	"Server_gozero/CS/common/ISender/internal/config"
+	"Server_gozero/common/ISender/internal/config"
 )
 
 type ServiceContext struct {

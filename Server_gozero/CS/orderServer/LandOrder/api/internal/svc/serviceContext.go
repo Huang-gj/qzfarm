@@ -2,10 +2,10 @@ package svc
 
 import (
 	"Server_gozero/CS/commodityServer/land/rpc/landclient"
-	"Server_gozero/CS/common/ISender/IDGenerator"
-	"Server_gozero/CS/common/ISender/id"
 	"Server_gozero/CS/orderServer/LandOrder/api/internal/config"
 	"Server_gozero/CS/orderServer/LandOrder/model"
+	"Server_gozero/common/ISender/IDGenerator"
+	"Server_gozero/common/ISender/id"
 	"context"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"

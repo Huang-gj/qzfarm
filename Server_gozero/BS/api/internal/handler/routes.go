@@ -6,8 +6,9 @@ package handler
 import (
 	"net/http"
 
-	detail "Server_gozero/BS/api/internal/handler/detail"
-	user "Server_gozero/BS/api/internal/handler/user"
+	farm "Server_gozero/BS/api/internal/handler/farm"
+	login "Server_gozero/BS/api/internal/handler/login"
+	userCenter "Server_gozero/BS/api/internal/handler/userCenter"
 	"Server_gozero/BS/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -18,8 +19,25 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
-				Path:    "/uploadUserInfo",
-				Handler: detail.UploadUserInfoHandler(serverCtx),
+				Path:    "/bindFarm",
+				Handler: farm.BindFarmHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/getFarm",
+				Handler: farm.GetFarmHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/userLogin",
+				Handler: login.LoginHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api"),
@@ -29,15 +47,26 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
-				Path:    "/userLogin",
-				Handler: user.LoginHandler(serverCtx),
+				Path:    "/getAdminInfo",
+				Handler: userCenter.GetAdminHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,
-				Path:    "/userRegister",
-				Handler: user.RegisterHandler(serverCtx),
+				Path:    "/updateAdmin",
+				Handler: userCenter.UpdateAdminHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/updatePass",
+				Handler: userCenter.UpdatePassHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/updatePhoneNumber",
+				Handler: userCenter.UpdatePhoneNumberHandler(serverCtx),
 			},
 		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api"),
 	)
 }

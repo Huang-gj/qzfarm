@@ -1,4 +1,4 @@
-package user
+package farm
 
 import (
 	"context"
@@ -9,21 +9,21 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type RegisterLogic struct {
+type BindFarmLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RegisterLogic {
-	return &RegisterLogic{
+func NewBindFarmLogic(ctx context.Context, svcCtx *svc.ServiceContext) *BindFarmLogic {
+	return &BindFarmLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *RegisterLogic) Register(req *types.LoginRequest) (resp *types.LoginResponse, err error) {
+func (l *BindFarmLogic) BindFarm(req *types.BindFarmRequest) (resp *types.BindFarmResponse, err error) {
 	// todo: add your logic here and delete this line
 
 	return

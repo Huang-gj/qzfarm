@@ -6,13 +6,14 @@ import (
 
 	"Server_gozero/BS/api/internal/config"
 	"Server_gozero/BS/api/internal/handler"
+	"Server_gozero/BS/api/internal/middleware"
 	"Server_gozero/BS/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/intelligentAgricultureSys.yaml", "the config file")
+var configFile = flag.String("f", "BS/api/etc/intelligentAgricultureSys.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -22,6 +23,9 @@ func main() {
 
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
+
+	// 添加CORS中间件
+	server.Use(middleware.CorsMiddleware)
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)

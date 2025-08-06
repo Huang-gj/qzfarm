@@ -3,26 +3,109 @@
 
 package types
 
+type Admin struct {
+	AdminID     int    `json:"admin_id"`
+	PhoneNumber string `json:"phone_number"`
+	Avatar      string `json:"avatar"`
+	NickName    string `json:"nickname"`
+	QQEmail     string `json:"qq_email"`
+	Gender      int    `json:"gender"`
+	FarmID      int    `json:"farm_id"`
+}
+
+type BindFarm struct {
+	FarmName     string   `json:"farm_name"`
+	Description  string   `json:"description"`
+	Address      string   `json:"address"`
+	LogoURL      string   `json:"logo_url"`
+	ImageURLs    []string `json:"image_urls"`
+	ContactPhone string   `json:"contact_phone"`
+}
+
+type BindFarmRequest struct {
+	AdminID  int      `json:"admin_id"`
+	BindFarm BindFarm `json:"bind_farm"`
+}
+
+type BindFarmResponse struct {
+	Code int    `json"code"`
+	Msg  string `json"msg"`
+}
+
+type Farm struct {
+	FarmID       int      `json"farm_id"`
+	FarmName     string   `json:"farm_name"`
+	Description  string   `json:"description"`
+	Address      string   `json:"address"`
+	LogoURL      string   `json:"logo_url"`
+	ImageURLs    []string `json:"image_urls"`
+	ContactPhone string   `json:"contact_phone"`
+}
+
+type GetAdminInfoRequest struct {
+	AdminID int `json:"admin_id"`
+}
+
+type GetAdminInfoResponse struct {
+	Code  int    `json:"code"`
+	Msg   string `json:"msg"`
+	Admin Admin  `json:"admin"`
+}
+
+type GetFarmRequest struct {
+	AdminID int `json"admin_id"`
+}
+
+type GetFarmResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json"msg"`
+	Farm Farm   `json"farm"`
+}
+
 type LoginRequest struct {
 	PhoneNumber string `json:"phone_number"`
-	Password    string `json:password"`
+	Password    string `json:"password"`
 }
 
 type LoginResponse struct {
 	Code         int    `json:"code"`
 	Msg          string `json:"msg"`
-	Admin        admin  `json:"admin"`
+	Admin        Admin  `json:"admin"`
 	AccessToken  string `json:"accessToken"`
 	AccessExpire int    `json:"accessExpire"`
 	RefreshAfter int    `json:"refreshAfter"`
 }
 
-type Admin struct {
+type UpdateAdminRequest struct {
+	AdminID  int    `json:"admin_id"` // 明确传入的管理员 ID
+	Avatar   string `json:"avatar"`
+	NickName string `json:"nickname"`
+	QQEmail  string `json:"qq_email"`
+	Gender   int    `json:"gender"`
+}
+
+type UpdateAdminResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type UpdatePassRequest struct {
+	AdminID  int    `json:"admin_id"`
+	Password string `json:"password"`
+}
+
+type UpdatePassResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type UpdatePhoneNumberRequest struct {
 	AdminID     int    `json:"admin_id"`
 	PhoneNumber string `json:"phone_number"`
-	Avatar      string `json:"avatar"`
-	Nickname    string `json:"nickname"`
-	QQEmail     string `json:"qq_email"`
-	Gender      int    `json:"gender"`
-	FarmID      int    `json:"farm_id"`
+	Password    string `json:"password"`
+}
+
+type UpdatePhoneNumberResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
 }

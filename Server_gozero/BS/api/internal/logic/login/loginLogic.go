@@ -1,4 +1,4 @@
-package logic
+package login
 
 import (
 	"context"
@@ -7,8 +7,9 @@ import (
 
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 
-	"api/internal/svc"
-	"api/internal/types"
+	"Server_gozero/BS/api/internal/common"
+	"Server_gozero/BS/api/internal/svc"
+	"Server_gozero/BS/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -19,6 +20,7 @@ type LoginLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
+// login
 func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic {
 	return &LoginLogic{
 		Logger: logx.WithContext(ctx),
@@ -29,7 +31,7 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 
 func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, err error) {
 	// todo: add your logic here and delete this line
-	u, err := l.svcCtx.UserModel.FindOneByPhoneNumber(l.ctx, req.PhoneNumber)
+	u, err := l.svcCtx.AdminModel.FindOneByPhoneNumber(l.ctx, req.PhoneNumber)
 	if err == sqlx.ErrNotFound {
 		return &types.LoginResponse{
 			Code: 400,
@@ -37,7 +39,7 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		}, nil
 	}
 	if err != nil {
-		logx.Errorw("UserModel.FindOneByUsername failed", logx.Field("err", err))
+		logx.Errorw("BS.FindOne failed", logx.Field("err", err))
 		return nil, errors.New("内部错误")
 	}
 	if u.Password != common.PasswordMd5([]byte(req.Password)) {
@@ -48,7 +50,7 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 	}
 	now := time.Now().Unix()
 	expire := l.svcCtx.Config.Auth.AccessExpire
-	token, err := common.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, now, expire, u.UserId)
+	token, err := common.GetJwtToken(l.svcCtx.Config.Auth.AccessSecret, now, expire, u.AdminId)
 	if err != nil {
 		logx.Errorw("l.getJwtToken failed", logx.Field("err", err))
 		return nil, errors.New("内部错误")
@@ -56,16 +58,18 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 	return &types.LoginResponse{
 		Code: 200,
 		Msg:  "登录成功",
-		Userinfo: types.UserInfo{
-			UserID:      int(u.UserId),
+		Admin: types.Admin{
+			AdminID:     int(u.AdminId),
 			PhoneNumber: u.PhoneNumber,
 			Avatar:      u.Avatar,
 			NickName:    u.Nickname,
-			Address:     u.Address,
+			QQEmail:     u.QqEmail,
 			Gender:      int(u.Gender),
+			FarmID:      int(u.FarmId),
 		},
 		AccessToken:  token,
 		AccessExpire: int(now + expire),
 		RefreshAfter: int(now + expire/2),
 	}, nil
+
 }

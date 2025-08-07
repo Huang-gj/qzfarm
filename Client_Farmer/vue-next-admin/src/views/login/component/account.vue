@@ -69,6 +69,7 @@ import { Session } from '/@/utils/storage';
 import { formatAxis } from '/@/utils/formatTime';
 import { NextLoading } from '/@/utils/loading';
 import { login } from '/@/api/auth';
+import { getFarm, type GetFarmRequest } from '/@/api/farm';
 
 // 定义变量内容
 const { t } = useI18n();
@@ -105,6 +106,45 @@ const generateRandomCode = () => {
 const refreshCode = () => {
 	state.verificationCode = generateRandomCode();
 	state.ruleForm.code = ''; // 清空输入框
+};
+
+// 检查农场绑定状态
+const checkFarmBinding = async () => {
+	try {
+		const userInfo = userInfoStore.getUserInfo;
+		if (!userInfo || !userInfo.admin_id) {
+			console.error('用户信息不完整，跳过农场绑定检查');
+			return;
+		}
+
+		const params: GetFarmRequest = {
+			admin_id: userInfo.admin_id
+		};
+
+		console.log('登录后检查农场绑定状态...'); // 调试日志
+		const response = await getFarm(params);
+		console.log('农场绑定检查响应:', response.code, response.msg || response.Msg); // 调试日志
+
+		if (response.code === 200) {
+			// 用户已绑定农场，保存农场信息到缓存
+			const farmData = response.farm || response.Farm;
+			Session.set('farmInfo', farmData);
+			console.log('用户已绑定农场，农场信息已保存到缓存'); // 调试日志
+		} else if (response.code === 10001) {
+			// 用户尚未绑定农场，在登录完成后跳转到农场绑定页面
+			console.log('用户尚未绑定农场，将跳转到绑定页面'); // 调试日志
+			// 延迟跳转，确保登录流程完成
+			setTimeout(() => {
+				router.push('/tools');
+				ElMessage.warning('检测到您尚未绑定农场，请先完成农场绑定！');
+			}, 1000);
+		} else {
+			console.error('检查农场绑定状态失败:', response.msg || response.Msg);
+		}
+	} catch (error: any) {
+		console.error('检查农场绑定状态异常:', error.message || error);
+		// 农场绑定检查失败不影响登录流程，只记录错误
+	}
 };
 
 // 登录
@@ -144,6 +184,9 @@ const onSignIn = async () => {
 			Session.set('token', response.accessToken);
 			console.log('保存的token:', response.accessToken);
 			console.log('验证token是否保存成功:', Session.get('token'));
+			
+			// 获取农场信息
+			await checkFarmBinding();
 			
 			// 根据路由配置决定使用前端还是后端控制路由
 	if (!themeConfig.value.isRequestRoutes) {

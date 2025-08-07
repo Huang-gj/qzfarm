@@ -95,9 +95,7 @@ router.beforeEach(async (to, from, next) => {
 	NProgress.configure({ showSpinner: false });
 	if (to.meta.title) NProgress.start();
 	const token = Session.get('token');
-	console.log('路由守卫获取的token:', token);
-	console.log('路由守卫目标路径:', to.path);
-	console.log('路由守卫来源路径:', from.path);
+	
 	if (to.path === '/login' && !token) {
 		next();
 		NProgress.done();
@@ -114,7 +112,7 @@ router.beforeEach(async (to, from, next) => {
 			const { routesList } = storeToRefs(storesRoutesList);
 			console.log('路由列表长度:', routesList.value.length);
 			if (routesList.value.length === 0) {
-				console.log('路由列表为空，开始初始化路由');
+				
 				if (isRequestRoutes) {
 					// 后端控制路由：路由数据初始化，防止刷新时丢失
 					await initBackEndControlRoutes();
@@ -124,15 +122,11 @@ router.beforeEach(async (to, from, next) => {
 				} else {
 					// https://gitee.com/lyt-top/vue-next-admin/issues/I5F1HP
 					const initResult = await initFrontEndControlRoutes();
-					console.log('前端路由初始化结果:', initResult);
-					console.log('目标路由:', to.path);
-					console.log('当前所有路由:', router.getRoutes().map(r => r.path));
+					
 					next({ path: to.path, query: to.query });
 				}
 			} else {
-				console.log('路由列表不为空，直接跳转');
-				console.log('目标路由:', to.path);
-				console.log('当前所有路由:', router.getRoutes().map(r => r.path));
+				
 				
 				// 检查路由是否存在
 				const targetRoute = router.getRoutes().find(r => r.path === to.path);

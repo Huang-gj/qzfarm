@@ -33,6 +33,7 @@ CREATE TABLE `farm`
     del_time       TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
     create_time    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     farm_id        INT           NOT NULL COMMENT '分布式唯一ID',
+    admin_id       INT           NOT NULL COMMENT '管理员唯一ID',
     farm_name      VARCHAR(128)  NOT NULL DEFAULT '' COMMENT '农场名称',
     description    TEXT COMMENT '农场描述',
     address        TEXT COMMENT '详细地址',
@@ -40,7 +41,7 @@ CREATE TABLE `farm`
     image_urls     TEXT COMMENT '农场照片',
     contact_phone  VARCHAR(20)   NOT NULL DEFAULT '' COMMENT '联系电话',
     average_rating DECIMAL(3, 1) NOT NULL DEFAULT 0.0 COMMENT '平均评分',
-    status         INT           NOT NULL DEFAULT 1 COMMENT '状态(1=正常营业,0=暂停营业)'
+    status         INT           NOT NULL DEFAULT 0 COMMENT '状态(1=暂停营业,0=正常营业)'
 
 ) ENGINE = InnoDB
 CHARACTER SET = utf8mb4

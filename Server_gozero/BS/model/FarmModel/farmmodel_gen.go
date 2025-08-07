@@ -26,9 +26,10 @@ var (
 type (
 	farmModel interface {
 		Insert(ctx context.Context, data *Farm) (sql.Result, error)
-		FindOne(ctx context.Context, id int64) (*Farm, error)
-		Update(ctx context.Context, data *Farm) error
-		Delete(ctx context.Context, id int64) error
+		FindOne(ctx context.Context, AdminId int64) (*Farm, error)
+		UpdateByFarmId(ctx context.Context, FarmID int64,data *Farm) error
+		Delete(ctx context.Context, FarmID int64) error
+		UpdateStatus(ctx context.Context, farmId int64, status int64) error
 	}
 
 	defaultFarmModel struct {
@@ -42,11 +43,12 @@ type (
 		DelTime       time.Time      `db:"del_time"`       // 删除时间
 		CreateTime    time.Time      `db:"create_time"`    // 创建时间
 		FarmId        int64          `db:"farm_id"`        // 分布式唯一ID
+		AdminId       int64          `db:"admin_id"`       // 管理员唯一ID
 		FarmName      string         `db:"farm_name"`      // 农场名称
 		Description   sql.NullString `db:"description"`    // 农场描述
 		Address       sql.NullString `db:"address"`        // 详细地址
 		LogoUrl       string         `db:"logo_url"`       // 农场logo
-		ImageUrls     sql.NullString `db:"image_urls"`     // 农场照片
+		ImageUrls     []byte `db:"image_urls"`     // 农场照片
 		ContactPhone  string         `db:"contact_phone"`  // 联系电话
 		AverageRating float64        `db:"average_rating"` // 平均评分
 		Status        int64          `db:"status"`         // 状态(1=正常营业,0=暂停营业)
@@ -60,16 +62,16 @@ func newFarmModel(conn sqlx.SqlConn) *defaultFarmModel {
 	}
 }
 
-func (m *defaultFarmModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
+func (m *defaultFarmModel) Delete(ctx context.Context, FarmID int64) error {
+	query := fmt.Sprintf("delete from %s where `farm_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, FarmID)
 	return err
 }
 
-func (m *defaultFarmModel) FindOne(ctx context.Context, id int64) (*Farm, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", farmRows, m.table)
+func (m *defaultFarmModel) FindOne(ctx context.Context, AdminId int64) (*Farm, error) {
+	query := fmt.Sprintf("select %s from %s where `admin_id` = ? limit 1", farmRows, m.table)
 	var resp Farm
-	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, AdminId)
 	switch err {
 	case nil:
 		return &resp, nil
@@ -81,14 +83,39 @@ func (m *defaultFarmModel) FindOne(ctx context.Context, id int64) (*Farm, error)
 }
 
 func (m *defaultFarmModel) Insert(ctx context.Context, data *Farm) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, farmRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.DelState, data.DelTime, data.FarmId, data.FarmName, data.Description, data.Address, data.LogoUrl, data.ImageUrls, data.ContactPhone, data.AverageRating, data.Status)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, farmRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.DelState, data.DelTime, data.FarmId, data.AdminId, data.FarmName, data.Description, data.Address, data.LogoUrl, data.ImageUrls, data.ContactPhone, data.AverageRating, data.Status)
 	return ret, err
 }
 
-func (m *defaultFarmModel) Update(ctx context.Context, data *Farm) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, farmRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.DelState, data.DelTime, data.FarmId, data.FarmName, data.Description, data.Address, data.LogoUrl, data.ImageUrls, data.ContactPhone, data.AverageRating, data.Status, data.Id)
+func (m *defaultFarmModel) UpdateByFarmId(ctx context.Context, farmID int64, data *Farm) error {
+	query := fmt.Sprintf(`UPDATE %s SET 
+		farm_name = ?, 
+		description = ?, 
+		address = ?, 
+		logo_url = ?, 
+		image_urls = ?, 
+		contact_phone = ? 
+		WHERE farm_id = ?`, m.table)
+
+	_, err := m.conn.ExecCtx(ctx, query,
+		data.FarmName,
+		data.Description,
+		data.Address,
+		data.LogoUrl,
+		data.ImageUrls,
+		data.ContactPhone,
+		farmID,
+	)
+	return err
+}
+
+
+
+
+func (m *defaultFarmModel) UpdateStatus(ctx context.Context, farmId int64, status int64) error {
+	query := fmt.Sprintf("update %s set `status` = ? where `farm_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, status, farmId)
 	return err
 }
 

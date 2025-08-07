@@ -22,10 +22,22 @@ service.interceptors.request.use(
 		if (Session.get('token')) {
 			config.headers!['Authorization'] = `${Session.get('token')}`;
 		}
+		
+		// 添加请求调试信息（仅针对农场相关API）
+		if (config.url?.includes('/api/updateFarmInfo') || config.url?.includes('/api/bindFarm')) {
+			console.log('request.ts - 发送请求:', {
+				url: config.url,
+				method: config.method,
+				data: config.data,
+				headers: config.headers
+			});
+		}
+		
 		return config;
 	},
 	(error) => {
 		// 对请求错误做些什么
+		console.error('request.ts - 请求错误:', error);
 		return Promise.reject(error);
 	}
 );
@@ -35,28 +47,43 @@ service.interceptors.response.use(
 	(response) => {
 		// 对响应数据做点什么
 		const res = response.data;
-		if (res.code && res.code !== 0) {
+		console.log('request.ts - 原始响应:', response); // 调试日志
+		console.log('request.ts - 响应数据:', res); // 调试日志
+		
+		// 对于农场相关API，我们需要返回完整的响应数据，让业务逻辑处理不同的状态码
+		if (res.code === 401 || res.code === 4001) {
 			// `token` 过期或者账号已在别处登录
-			if (res.code === 401 || res.code === 4001) {
-				Session.clear(); // 清除浏览器全部临时缓存
-				window.location.href = '/'; // 去登录页
-				ElMessageBox.alert('你已被登出，请重新登录', '提示', {})
-					.then(() => {})
-					.catch(() => {});
-			}
-			return Promise.reject(service.interceptors.response);
+			Session.clear(); // 清除浏览器全部临时缓存
+			window.location.href = '/'; // 去登录页
+			ElMessageBox.alert('你已被登出，请重新登录', '提示', {})
+				.then(() => {})
+				.catch(() => {});
+			return Promise.reject(new Error('登录过期'));
 		} else {
+			// 返回完整的响应数据，让业务代码处理状态码
 			return res;
 		}
 	},
 	(error) => {
 		// 对响应错误做点什么
-		if (error.message.indexOf('timeout') != -1) {
+		console.error('request.ts - 响应错误:', error);
+		console.error('request.ts - 错误响应数据:', error.response?.data);
+		console.error('request.ts - 错误状态码:', error.response?.status);
+		
+		if (error.response?.status === 400) {
+			console.error('request.ts - 400错误详情:', {
+				url: error.config?.url,
+				method: error.config?.method,
+				data: error.config?.data,
+				response: error.response?.data
+			});
+			ElMessage.error(`请求参数错误 (400): ${error.response?.data?.message || error.response?.data?.msg || '请检查请求参数'}`);
+		} else if (error.message.indexOf('timeout') != -1) {
 			ElMessage.error('网络超时');
 		} else if (error.message == 'Network Error') {
 			ElMessage.error('网络连接错误');
 		} else {
-			if (error.response.data) ElMessage.error(error.response.statusText);
+			if (error.response?.data) ElMessage.error(error.response.statusText);
 			else ElMessage.error('接口路径找不到');
 		}
 		return Promise.reject(error);

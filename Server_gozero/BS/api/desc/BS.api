@@ -12,6 +12,7 @@ info (
 import (
 	"make/adminCenter.api"
 	"make/Farm.api"
+	"make/Order.api"
 )
 
 @server (
@@ -53,5 +54,21 @@ service intelligent_agriculture_sys {
 
 	@handler getFarmHandler
 	post /getFarm (GetFarmRequest) returns (GetFarmResponse)
+
+	@handler updateFarmInfoHandler
+	post /updateFarmInfo (UpdateFarmInfoRequest) returns (UpdateFarmInfoResponse)
+}
+
+@server (
+	prefix: api
+	group:  order
+	jwt:    Auth
+)
+service intelligent_agriculture_sys {
+	@handler getGoodOrderHandler
+	post /getGoodOrder (GetGoodOrderRequest) returns (GetGoodOrderResponse)
+
+	@handler getLandOrderHandler
+	post /getLandOrder (GetLandOrderRequest) returns (GetLandOrderResponse)
 }
 

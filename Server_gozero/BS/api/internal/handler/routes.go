@@ -8,6 +8,7 @@ import (
 
 	farm "Server_gozero/BS/api/internal/handler/farm"
 	login "Server_gozero/BS/api/internal/handler/login"
+	order "Server_gozero/BS/api/internal/handler/order"
 	userCenter "Server_gozero/BS/api/internal/handler/userCenter"
 	"Server_gozero/BS/api/internal/svc"
 
@@ -27,6 +28,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/getFarm",
 				Handler: farm.GetFarmHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/updateFarmInfo",
+				Handler: farm.UpdateFarmInfoHandler(serverCtx),
+			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api"),
@@ -40,6 +46,23 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: login.LoginHandler(serverCtx),
 			},
 		},
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/getGoodOrder",
+				Handler: order.GetGoodOrderHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/getLandOrder",
+				Handler: order.GetLandOrderHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/api"),
 	)
 

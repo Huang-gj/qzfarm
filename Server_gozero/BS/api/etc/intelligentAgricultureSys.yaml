@@ -2,6 +2,13 @@ Name: intelligent_agriculture_sys
 Host: 0.0.0.0
 Port: 7777
 
+IdRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: isender.ISender
+
+
 Log:
   ServiceName: "BS-srv"
   Mode: file
@@ -9,6 +16,7 @@ Log:
   Path: logs/BS
   Level: debug
   Stat: true
+
 
 Auth:
   AccessSecret: 江城路

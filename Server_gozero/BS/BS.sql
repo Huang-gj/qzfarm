@@ -1,3 +1,5 @@
+
+
 DROP TABLE IF EXISTS `admin`;
 CREATE TABLE `admin`
 (
@@ -29,6 +31,7 @@ CREATE TABLE `farm`
     del_time       TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
     create_time    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     farm_id        INT           NOT NULL COMMENT '分布式唯一ID',
+    admin_id       INT           NOT NULL COMMENT '管理员唯一ID',
     farm_name      VARCHAR(128)  NOT NULL DEFAULT '' COMMENT '农场名称',
     description    TEXT COMMENT '农场描述',
     address        TEXT COMMENT '详细地址',

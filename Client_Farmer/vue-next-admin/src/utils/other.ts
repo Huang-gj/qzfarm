@@ -67,7 +67,18 @@ export function setTagsViewNameI18n(item: any) {
 		}
 	} else {
 		// 非自定义 tagsView 名称
-		tagsViewName = i18n.global.t(meta.title);
+		try {
+			// 检查meta.title是否是有效的翻译key
+			if (meta?.title && typeof meta.title === 'string') {
+				tagsViewName = i18n.global.t(meta.title);
+			} else {
+				console.warn('setTagsViewNameI18n: meta.title无效:', meta?.title);
+				tagsViewName = meta?.title || '未知页面';
+			}
+		} catch (error) {
+			console.error('setTagsViewNameI18n: 翻译失败:', error, 'meta.title:', meta?.title);
+			tagsViewName = meta?.title || '未知页面';
+		}
 	}
 	return tagsViewName;
 }

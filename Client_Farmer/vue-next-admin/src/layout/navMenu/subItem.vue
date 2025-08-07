@@ -9,16 +9,12 @@
 		</el-sub-menu>
 		<template v-else>
 			<el-menu-item :index="val.path" :key="val.path">
-				<template v-if="!val.meta.isLink || (val.meta.isLink && val.meta.isIframe)">
+				<SvgIcon :name="val.meta.icon" v-if="!val.meta.isLink || (val.meta.isLink && val.meta.isIframe)" />
+				<span v-if="!val.meta.isLink || (val.meta.isLink && val.meta.isIframe)">{{ $t(val.meta.title) }}</span>
+				<a v-else class="w100" @click.prevent="onALinkClick(val)">
 					<SvgIcon :name="val.meta.icon" />
-					<span>{{ $t(val.meta.title) }}</span>
-				</template>
-				<template v-else>
-					<a class="w100" @click.prevent="onALinkClick(val)">
-						<SvgIcon :name="val.meta.icon" />
-						{{ $t(val.meta.title) }}
-					</a>
-				</template>
+					{{ $t(val.meta.title) }}
+				</a>
 			</el-menu-item>
 		</template>
 	</template>

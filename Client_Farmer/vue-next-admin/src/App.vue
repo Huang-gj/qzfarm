@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts" name="app">
-import { defineAsyncComponent, computed, ref, onBeforeMount, onMounted, onUnmounted, nextTick, watch } from 'vue';
+import { defineAsyncComponent, computed, ref, onBeforeMount, onMounted, onUnmounted, nextTick, watch, onErrorCaptured } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
@@ -36,6 +36,16 @@ const stores = useTagsViewRoutes();
 const storesThemeConfig = useThemeConfig();
 const { themeConfig } = storeToRefs(storesThemeConfig);
 
+// 全局错误捕获
+onErrorCaptured((error, instance, info) => {
+	console.warn('[Vue错误捕获]:', error);
+	console.warn('[Vue错误实例]:', instance);
+	console.warn('[Vue错误信息]:', info);
+	
+	// 返回false阻止错误继续传播
+	return false;
+});
+
 // 设置锁屏时组件显示隐藏
 const setLockScreen = computed(() => {
 	// 防止锁屏后，刷新出现不相关界面
@@ -51,10 +61,6 @@ const getVersion = computed(() => {
 	}
 	return isVersion;
 });
-// 获取全局组件大小 - 已删除
-// const getGlobalComponentSize = computed(() => {
-// 	return other.globalComponentSize();
-// });
 // 获取全局 i18n
 const getGlobalI18n = computed(() => {
 	return messages.value[locale.value];

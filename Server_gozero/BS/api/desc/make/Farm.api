@@ -3,7 +3,7 @@ type BindFarm {
     Description string `json:"description"`
     Address string `json:"address"`
     LogoURL string `json:"logo_url"`
-    ImageURLs []string `json:"image_urls"`
+    ImageURLs []byte `json:"image_urls"`
     ContactPhone string  `json:"contact_phone"`
 
 }
@@ -20,18 +20,18 @@ type BindFarmResponse{
 }
 
 type Farm {
-    FarmID int `json"farm_id"`
+    FarmID int `json:"farm_id"`
     FarmName string `json:"farm_name"`
     Description string `json:"description"`
     Address string `json:"address"`
     LogoURL string `json:"logo_url"`
-    ImageURLs []string `json:"image_urls"`
+    ImageURLs []byte `json:"image_urls"`
     ContactPhone string  `json:"contact_phone"`
 
 }
 
 type GetFarmRequest{
-    AdminID int `json"admin_id"`
+    AdminID int `json:"admin_id"`
 }
 
 
@@ -41,3 +41,13 @@ type GetFarmResponse{
     Farm Farm `json"farm"`
 }
 
+type UpdateFarmInfoRequest{
+    Del int `json:"del"`
+    Status int `json:"status"`
+    Farm Farm `json:"farm"`
+}
+
+type UpdateFarmInfoResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}

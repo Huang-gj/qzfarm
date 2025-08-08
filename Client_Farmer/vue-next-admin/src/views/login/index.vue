@@ -80,11 +80,14 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .login-container {
+	
 	height: 100%;
+	
 	background: var(--el-color-white);
 	.login-left {
 		flex: 1;
 		position: relative;
+		
 		background-color: rgba(211, 239, 255, 1);
 		margin-right: 100px;
 		/* .login-left-logo {

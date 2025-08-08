@@ -150,7 +150,6 @@
 					<el-descriptions-item label="农场地址" :span="2">{{ currentOrder.farm_address }}</el-descriptions-item>
 					<el-descriptions-item label="订单详情" :span="2">{{ currentOrder.detail }}</el-descriptions-item>
 				</el-descriptions>
-				
 				<!-- 商品图片 -->
 				<div class="mt15" v-if="currentOrder.image_urls">
 					<h4>商品图片</h4>
@@ -186,96 +185,60 @@ import { getGoodOrder, type GoodOrder, type GetGoodOrderRequest } from '/@/api/o
 import { useUserInfoStore } from '/@/stores/userInfo';
 import { Session } from '/@/utils/storage';
 
-// 获取用户信息store
 const userInfoStore = useUserInfoStore();
 
-// 响应式数据
 const loading = ref(false);
 const dialogVisible = ref(false);
 const currentOrder = ref<GoodOrder | null>(null);
 
-// 搜索表单
 const searchForm = reactive({
 	orderId: '',
 	userId: '',
 	orderStatus: '',
 });
 
-// 分页信息
 const pagination = reactive({
 	currentPage: 1,
 	pageSize: 20,
 	total: 0,
 });
 
-// 表格数据
 const tableData = ref<GoodOrder[]>([]);
 
-// 过滤后的表格数据
 const filteredTableData = computed(() => {
 	let data = tableData.value;
-	
-	// 关键词搜索
 	if (searchForm.orderId) {
 		data = data.filter(item => item.good_order_id.toString().includes(searchForm.orderId));
 	}
 	if (searchForm.userId) {
 		data = data.filter(item => item.user_id.toString().includes(searchForm.userId));
 	}
-	
-	// 状态筛选
 	if (searchForm.orderStatus) {
 		data = data.filter(item => item.order_status === searchForm.orderStatus);
 	}
-	
-	// 更新总数
 	pagination.total = data.length;
-	
-	// 分页
 	const start = (pagination.currentPage - 1) * pagination.pageSize;
 	const end = start + pagination.pageSize;
 	return data.slice(start, end);
 });
 
-// 获取农产品订单数据
 const fetchGoodOrders = async () => {
 	try {
 		loading.value = true;
-		
-		// 优先从缓存中获取农场信息
-		let farmId = null;
-		const cachedFarmInfo = Session.get('farmInfo');
-		console.log('缓存中的农场信息:', cachedFarmInfo); // 调试日志
-		
+		let farmId: number | null = null;
+		const cachedFarmInfo: any = Session.get('farmInfo');
 		if (cachedFarmInfo && (cachedFarmInfo.farm_id || cachedFarmInfo.FarmID)) {
 			farmId = cachedFarmInfo.farm_id || cachedFarmInfo.FarmID;
-			console.log('从缓存获取farmId:', farmId); // 调试日志
 		} else {
-			// 如果缓存中没有农场信息，从用户信息中获取farm_id
-			const userInfo = userInfoStore.getUserInfo;
-			console.log('用户信息:', userInfo); // 调试日志
-			
-			if (userInfo && userInfo.farm_id) {
-				farmId = userInfo.farm_id;
-				console.log('从用户信息获取farmId:', farmId); // 调试日志
-			}
+			const userInfo: any = userInfoStore.getUserInfo;
+			if (userInfo && userInfo.farm_id) farmId = userInfo.farm_id;
 		}
-
 		if (!farmId) {
 			ElMessage.error('未找到农场信息，请先绑定农场');
 			return;
 		}
-
-		const params: GetGoodOrderRequest = {
-			farm_id: farmId
-		};
-
-		console.log('最终使用的farm_id:', farmId); // 调试日志
-		console.log('发送农产品订单请求参数:', JSON.stringify(params)); // 调试日志
-		console.log('请求URL: /api/getGoodOrder'); // 调试日志
-		const response = await getGoodOrder(params);
-		console.log('农产品订单响应:', response); // 调试日志
-
+		const params: GetGoodOrderRequest = { farm_id: Number(farmId) };
+		const response: any = await getGoodOrder(params);
 		if (response.code === 200 || response.Code === 200) {
 			tableData.value = response.good_order || response.Good_order || [];
 			ElMessage.success('农产品订单加载成功');
@@ -290,17 +253,11 @@ const fetchGoodOrders = async () => {
 	}
 };
 
-// 格式化时间
 const formatTime = (timeStr: string) => {
 	if (!timeStr) return '';
-	try {
-		return new Date(timeStr).toLocaleString('zh-CN');
-	} catch {
-		return timeStr;
-	}
+	try { return new Date(timeStr).toLocaleString('zh-CN'); } catch { return timeStr; }
 };
 
-// 获取状态类型
 const getStatusType = (status: string) => {
 	switch (status) {
 		case '待付款': return 'warning';
@@ -312,101 +269,32 @@ const getStatusType = (status: string) => {
 	}
 };
 
-// 获取第一张图片
 const getFirstImage = (imageUrls: string) => {
 	const images = getImageList(imageUrls);
 	return images.length > 0 ? images[0] : '';
 };
 
-// 解析图片列表
 const getImageList = (imageUrls: string) => {
-	if (!imageUrls) return [];
-	try {
-		// 尝试解析JSON
-		return JSON.parse(imageUrls);
-	} catch {
-		// 如果不是JSON，按逗号分隔
-		return imageUrls.split(',').filter(url => url.trim());
-	}
+	if (!imageUrls) return [] as string[];
+	try { return JSON.parse(imageUrls); } catch { return imageUrls.split(',').filter((u: string) => u.trim()); }
 };
 
-// 搜索
-const handleSearch = () => {
-	pagination.currentPage = 1;
-};
+const handleSearch = () => { pagination.currentPage = 1; };
+const handleRefresh = () => { searchForm.orderId = ''; searchForm.userId = ''; searchForm.orderStatus = ''; pagination.currentPage = 1; fetchGoodOrders(); };
+const handleViewDetail = (row: GoodOrder) => { currentOrder.value = row; dialogVisible.value = true; };
+const handleSizeChange = (size: number) => { pagination.pageSize = size; pagination.currentPage = 1; };
+const handleCurrentChange = (page: number) => { pagination.currentPage = page; };
 
-// 刷新
-const handleRefresh = () => {
-	searchForm.orderId = '';
-	searchForm.userId = '';
-	searchForm.orderStatus = '';
-	pagination.currentPage = 1;
-	fetchGoodOrders();
-};
-
-// 查看详情
-const handleViewDetail = (row: GoodOrder) => {
-	currentOrder.value = row;
-	dialogVisible.value = true;
-};
-
-// 分页大小改变
-const handleSizeChange = (size: number) => {
-	pagination.pageSize = size;
-	pagination.currentPage = 1;
-};
-
-// 当前页改变
-const handleCurrentChange = (page: number) => {
-	pagination.currentPage = page;
-};
-
-// 组件挂载时获取数据
-onMounted(() => {
-	fetchGoodOrders();
-});
+onMounted(() => { fetchGoodOrders(); });
 </script>
 
 <style scoped lang="scss">
 .system-order-container {
-	.system-order-search {
-		display: flex;
-		align-items: center;
-		flex-wrap: wrap;
-		gap: 10px;
-	}
-	
-	.system-order-pagination {
-		display: flex;
-		justify-content: flex-end;
-	}
-	
-	.price-amount {
-		font-weight: bold;
-		color: #e74c3c;
-	}
-	
-	.price-unit {
-		font-size: 12px;
-		color: #666;
-	}
-	
-	.image-slot {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		width: 100%;
-		height: 100%;
-		background: #f5f7fa;
-		color: #909399;
-	}
-	
-	.order-detail {
-		.image-gallery {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 10px;
-		}
-	}
+	.system-order-search { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+	.system-order-pagination { display: flex; justify-content: flex-end; }
+	.price-amount { font-weight: bold; color: #e74c3c; }
+	.price-unit { font-size: 12px; color: #666; }
+	.image-slot { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; background: #f5f7fa; color: #909399; }
+	.order-detail { .image-gallery { display: flex; flex-wrap: wrap; gap: 10px; } }
 }
 </style>

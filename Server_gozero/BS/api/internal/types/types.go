@@ -3,6 +3,18 @@
 
 package types
 
+type AddProductRequest struct {
+	ProductType int     `json:"product_type"`
+	FarmID      int     `json:"farm_id"`
+	Good        []*Good `json:"good"`
+	Land        []*Land `json:"land"`
+}
+
+type AddProductResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
 type Admin struct {
 	AdminID     int    `json:"admin_id"`
 	PhoneNumber string `json:"phone_number"`
@@ -30,6 +42,18 @@ type BindFarmRequest struct {
 type BindFarmResponse struct {
 	Code int    `json"code"`
 	Msg  string `json"msg"`
+}
+
+type DelProductRequest struct {
+	FarmID      int `json:"farm_id"`
+	ProductType int `json:"product_type"`
+	GoodID      int `json:"good_id"`
+	LandID      int `json:"land_id"`
+}
+
+type DelProductResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
 }
 
 type Farm struct {
@@ -82,6 +106,34 @@ type GetLandOrderResponse struct {
 	Land_order []*LandOrder `json:"land_order"`
 }
 
+type GetProductRequest struct {
+	ProductType int `json:"product_type"`
+	FarmID      int `json:"farm_id"`
+}
+
+type GetProductResponse struct {
+	Code int     `json:"code"`
+	Msg  string  `json:"msg"`
+	Good []*Good `json:"good"`
+	Land []*Land `json:"land"`
+}
+
+type Good struct {
+	ID         int     `json:"id"`
+	DelState   int     `json:"del_state"`
+	DelTime    string  `json:"del_time"`
+	CreateTime string  `json:"create_time"`
+	GoodID     int     `json:"good_id"`
+	GoodTag    string  `json:"good_tag"`
+	GoodName   string  `json:"good_name"`
+	FarmID     int     `json:"farm_id"`
+	ImageURLs  []byte  `json:"image_urls"`
+	Price      float64 `json:"price"`
+	Units      string  `json:"units"`
+	Repertory  float64 `json:"repertory"`
+	Detail     string  `json:"detail"`
+}
+
 type GoodOrder struct {
 	Id          int64   `json:"id"`
 	DelState    int64   `json:"del_state"`     // 0-正常 1-删除
@@ -99,6 +151,23 @@ type GoodOrder struct {
 	Count       int64   `json:"count"`         // 购买数量
 	Detail      string  `json:"detail"`        // 订单详情
 	OrderStatus string  `json:"order_status"`
+}
+
+type Land struct {
+	ID         int     `json:"id"`
+	DelState   int     `json:"del_state"`
+	DelTime    string  `json:"del_time"`
+	CreateTime string  `json:"create_time"`
+	LandID     int     `json:"land_id"`
+	FarmID     int     `json:"farm_id"`
+	LandName   string  `json:"land_name"`
+	LandTag    string  `json:"land_tag"`
+	Area       string  `json:"area"`
+	ImageURLs  []byte  `json:"image_urls"`
+	Price      float64 `json:"price"`
+	Detail     string  `json:"detail"`
+	SaleStatus int     `json:"sale_status"`
+	SaleTime   string  `json:"sale_time"`
 }
 
 type LandOrder struct {
@@ -173,6 +242,18 @@ type UpdatePhoneNumberRequest struct {
 }
 
 type UpdatePhoneNumberResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type UpdateProductRequest struct {
+	FarmID      int  `json:"farm_id"`
+	ProductType int  `json:"product_type"`
+	Good        Good `json:"good"`
+	Land        Land `json:"land"`
+}
+
+type UpdateProductResponse struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
 }

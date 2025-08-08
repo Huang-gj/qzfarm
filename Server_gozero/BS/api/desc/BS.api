@@ -13,6 +13,7 @@ import (
 	"make/adminCenter.api"
 	"make/Farm.api"
 	"make/Order.api"
+	"make/product.api"
 )
 
 @server (
@@ -70,5 +71,24 @@ service intelligent_agriculture_sys {
 
 	@handler getLandOrderHandler
 	post /getLandOrder (GetLandOrderRequest) returns (GetLandOrderResponse)
+}
+
+@server (
+	prefix: api
+	group:  product
+	jwt:    Auth
+)
+service intelligent_agriculture_sys {
+	@handler getProductHandler
+	post /getProduct (GetProductRequest) returns (GetProductResponse)
+
+	@handler addProductHandler
+	post /addProduct (AddProductRequest) returns (AddProductResponse)
+
+	@handler updateProductHandler
+	post /updateProduct (UpdateProductRequest) returns (UpdateProductResponse)
+
+	@handler delProductHandler
+	post /delProduct (DelProductRequest) returns (DelProductResponse)
 }
 

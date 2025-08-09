@@ -1,9 +1,9 @@
 <template>
-	<div class="land-analysis-container layout-pd">
+	<div class="product-analysis-container layout-pd">
 		<!-- 页面标题 -->
 		<div class="page-header mb15">
-			<h2>土地数据分析</h2>
-			<p>查看土地订单数据的详细统计和趋势分析</p>
+			<h2>农产品数据分析</h2>
+			<p>查看农产品订单数据的详细统计和趋势分析</p>
 		</div>
 
 		<!-- 时间段选择按钮 -->
@@ -57,7 +57,7 @@
 				<el-card class="overview-card">
 					<div class="card-content">
 						<div class="card-icon" style="background: var(--next-color-primary-lighter)">
-							<i class="fa fa-map" style="color: var(--el-color-primary)"></i>
+							<i class="fa fa-shopping-cart" style="color: var(--el-color-primary)"></i>
 						</div>
 						<div class="card-info">
 							<div class="card-value">{{ state.overview.totalOrders }}</div>
@@ -76,6 +76,7 @@
 						<div class="card-info">
 							<div class="card-value">¥{{ state.overview.totalSales.toFixed(2) }}</div>
 							<div class="card-label">总销售额</div>
+							<div class="card-growth" v-html="state.overview.salesGrowth"></div>
 						</div>
 					</div>
 				</el-card>
@@ -92,6 +93,7 @@
 						<div class="card-info">
 							<div class="card-value">¥{{ state.overview.avgOrderValue.toFixed(2) }}</div>
 							<div class="card-label">平均订单金额</div>
+							<div class="card-growth" v-html="state.overview.avgGrowth"></div>
 						</div>
 					</div>
 				</el-card>
@@ -105,6 +107,7 @@
 						<div class="card-info">
 							<div class="card-value">{{ state.overview.activeDays }}</div>
 							<div class="card-label">活跃天数</div>
+							<div class="card-growth" v-html="state.overview.daysGrowth"></div>
 						</div>
 					</div>
 				</el-card>
@@ -117,7 +120,7 @@
 				<el-card class="chart-card">
 					<template #header>
 						<div class="card-header">
-							<span>土地租赁趋势图表</span>
+							<span>销售趋势图表</span>
 						</div>
 					</template>
 					<div ref="chartRef" class="chart-container"></div>
@@ -141,10 +144,10 @@
 						max-height="320"
 					>
 						<el-table-column prop="stat_date" label="日期" width="100" />
-						<el-table-column prop="land_order_count" label="订单数" width="80" align="center" />
-						<el-table-column prop="land_sale_count" label="销售额" align="center">
+						<el-table-column prop="good_order_count" label="订单数" width="80" align="center" />
+						<el-table-column prop="good_sale_count" label="销售额" align="center">
 							<template #default="scope">
-								¥{{ scope.row.land_sale_count.toFixed(2) }}
+								¥{{ scope.row.good_sale_count.toFixed(2) }}
 							</template>
 						</el-table-column>
 					</el-table>
@@ -167,7 +170,7 @@
 	</div>
 </template>
 
-<script setup lang="ts" name="landAnalysis">
+<script setup lang="ts" name="productAnalysis">
 import { reactive, ref, onMounted, nextTick, watch } from 'vue';
 import * as echarts from 'echarts';
 import { ElMessage } from 'element-plus';
@@ -205,21 +208,6 @@ const state = reactive({
 	chart: null as any,
 });
 
-// 获取农场ID
-const getFarmId = (): number => {
-	const userInfo = userInfoStore.getUserInfo;
-	const cachedFarmInfo = Session.get('farmInfo');
-	
-	let farmId = 0;
-	if (cachedFarmInfo?.farm_id) {
-		farmId = cachedFarmInfo.farm_id;
-	} else if (userInfo?.farm_id) {
-		farmId = userInfo.farm_id;
-	}
-	
-	return farmId;
-};
-
 // 计算环比增长率
 const calculateGrowthRate = (current: number, previous: number): string => {
 	if (previous === 0) {
@@ -240,6 +228,306 @@ const calculateGrowthRate = (current: number, previous: number): string => {
 	} else {
 		return '环比增长率：<span style="color: #909399;">0%</span>';
 	}
+};
+
+// 更新概览数据
+const updateOverview = (prevData: SaleData[] = []) => {
+	const currentData = state.allData;
+	
+	console.log('更新概览数据 - 当前数据:', currentData);
+	console.log('更新概览数据 - 上一周期数据:', prevData);
+	
+	state.overview.totalOrders = currentData.reduce((sum, item) => sum + item.good_order_count, 0);
+	state.overview.totalSales = currentData.reduce((sum, item) => sum + item.good_sale_count, 0);
+	state.overview.avgOrderValue = state.overview.totalOrders > 0 
+		? state.overview.totalSales / state.overview.totalOrders 
+		: 0;
+	state.overview.activeDays = currentData.filter(item => item.good_order_count > 0).length;
+
+	// 计算环比
+	if (prevData.length > 0) {
+		const prevTotalOrders = prevData.reduce((sum, item) => sum + item.good_order_count, 0);
+		const prevTotalSales = prevData.reduce((sum, item) => sum + item.good_sale_count, 0);
+		const prevAvgOrderValue = prevTotalOrders > 0 ? prevTotalSales / prevTotalOrders : 0;
+		const prevActiveDays = prevData.filter(item => item.good_order_count > 0).length;
+
+		console.log('计算环比 - 当前指标:', {
+			totalOrders: state.overview.totalOrders,
+			totalSales: state.overview.totalSales,
+			avgOrderValue: state.overview.avgOrderValue,
+			activeDays: state.overview.activeDays
+		});
+		
+		console.log('计算环比 - 上一周期指标:', {
+			totalOrders: prevTotalOrders,
+			totalSales: prevTotalSales,
+			avgOrderValue: prevAvgOrderValue,
+			activeDays: prevActiveDays
+		});
+
+		state.overview.ordersGrowth = calculateGrowthRate(state.overview.totalOrders, prevTotalOrders);
+		state.overview.salesGrowth = calculateGrowthRate(state.overview.totalSales, prevTotalSales);
+		state.overview.avgGrowth = calculateGrowthRate(state.overview.avgOrderValue, prevAvgOrderValue);
+		state.overview.daysGrowth = calculateGrowthRate(state.overview.activeDays, prevActiveDays);
+		
+		console.log('计算出的环比:', {
+			ordersGrowth: state.overview.ordersGrowth,
+			salesGrowth: state.overview.salesGrowth,
+			avgGrowth: state.overview.avgGrowth,
+			daysGrowth: state.overview.daysGrowth
+		});
+	} else {
+		console.log('没有上一周期数据，设置为N/A');
+		state.overview.ordersGrowth = '环比增长率：<span style="color: #909399;">N/A</span>';
+		state.overview.salesGrowth = '环比增长率：<span style="color: #909399;">N/A</span>';
+		state.overview.avgGrowth = '环比增长率：<span style="color: #909399;">N/A</span>';
+		state.overview.daysGrowth = '环比增长率：<span style="color: #909399;">N/A</span>';
+	}
+};
+
+// 更新表格数据
+const updateTableData = () => {
+	const start = (state.pagination.page - 1) * state.pagination.size;
+	const end = start + state.pagination.size;
+	
+	state.tableData = state.allData.slice(start, end);
+	state.pagination.total = state.allData.length;
+};
+
+// 初始化图表
+const initChart = () => {
+	if (!chartRef.value) return;
+	
+	state.chart = echarts.init(chartRef.value);
+	updateChart();
+};
+
+// 更新图表
+const updateChart = () => {
+	if (!state.chart) return;
+
+	const dates = state.allData.map(item => item.stat_date);
+	const orderCounts = state.allData.map(item => item.good_order_count);
+	const salesAmounts = state.allData.map(item => item.good_sale_count);
+
+	const option = {
+		title: {
+			text: '农产品销售趋势',
+			left: 'center',
+			textStyle: {
+				fontSize: 16,
+			},
+		},
+		tooltip: {
+			trigger: 'axis',
+			axisPointer: {
+				type: 'cross',
+			},
+		},
+		legend: {
+			data: ['订单数量', '销售金额'],
+			top: 30,
+		},
+		grid: {
+			top: 70,
+			left: 50,
+			right: 50,
+			bottom: 50,
+		},
+		xAxis: {
+			type: 'category',
+			data: dates,
+			axisLabel: {
+				rotate: 45,
+				fontSize: 10,
+			},
+		},
+		yAxis: [
+			{
+				type: 'value',
+				name: '订单数量',
+				position: 'left',
+				axisLabel: {
+					formatter: '{value}',
+				},
+			},
+			{
+				type: 'value',
+				name: '销售金额',
+				position: 'right',
+				axisLabel: {
+					formatter: '¥{value}',
+				},
+			},
+		],
+		series: [
+			{
+				name: '订单数量',
+				type: 'bar',
+				yAxisIndex: 0,
+				data: orderCounts,
+				itemStyle: {
+					color: '#409EFF',
+				},
+			},
+			{
+				name: '销售金额',
+				type: 'line',
+				yAxisIndex: 1,
+				data: salesAmounts,
+				smooth: true,
+				itemStyle: {
+					color: '#67C23A',
+				},
+				lineStyle: {
+					color: '#67C23A',
+				},
+			},
+		],
+	};
+
+	state.chart.setOption(option);
+};
+
+// 获取销售数据（包含环比计算）
+const fetchSalesData = async () => {
+	try {
+		state.loading = true;
+		const farmId = getFarmId();
+		
+		if (!farmId) {
+			ElMessage.error('未找到农场信息，请先绑定农场');
+			return;
+		}
+
+		if (!state.selectedTime) {
+			ElMessage.error('请选择查看时间');
+			return;
+		}
+
+		console.log('选中的时间:', state.selectedTime);
+		console.log('时间类型:', state.activeTimeType);
+		
+		const timeRange = getTimeRange(state.activeTimeType, state.selectedTime);
+		
+		console.log('计算的时间范围:', timeRange);
+
+		// 验证时间范围是否正确
+		if (!timeRange.startDate || !timeRange.endDate) {
+			ElMessage.error('时间范围计算错误，请重新选择');
+			return;
+		}
+
+		// 获取当前周期数据
+		const params: SaleSummaryRequest = {
+			farm_id: farmId,
+			start_date: timeRange.startDate,
+			end_date: timeRange.endDate,
+		};
+
+		console.log('请求参数:', params);
+
+		const response = await getSaleSummary(params);
+
+		if (response.code === 200) {
+			state.allData = response.sale_data || [];
+			
+			// 获取上一周期数据用于计算环比
+			const prevTimeRange = getPreviousTimeRange(state.activeTimeType, state.selectedTime);
+			let prevData: SaleData[] = [];
+			
+			if (prevTimeRange) {
+				const prevParams: SaleSummaryRequest = {
+					farm_id: farmId,
+					start_date: prevTimeRange.startDate,
+					end_date: prevTimeRange.endDate,
+				};
+				
+				console.log('上一周期请求参数:', prevParams);
+				
+				try {
+					const prevResponse = await getSaleSummary(prevParams);
+					if (prevResponse.code === 200) {
+						prevData = prevResponse.sale_data || [];
+						console.log('上一周期数据:', prevData);
+					}
+				} catch (error) {
+					console.warn('获取上一周期数据失败:', error);
+				}
+			}
+			
+			updateOverview(prevData);
+			updateTableData();
+			updateChart();
+		} else {
+			ElMessage.error(`获取数据失败: ${response.msg}`);
+		}
+	} catch (error) {
+		console.error('获取销售数据失败:', error);
+		ElMessage.error('获取数据失败，请稍后重试');
+	} finally {
+		state.loading = false;
+	}
+};
+
+// 时间类型切换
+const handleTimeTypeChange = (type: 'year' | 'month' | 'week') => {
+	console.log('切换时间类型到:', type);
+	state.activeTimeType = type;
+	state.timeOptions = generateTimeOptions(type);
+	
+	console.log('生成的时间选项:', state.timeOptions);
+	
+	// 默认选择第一个选项（当前时间）
+	if (state.timeOptions.length > 0) {
+		state.selectedTime = state.timeOptions[0].value;
+		console.log('默认选择的时间:', state.selectedTime);
+	} else {
+		console.error('没有生成时间选项');
+		ElMessage.error('无法生成时间选项，请刷新页面重试');
+		return;
+	}
+	
+	state.pagination.page = 1; // 重置分页
+	fetchSalesData();
+};
+
+// 时间选择改变
+const handleTimeSelectionChange = () => {
+	state.pagination.page = 1; // 重置分页
+	fetchSalesData();
+};
+
+// 分页处理
+const handleSizeChange = (size: number) => {
+	state.pagination.size = size;
+	state.pagination.page = 1;
+	updateTableData();
+};
+
+const handleCurrentChange = (page: number) => {
+	state.pagination.page = page;
+	updateTableData();
+};
+
+// 监听数据变化更新表格
+watch(() => state.allData, () => {
+	updateTableData();
+});
+
+// 获取农场ID
+const getFarmId = (): number => {
+	const userInfo = userInfoStore.getUserInfo;
+	const cachedFarmInfo = Session.get('farmInfo');
+	
+	let farmId = 0;
+	if (cachedFarmInfo?.farm_id) {
+		farmId = cachedFarmInfo.farm_id;
+	} else if (userInfo?.farm_id) {
+		farmId = userInfo.farm_id;
+	}
+	
+	return farmId;
 };
 
 // 生成时间选项
@@ -375,239 +663,75 @@ const getTimeRange = (type: 'year' | 'month' | 'week', selectedValue: string) =>
 	return { startDate, endDate };
 };
 
-// 获取销售数据
-const fetchSalesData = async () => {
+// 获取上一周期的时间范围
+const getPreviousTimeRange = (type: 'year' | 'month' | 'week', selectedValue: string) => {
+	let startDate: string = '';
+	let endDate: string = '';
+
 	try {
-		state.loading = true;
-		const farmId = getFarmId();
-		
-		if (!farmId) {
-			ElMessage.error('未找到农场信息，请先绑定农场');
-			return;
-		}
-
-		if (!state.selectedTime) {
-			ElMessage.error('请选择查看时间');
-			return;
-		}
-
-		console.log('选中的时间:', state.selectedTime);
-		console.log('时间类型:', state.activeTimeType);
-		
-		const timeRange = getTimeRange(state.activeTimeType, state.selectedTime);
-		
-		console.log('计算的时间范围:', timeRange);
-
-		// 验证时间范围是否正确
-		if (!timeRange.startDate || !timeRange.endDate) {
-			ElMessage.error('时间范围计算错误，请重新选择');
-			return;
-		}
-
-		const params: SaleSummaryRequest = {
-			farm_id: farmId,
-			start_date: timeRange.startDate,
-			end_date: timeRange.endDate,
-		};
-
-		console.log('请求参数:', params);
-
-		const response = await getSaleSummary(params);
-
-		if (response.code === 200) {
-			state.allData = response.sale_data || [];
-			updateOverview(state.allData); // 传递当前数据作为前一期的数据
-			updateTableData();
-			updateChart();
-		} else {
-			ElMessage.error(`获取数据失败: ${response.msg}`);
+		switch (type) {
+			case 'year':
+				const year = parseInt(selectedValue);
+				if (isNaN(year)) {
+					throw new Error('年份格式无效');
+				}
+				const prevYear = year - 1;
+				startDate = `${prevYear}-01-01`;
+				endDate = `${prevYear}-12-31`;
+				break;
+			case 'month':
+				const [yearStr, monthStr] = selectedValue.split('-');
+				const yearNum = parseInt(yearStr);
+				const monthNum = parseInt(monthStr);
+				
+				if (isNaN(yearNum) || isNaN(monthNum)) {
+					throw new Error('月份格式无效');
+				}
+				
+				let prevYearForMonth = yearNum;
+				let prevMonth = monthNum - 1;
+				
+				if (prevMonth === 0) {
+					prevMonth = 12;
+					prevYearForMonth = yearNum - 1;
+				}
+				
+				const prevMonthStr = prevMonth.toString().padStart(2, '0');
+				startDate = `${prevYearForMonth}-${prevMonthStr}-01`;
+				
+				const lastDay = new Date(prevYearForMonth, prevMonth, 0).getDate();
+				endDate = `${prevYearForMonth}-${prevMonthStr}-${lastDay.toString().padStart(2, '0')}`;
+				break;
+			case 'week':
+				if (!selectedValue || !selectedValue.includes('|')) {
+					throw new Error('周格式无效');
+				}
+				const [weekStart, weekEnd] = selectedValue.split('|');
+				if (!weekStart || !weekEnd) {
+					throw new Error('周日期范围无效');
+				}
+				
+				// 解析开始日期，计算上一周
+				const startDateObj = new Date(weekStart);
+				const prevWeekStart = new Date(startDateObj);
+				prevWeekStart.setDate(startDateObj.getDate() - 7);
+				
+				const prevWeekEnd = new Date(prevWeekStart);
+				prevWeekEnd.setDate(prevWeekStart.getDate() + 6);
+				
+				startDate = `${prevWeekStart.getFullYear()}-${(prevWeekStart.getMonth() + 1).toString().padStart(2, '0')}-${prevWeekStart.getDate().toString().padStart(2, '0')}`;
+				endDate = `${prevWeekEnd.getFullYear()}-${(prevWeekEnd.getMonth() + 1).toString().padStart(2, '0')}-${prevWeekEnd.getDate().toString().padStart(2, '0')}`;
+				break;
+			default:
+				throw new Error('未知的时间类型');
 		}
 	} catch (error) {
-		console.error('获取销售数据失败:', error);
-		ElMessage.error('获取数据失败，请稍后重试');
-	} finally {
-		state.loading = false;
+		console.error('上一周期时间范围计算错误:', error);
+		return null;
 	}
+
+	return { startDate, endDate };
 };
-
-// 更新概览数据（土地相关）
-const updateOverview = (prevData: SaleData[] = []) => {
-	const currentData = state.allData;
-	
-	state.overview.totalOrders = currentData.reduce((sum, item) => sum + item.land_order_count, 0);
-	state.overview.totalSales = currentData.reduce((sum, item) => sum + item.land_sale_count, 0);
-	state.overview.avgOrderValue = state.overview.totalOrders > 0 
-		? state.overview.totalSales / state.overview.totalOrders 
-		: 0;
-	state.overview.activeDays = currentData.filter(item => item.land_order_count > 0).length;
-
-	// 计算环比
-	if (prevData.length > 0) {
-		const prevTotalOrders = prevData.reduce((sum, item) => sum + item.land_order_count, 0);
-		const prevTotalSales = prevData.reduce((sum, item) => sum + item.land_sale_count, 0);
-		const prevAvgOrderValue = prevTotalOrders > 0 ? prevTotalSales / prevTotalOrders : 0;
-		const prevActiveDays = prevData.filter(item => item.land_order_count > 0).length;
-
-		state.overview.ordersGrowth = calculateGrowthRate(state.overview.totalOrders, prevTotalOrders);
-		state.overview.salesGrowth = calculateGrowthRate(state.overview.totalSales, prevTotalSales);
-		state.overview.avgGrowth = calculateGrowthRate(state.overview.avgOrderValue, prevAvgOrderValue);
-		state.overview.daysGrowth = calculateGrowthRate(state.overview.activeDays, prevActiveDays);
-	} else {
-		state.overview.ordersGrowth = '环比增长率：<span style="color: #909399;">N/A</span>';
-		state.overview.salesGrowth = '环比增长率：<span style="color: #909399;">N/A</span>';
-		state.overview.avgGrowth = '环比增长率：<span style="color: #909399;">N/A</span>';
-		state.overview.daysGrowth = '环比增长率：<span style="color: #909399;">N/A</span>';
-	}
-};
-
-// 更新表格数据
-const updateTableData = () => {
-	const start = (state.pagination.page - 1) * state.pagination.size;
-	const end = start + state.pagination.size;
-	
-	state.tableData = state.allData.slice(start, end);
-	state.pagination.total = state.allData.length;
-};
-
-// 初始化图表
-const initChart = () => {
-	if (!chartRef.value) return;
-	
-	state.chart = echarts.init(chartRef.value);
-	updateChart();
-};
-
-// 更新图表（土地相关）
-const updateChart = () => {
-	if (!state.chart) return;
-
-	const dates = state.allData.map(item => item.stat_date);
-	const orderCounts = state.allData.map(item => item.land_order_count);
-	const salesAmounts = state.allData.map(item => item.land_sale_count);
-
-	const option = {
-		title: {
-			text: '土地租赁趋势',
-			left: 'center',
-			textStyle: {
-				fontSize: 16,
-			},
-		},
-		tooltip: {
-			trigger: 'axis',
-			axisPointer: {
-				type: 'cross',
-			},
-		},
-		legend: {
-			data: ['租赁订单数量', '租赁销售金额'],
-			top: 30,
-		},
-		grid: {
-			top: 70,
-			left: 50,
-			right: 50,
-			bottom: 50,
-		},
-		xAxis: {
-			type: 'category',
-			data: dates,
-			axisLabel: {
-				rotate: 45,
-				fontSize: 10,
-			},
-		},
-		yAxis: [
-			{
-				type: 'value',
-				name: '订单数量',
-				position: 'left',
-				axisLabel: {
-					formatter: '{value}',
-				},
-			},
-			{
-				type: 'value',
-				name: '销售金额',
-				position: 'right',
-				axisLabel: {
-					formatter: '¥{value}',
-				},
-			},
-		],
-		series: [
-			{
-				name: '租赁订单数量',
-				type: 'bar',
-				yAxisIndex: 0,
-				data: orderCounts,
-				itemStyle: {
-					color: '#E6A23C',
-				},
-			},
-			{
-				name: '租赁销售金额',
-				type: 'line',
-				yAxisIndex: 1,
-				data: salesAmounts,
-				smooth: true,
-				itemStyle: {
-					color: '#F56C6C',
-				},
-				lineStyle: {
-					color: '#F56C6C',
-				},
-			},
-		],
-	};
-
-	state.chart.setOption(option);
-};
-
-// 时间类型切换
-const handleTimeTypeChange = (type: 'year' | 'month' | 'week') => {
-	console.log('切换时间类型到:', type);
-	state.activeTimeType = type;
-	state.timeOptions = generateTimeOptions(type);
-	
-	console.log('生成的时间选项:', state.timeOptions);
-	
-	// 默认选择第一个选项（当前时间）
-	if (state.timeOptions.length > 0) {
-		state.selectedTime = state.timeOptions[0].value;
-		console.log('默认选择的时间:', state.selectedTime);
-	} else {
-		console.error('没有生成时间选项');
-		ElMessage.error('无法生成时间选项，请刷新页面重试');
-		return;
-	}
-	
-	state.pagination.page = 1; // 重置分页
-	fetchSalesData();
-};
-
-// 时间选择改变
-const handleTimeSelectionChange = () => {
-	state.pagination.page = 1; // 重置分页
-	fetchSalesData();
-};
-
-// 分页处理
-const handleSizeChange = (size: number) => {
-	state.pagination.size = size;
-	state.pagination.page = 1;
-	updateTableData();
-};
-
-const handleCurrentChange = (page: number) => {
-	state.pagination.page = page;
-	updateTableData();
-};
-
-// 监听数据变化更新表格
-watch(() => state.allData, () => {
-	updateTableData();
-});
 
 // 页面加载
 onMounted(() => {
@@ -625,7 +749,7 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.land-analysis-container {
+.product-analysis-container {
 	.page-header {
 		text-align: center;
 		h2 {
@@ -699,8 +823,8 @@ onMounted(() => {
 					}
 					.card-growth {
 						font-size: 12px;
-						color: var(--el-text-color-secondary);
-						margin-top: 5px;
+						margin-top: 3px;
+						font-weight: bold;
 					}
 				}
 			}
@@ -748,4 +872,4 @@ onMounted(() => {
 		flex-shrink: 0;
 	}
 }
-</style>
+</style> 

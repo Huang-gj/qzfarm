@@ -106,6 +106,16 @@ type GetLandOrderResponse struct {
 	Land_order []*LandOrder `json:"land_order"`
 }
 
+type GetLastOneYearSaleDataRequest struct {
+	FarmID int `json:"farm_id"`
+}
+
+type GetLastOneYearSaleDataResponse struct {
+	Code            int         `json:"code"`
+	Msg             string      `json:"msg"`
+	OneYearSaleData []*SaleData `json:"one_year_sale_data"`
+}
+
 type GetProductRequest struct {
 	ProductType int `json:"product_type"`
 	FarmID      int `json:"farm_id"`
@@ -116,6 +126,20 @@ type GetProductResponse struct {
 	Msg  string  `json:"msg"`
 	Good []*Good `json:"good"`
 	Land []*Land `json:"land"`
+}
+
+type GetTotalDataRequest struct {
+	FarmID int `json:"farm_id"`
+}
+
+type GetTotalDataResponse struct {
+	Code           int     `json:"code"`
+	Msg            string  `json:"msg"`
+	GoodOrderCount int     `json:"good_order_count"`
+	LandOrderCount int     `json:"sale_order_count"`
+	GoodSaleCount  float64 `json:"good_sale_count"` // 农产品订单总销售额
+	LandSaleCount  float64 `json:"land_sale_count"` // 土地订单总销售额
+	SysUseCount    int     `json:"sys_use_count"`
 }
 
 type Good struct {
@@ -199,6 +223,28 @@ type LoginResponse struct {
 	AccessToken  string `json:"accessToken"`
 	AccessExpire int    `json:"accessExpire"`
 	RefreshAfter int    `json:"refreshAfter"`
+}
+
+type SaleData struct {
+	Farm_id        int     `json:"farm_id"`          // 关联农场id
+	StatDate       string  `json:"stat_date"`        // 日
+	GoodOrderCount int     `json:"good_order_count"` // 农产品订单总数
+	LandOrderCount int     `json:"land_order_count"` // 土地订单总数
+	GoodSaleCount  float64 `json:"good_sale_count"`  // 农产品订单总销售额
+	LandSaleCount  float64 `json:"land_sale_count"`  // 土地订单总销售额
+	SysUseCount    int     `json:"sys_use_count"`    // 当前系统适用人数
+}
+
+type SaleSummaryRequest struct {
+	FarmID    int    `json:"farm_id"`
+	StartDate string `json:"start_date"` // 开始日期，格式: YYYY-MM-DD
+	EndDate   string `json:"end_date"`   // 结束日期，格式: YYYY-MM-DD
+}
+
+type SaleSummaryResponse struct {
+	Code     int         `json:"code"`
+	Msg      string      `json:"msg"`
+	SaleData []*SaleData `json:"sale_data"`
 }
 
 type UpdateAdminRequest struct {

@@ -210,3 +210,24 @@ CREATE TABLE `admin`
 CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci
 ROW_FORMAT = Dynamic;
+
+
+DROP TABLE IF EXISTS `sale_data`;
+CREATE TABLE `sale_data`
+(
+    id           INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    del_state    INT          NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
+    del_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    farm_id INT NOT NULL DEFAULT 0 COMMENT '关联农场id',
+    stat_date DATE  NOT NULL COMMENT '统计日期',
+    good_order_count INT NOT NULL DEFAULT 0 COMMENT '农产品订单总数',
+    land_order_count INT NOT NULL DEFAULT 0 COMMENT '土地订单总数',
+    good_sale_count DOUBLE NOT NULL DEFAULT 0 COMMENT '农产品订单总销售额',
+    land_sale_count DOUBLE NOT NULL DEFAULT 0 COMMENT '土地订单总销售额',
+    sys_use_count INT NOT NULL DEFAULT 0 COMMENT '当前系统适用人数'
+
+) ENGINE = InnoDB
+CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_general_ci
+ROW_FORMAT = Dynamic;

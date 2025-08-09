@@ -11,16 +11,25 @@
 				:key="k"
 				:class="{ 'home-media home-media-lg': k > 1, 'home-media-sm': k === 1 }"
 			>
-				<div class="home-card-item flex">
+				<div 
+					class="home-card-item flex home-card-clickable" 
+					@click="handleCardClick(k)"
+					:style="{ cursor: 'pointer' }"
+				>
 					<div class="flex-margin flex w100" :class="` home-one-animation${k}`">
 						<div class="flex-auto">
 							<span class="font30">{{ v.num1 }}</span>
-							<span class="ml5 font16" :style="{ color: v.color1 }">{{ v.num2 }}%</span>
 							<div class="mt10">{{ v.num3 }}</div>
 						</div>
 						<div class="home-card-item-icon flex" :style="{ background: `var(${v.color2})` }">
 							<i class="flex-margin font32" :class="v.num4" :style="{ color: `var(${v.color3})` }"></i>
 						</div>
+					</div>
+					<!-- 跳转提示 -->
+					<div class="card-overlay">
+						<el-button type="primary" size="small" circle>
+							<i class="fa fa-arrow-right"></i>
+						</el-button>
 					</div>
 				</div>
 			</el-col>
@@ -59,15 +68,22 @@
 import { reactive, onMounted, ref, watch, nextTick, onActivated, markRaw } from 'vue';
 import * as echarts from 'echarts';
 import { storeToRefs } from 'pinia';
+import { useRouter } from 'vue-router';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { useTagsViewRoutes } from '/@/stores/tagsViewRoutes';
+import { useUserInfoStore } from '/@/stores/userInfo';
+import { Session } from '/@/utils/storage';
+import { getTotalData, type GetTotalDataRequest, getLastOneYearSaleData, type GetLastOneYearSaleDataRequest, type SaleData } from '/@/api/farm';
+import { ElMessage } from 'element-plus';
 
 // 定义变量内容
 const homeLineRef = ref();
 // const homePieRef = ref(); // 已删除
 // const homeBarRef = ref(); // 已删除
+const router = useRouter();
 const storesTagsViewRoutes = useTagsViewRoutes();
 const storesThemeConfig = useThemeConfig();
+const userInfoStore = useUserInfoStore();
 const { themeConfig } = storeToRefs(storesThemeConfig);
 const { isTagsViewCurrenFull } = storeToRefs(storesTagsViewRoutes);
 const state = reactive({
@@ -79,38 +95,30 @@ const state = reactive({
 	} as any,
 	homeOne: [
 		{
-			num1: '1,234',
-			num2: '+15.32',
+			num1: '0',
 			num3: '农产品订单',
 			num4: 'fa fa-shopping-cart',
-			color1: '#FF6462',
 			color2: '--next-color-primary-lighter',
 			color3: '--el-color-primary',
 		},
 		{
-			num1: '856',
-			num2: '+8.45',
-			num3: '土地管理',
+			num1: '0',
+			num3: '土地订单',
 			num4: 'iconfont icon-ditu',
-			color1: '#6690F9',
 			color2: '--next-color-success-lighter',
 			color3: '--el-color-success',
 		},
 		{
-			num1: '2,567',
-			num2: '+12.78',
-			num3: '农作物产量',
-			num4: 'iconfont icon-zaosheng',
-			color1: '#6690F9',
+			num1: '0',
+			num3: '销售总额',
+			num4: 'fa fa-dollar',
 			color2: '--next-color-warning-lighter',
 			color3: '--el-color-warning',
 		},
 		{
-			num1: '98.5',
-			num2: '+2.1',
-			num3: '系统使用率',
-			num4: 'fa fa-chart-line',
-			color1: '#FF6462',
+			num1: '0',
+			num3: '系统使用人数',
+			num4: 'fa fa-users',
 			color2: '--next-color-danger-lighter',
 			color3: '--el-color-danger',
 		},
@@ -177,12 +185,209 @@ const state = reactive({
 		bgColor: '',
 		color: '#303133',
 	},
+	// 销售趋势数据
+	salesData: {
+		months: [] as string[],
+		goodSales: [] as number[],
+		landSales: [] as number[],
+	},
 });
+
+// 卡片点击处理函数
+const handleCardClick = (index: number) => {
+	console.log('点击卡片:', index);
+	
+	switch (index) {
+		case 0: // 农产品订单
+			router.push('/visualizing/visualizingLinkDemo1');
+			break;
+		case 1: // 土地订单
+			router.push('/visualizing/visualizingLinkDemo2');
+			break;
+		case 2: // 销售总额
+			router.push('/visualizing/salesAnalysis');
+			break;
+		case 3: // 系统使用人数
+			router.push('/visualizing/userAnalysis');
+			break;
+		default:
+			break;
+	}
+};
+
+// 获取农场ID的工具函数
+const getFarmId = (): number => {
+	const userInfo = userInfoStore.getUserInfo;
+	const cachedFarmInfo = Session.get('farmInfo');
+	
+	let farmId = 0;
+	if (cachedFarmInfo?.farm_id) {
+		farmId = cachedFarmInfo.farm_id;
+	} else if (userInfo?.farm_id) {
+		farmId = userInfo.farm_id;
+	}
+	
+	console.log('获取农场ID:', farmId);
+	return farmId;
+};
+
+// 获取农场总数据
+const fetchTotalData = async () => {
+	try {
+		const farmId = getFarmId();
+		if (!farmId) {
+			console.warn('农场ID为空，无法获取总数据');
+			return;
+		}
+
+		console.log('开始获取农场总数据，farm_id:', farmId);
+		const params: GetTotalDataRequest = {
+			farm_id: farmId,
+		};
+
+		const response = await getTotalData(params);
+		console.log('农场总数据响应:', response);
+
+		if (response.code === 200) {
+			// 更新农产品订单数量
+			state.homeOne[0].num1 = response.good_order_count.toString();
+			
+			// 更新土地订单数量  
+			state.homeOne[1].num1 = response.sale_order_count.toString();
+			
+			// 更新销售总额 (农产品销售额 + 土地销售额)
+			const totalSales = response.good_sale_count + response.land_sale_count;
+			state.homeOne[2].num1 = totalSales.toFixed(2);
+			
+			// 更新系统使用人数
+			state.homeOne[3].num1 = response.sys_use_count.toString();
+			
+			console.log('数据更新完成');
+		} else {
+			console.error('获取农场总数据失败:', response.msg || '未知错误');
+			ElMessage.error(`获取农场数据失败: ${response.msg || '未知错误'}`);
+		}
+	} catch (error) {
+		console.error('获取农场总数据异常:', error);
+		ElMessage.error('获取农场数据失败，请稍后重试');
+	}
+};
+
+// 获取一年销售趋势数据
+const fetchSalesData = async () => {
+	try {
+		const farmId = getFarmId();
+		if (!farmId) {
+			console.warn('农场ID为空，无法获取销售趋势数据');
+			return;
+		}
+
+		const params: GetLastOneYearSaleDataRequest = {
+			farm_id: farmId,
+		};
+
+		const response = await getLastOneYearSaleData(params);
+
+		if (response.code === 200 && response.one_year_sale_data) {
+			// 处理数据格式化
+			formatSalesData(response.one_year_sale_data);
+		} else {
+			console.error('获取销售趋势数据失败:', response.msg || '未知错误');
+			ElMessage.error(`获取销售趋势数据失败: ${response.msg || '未知错误'}`);
+		}
+	} catch (error) {
+		console.error('获取销售趋势数据异常:', error);
+		ElMessage.error('获取销售趋势数据失败，请稍后重试');
+	}
+};
+
+// 格式化销售数据用于图表显示
+const formatSalesData = (salesData: SaleData[]) => {
+	console.log('开始格式化销售数据，原始数据条数:', salesData.length);
+	
+	// 按月份聚合数据
+	const monthlyData: { [key: string]: { good: number; land: number } } = {};
+	
+	salesData.forEach(item => {
+		// 将日期格式转换为月份 (假设 stat_date 格式为 YYYY-MM-DD)
+		const month = item.stat_date.substring(0, 7); // 获取 YYYY-MM
+		
+		if (!monthlyData[month]) {
+			monthlyData[month] = { good: 0, land: 0 };
+		}
+		
+		monthlyData[month].good += item.good_sale_count;
+		monthlyData[month].land += item.land_sale_count;
+	});
+	
+	console.log('按月聚合后的数据:', monthlyData);
+	
+	// 生成最近12个月的数据
+	const months: string[] = [];
+	const goodSales: number[] = [];
+	const landSales: number[] = [];
+	
+	// 获取当前日期
+	const now = new Date();
+	
+	// 生成最近12个月
+	for (let i = 11; i >= 0; i--) {
+		const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+		const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+		const monthLabel = `${date.getMonth() + 1}月`;
+		
+		months.push(monthLabel);
+		goodSales.push(monthlyData[monthKey]?.good || 0);
+		landSales.push(monthlyData[monthKey]?.land || 0);
+	}
+	
+	// 更新state中的数据
+	state.salesData.months = months;
+	state.salesData.goodSales = goodSales;
+	state.salesData.landSales = landSales;
+	
+	console.log('格式化后的销售数据:', state.salesData);
+	console.log('图表容器元素:', homeLineRef.value);
+	
+	// 重新初始化图表
+	nextTick(() => {
+		console.log('准备初始化图表...');
+		initLineChart();
+	});
+};
 
 // 折线图
 const initLineChart = () => {
-	if (!state.global.dispose.some((b: any) => b === state.global.homeChartOne)) state.global.homeChartOne.dispose();
+	console.log('initLineChart 开始执行');
+	console.log('homeLineRef.value:', homeLineRef.value);
+	console.log('当前销售数据:', state.salesData);
+	
+	if (!homeLineRef.value) {
+		console.error('图表容器未找到，无法初始化图表');
+		return;
+	}
+	
+	// 检查容器尺寸
+	const rect = homeLineRef.value.getBoundingClientRect();
+	console.log('图表容器尺寸:', rect);
+	
+	if (rect.width === 0 || rect.height === 0) {
+		console.warn('图表容器尺寸为0，延迟初始化');
+		setTimeout(() => {
+			initLineChart();
+		}, 100);
+		return;
+	}
+	
+	// 销毁旧图表实例
+	if (state.global.homeChartOne && !state.global.dispose.some((b: any) => b === state.global.homeChartOne)) {
+		state.global.homeChartOne.dispose();
+	}
+	
 	state.global.homeChartOne = markRaw(echarts.init(homeLineRef.value, state.charts.theme));
+	
+	console.log('图表实例创建成功:', state.global.homeChartOne);
+	
 	const option = {
 		backgroundColor: state.charts.bgColor,
 		title: {
@@ -194,12 +399,24 @@ const initLineChart = () => {
 		tooltip: { trigger: 'axis' },
 		legend: { data: ['农产品销售额', '土地销售额'], right: 0 },
 		xAxis: {
-			data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+			data: state.salesData.months.length > 0 ? state.salesData.months : ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
 		},
 		yAxis: [
 			{
 				type: 'value',
 				name: '价格',
+				min: 0,
+				minInterval: 100,
+				interval: 200,
+				boundaryGap: [0, '10%'],
+				axisLabel: {
+					formatter: function(value: number) {
+						if (value >= 1000) {
+							return (value / 1000).toFixed(1) + 'k';
+						}
+						return value.toString();
+					}
+				},
 				splitLine: { show: true, lineStyle: { type: 'dashed', color: '#f5f5f5' } },
 			},
 		],
@@ -210,7 +427,7 @@ const initLineChart = () => {
 				symbolSize: 6,
 				symbol: 'circle',
 				smooth: true,
-				data: [0, 41.1, 30.4, 65.1, 53.3, 53.3, 53.3, 41.1, 30.4, 65.1, 53.3, 10],
+				data: state.salesData.goodSales.length > 0 ? state.salesData.goodSales : [0, 41.1, 30.4, 65.1, 53.3, 53.3, 53.3, 41.1, 30.4, 65.1, 53.3, 10],
 				lineStyle: { color: '#fe9a8b' },
 				itemStyle: { color: '#fe9a8b', borderColor: '#fe9a8b' },
 				areaStyle: {
@@ -226,7 +443,7 @@ const initLineChart = () => {
 				symbolSize: 6,
 				symbol: 'circle',
 				smooth: true,
-				data: [0, 24.1, 7.2, 15.5, 42.4, 42.4, 42.4, 24.1, 7.2, 15.5, 42.4, 0],
+				data: state.salesData.landSales.length > 0 ? state.salesData.landSales : [0, 24.1, 7.2, 15.5, 42.4, 42.4, 42.4, 24.1, 7.2, 15.5, 42.4, 0],
 				lineStyle: { color: '#9E87FF' },
 				itemStyle: { color: '#9E87FF', borderColor: '#9E87FF' },
 				areaStyle: {
@@ -258,224 +475,18 @@ const initLineChart = () => {
 			},
 		],
 	};
+	
+	console.log('图表配置:', option);
 	state.global.homeChartOne.setOption(option);
+	
+	// 强制resize以确保图表正确显示
+	setTimeout(() => {
+		state.global.homeChartOne.resize();
+		console.log('图表resize完成');
+	}, 100);
+	
 	state.myCharts.push(state.global.homeChartOne);
-};
-// 饼图
-const initPieChart = () => {
-	if (!state.global.dispose.some((b: any) => b === state.global.homeChartTwo)) state.global.homeChartTwo.dispose();
-	state.global.homeChartTwo = markRaw(echarts.init(homePieRef.value, state.charts.theme));
-	var getname = ['房屋及结构物', '专用设备', '通用设备', '文物和陈列品', '图书、档案'];
-	var getvalue = [34.2, 38.87, 17.88, 9.05, 2.05];
-	var data = [];
-	for (var i = 0; i < getname.length; i++) {
-		data.push({ name: getname[i], value: getvalue[i] });
-	}
-	const colorList = ['#51A3FC', '#36C78B', '#FEC279', '#968AF5', '#E790E8'];
-	const option = {
-		backgroundColor: state.charts.bgColor,
-		title: {
-			text: '房屋建筑工程',
-			x: 'left',
-			textStyle: { fontSize: '15', color: state.charts.color },
-		},
-		tooltip: { trigger: 'item', formatter: '{b} <br/> {c}%' },
-		graphic: {
-			elements: [
-				{
-					type: 'image',
-					z: -1,
-					style: {
-						image: themeConfig.value.isIsDark
-							? ''
-							: 'data:image/png;base64,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',
-						width: 230,
-						height: 230,
-					},
-					left: '16.5%',
-					top: 'center',
-				},
-			],
-		},
-		legend: {
-			type: 'scroll',
-			orient: 'vertical',
-			right: '0%',
-			left: '65%',
-			top: 'center',
-			itemWidth: 14,
-			itemHeight: 14,
-			data: getname,
-			textStyle: {
-				rich: {
-					name: {
-						fontSize: 14,
-						fontWeight: 400,
-						width: 200,
-						height: 35,
-						padding: [0, 0, 0, 60],
-						color: state.charts.color,
-					},
-					rate: {
-						fontSize: 15,
-						fontWeight: 500,
-						height: 35,
-						width: 40,
-						padding: [0, 0, 0, 30],
-						color: state.charts.color,
-					},
-				},
-			},
-		},
-		series: [
-			{
-				type: 'pie',
-				radius: ['82', themeConfig.value.isIsDark ? '50' : '102'],
-				center: ['32%', '50%'],
-				itemStyle: {
-					color: function (params: any) {
-						return colorList[params.dataIndex];
-					},
-				},
-				label: { show: false },
-				labelLine: { show: false },
-				data: data,
-			},
-		],
-	};
-	state.global.homeChartTwo.setOption(option);
-	state.myCharts.push(state.global.homeChartTwo);
-};
-// 柱状图
-const initBarChart = () => {
-	if (!state.global.dispose.some((b: any) => b === state.global.homeCharThree)) state.global.homeCharThree.dispose();
-	state.global.homeCharThree = markRaw(echarts.init(homeBarRef.value, state.charts.theme));
-	const option = {
-		backgroundColor: state.charts.bgColor,
-		title: {
-			text: '地热开发利用',
-			x: 'left',
-			textStyle: { fontSize: '15', color: state.charts.color },
-		},
-		tooltip: { trigger: 'axis' },
-		legend: { data: ['供温', '回温', '压力值(Mpa)'], right: 0 },
-		grid: { top: 70, right: 80, bottom: 30, left: 80 },
-		xAxis: [
-			{
-				type: 'category',
-				data: ['1km', '2km', '3km', '4km', '5km', '6km'],
-				boundaryGap: true,
-				axisTick: { show: false },
-			},
-		],
-		yAxis: [
-			{
-				name: '供回温度(℃）',
-				nameLocation: 'middle',
-				nameTextStyle: { padding: [3, 4, 50, 6] },
-				splitLine: { show: true, lineStyle: { type: 'dashed', color: '#f5f5f5' } },
-				axisLine: { show: false },
-				axisTick: { show: false },
-				axisLabel: { color: state.charts.color, formatter: '{value} ' },
-			},
-			{
-				name: '压力值(Mpa)',
-				nameLocation: 'middle',
-				nameTextStyle: { padding: [50, 4, 5, 6] },
-				splitLine: { show: false },
-				axisLine: { show: false },
-				axisTick: { show: false },
-				axisLabel: { color: state.charts.color, formatter: '{value} ' },
-			},
-		],
-		series: [
-			{
-				name: '供温',
-				type: 'line',
-				smooth: true,
-				showSymbol: true,
-				// 矢量画五角星
-				symbol: 'path://M150 0 L80 175 L250 75 L50 75 L220 175 Z',
-				symbolSize: 12,
-				yAxisIndex: 0,
-				areaStyle: {
-					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-						{ offset: 0, color: 'rgba(250,180,101,0.3)' },
-						{ offset: 1, color: 'rgba(250,180,101,0)' },
-					]),
-					shadowColor: 'rgba(250,180,101,0.2)',
-					shadowBlur: 20,
-				},
-				itemStyle: { color: '#FF8000' },
-				// data中可以使用对象，value代表相应的值，另外可加入自定义的属性
-				data: [
-					{ value: 1, stationName: 's1' },
-					{ value: 3, stationName: 's2' },
-					{ value: 4, stationName: 's3' },
-					{ value: 9, stationName: 's4' },
-					{ value: 3, stationName: 's5' },
-					{ value: 2, stationName: 's6' },
-				],
-			},
-			{
-				name: '回温',
-				type: 'line',
-				smooth: true,
-				showSymbol: true,
-				symbol: 'emptyCircle',
-				symbolSize: 12,
-				yAxisIndex: 0,
-				areaStyle: {
-					color: new echarts.graphic.LinearGradient(
-						0,
-						0,
-						0,
-						1,
-						[
-							{ offset: 0, color: 'rgba(199, 237, 250,0.5)' },
-							{ offset: 1, color: 'rgba(199, 237, 250,0.2)' },
-						],
-						false
-					),
-				},
-				itemStyle: {
-					color: '#3bbc86',
-				},
-				data: [
-					{ value: 31, stationName: 's1' },
-					{ value: 36, stationName: 's2' },
-					{ value: 54, stationName: 's3' },
-					{ value: 24, stationName: 's4' },
-					{ value: 73, stationName: 's5' },
-					{ value: 22, stationName: 's6' },
-				],
-			},
-			{
-				name: '压力值(Mpa)',
-				type: 'bar',
-				barWidth: 30,
-				yAxisIndex: 1,
-				itemStyle: {
-					color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-						{ offset: 0, color: 'rgba(108,80,243,0.3)' },
-						{ offset: 1, color: 'rgba(108,80,243,0)' },
-					]),
-					//柱状图圆角
-					borderRadius: [30, 30, 0, 0],
-				},
-				data: [
-					{ value: 11, stationName: 's1' },
-					{ value: 34, stationName: 's2' },
-					{ value: 54, stationName: 's3' },
-					{ value: 39, stationName: 's4' },
-					{ value: 63, stationName: 's5' },
-					{ value: 24, stationName: 's6' },
-				],
-			},
-		],
-	};
-	state.global.homeCharThree.setOption(option);
-	state.myCharts.push(state.global.homeCharThree);
+	console.log('图表初始化完成');
 };
 // 批量设置 echarts resize
 const initEchartsResizeFun = () => {
@@ -494,6 +505,13 @@ const initEchartsResize = () => {
 // 页面加载时
 onMounted(() => {
 	initEchartsResize();
+	fetchTotalData(); // 调用获取数据
+	fetchSalesData(); // 调用获取销售趋势数据
+	
+	// 初始化图表（使用默认数据），增加延迟确保DOM完全渲染
+	setTimeout(() => {
+		initLineChart();
+	}, 200);
 });
 // 由于页面缓存原因，keep-alive
 onActivated(() => {
@@ -517,12 +535,6 @@ watch(
 			setTimeout(() => {
 				initLineChart();
 			}, 500);
-			// setTimeout(() => {
-			// 	initPieChart();
-			// }, 700);
-			// setTimeout(() => {
-			// 	initBarChart();
-			// }, 1000);
 		});
 	},
 	{
@@ -618,6 +630,33 @@ $homeNavLengh: 8;
 				}
 			}
 		}
+	}
+}
+
+// 新增：卡片点击效果样式
+.home-card-clickable {
+	position: relative;
+	transition: all 0.3s ease;
+	
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		
+		.card-overlay {
+			opacity: 1;
+			visibility: visible;
+		}
+	}
+	
+	.card-overlay {
+		position: absolute;
+		top: 50%;
+		right: 10px;
+		transform: translateY(-50%);
+		opacity: 0;
+		visibility: hidden;
+		transition: all 0.3s ease;
+		z-index: 10;
 	}
 }
 </style>

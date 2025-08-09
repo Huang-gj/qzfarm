@@ -59,9 +59,9 @@ export default {
 		paramsCommonDetails: '普通路由详情',
 		paramsDynamicDetails: '动态路由详情',
 		
-		visualizingIndex: '数据可视化',
-		visualizingLinkDemo1: '数据可视化演示1',
-		visualizingLinkDemo2: '数据可视化演示2',
+		visualizingIndex: '数据分析',
+		visualizingLinkDemo1: '农产品数据分析',
+		visualizingLinkDemo2: '土地数据分析',
 		personal: '个人中心',
 		tools: '农场绑定',
 		

@@ -96,3 +96,65 @@ export function bindFarm(params: BindFarmRequest) {
 export function updateFarmInfo(params: UpdateFarmInfoRequest) {
     return request({ url: '/api/updateFarmInfo', method: 'post', data: params });
 } 
+
+// 获取农场总数据
+export interface GetTotalDataRequest {
+    farm_id: number;
+}
+
+export interface GetTotalDataResponse {
+    code: number;
+    msg: string;
+    good_order_count: number;
+    sale_order_count: number;
+    good_sale_count: number;
+    land_sale_count: number;
+    sys_use_count: number;
+}
+
+export function getTotalData(params: GetTotalDataRequest): Promise<GetTotalDataResponse> {
+    return request.post('/api/getTotalData', params);
+} 
+
+// 销售数据接口
+export interface SaleData {
+    farm_id: number;
+    stat_date: string;
+    good_order_count: number;
+    land_order_count: number;
+    good_sale_count: number;
+    land_sale_count: number;
+    sys_use_count: number;
+}
+
+// 获取一年销售趋势数据
+export interface GetLastOneYearSaleDataRequest {
+    farm_id: number;
+}
+
+export interface GetLastOneYearSaleDataResponse {
+    code: number;
+    msg: string;
+    one_year_sale_data: SaleData[];
+}
+
+export function getLastOneYearSaleData(params: GetLastOneYearSaleDataRequest): Promise<GetLastOneYearSaleDataResponse> {
+    return request.post('/api/getLastOneYearSaleData', params);
+} 
+
+// 销售总结相关接口
+export interface SaleSummaryRequest {
+    farm_id: number;
+    start_date: string; // 格式: YYYY-MM-DD
+    end_date: string;   // 格式: YYYY-MM-DD
+}
+
+export interface SaleSummaryResponse {
+    code: number;
+    msg: string;
+    sale_data: SaleData[];
+}
+
+export function getSaleSummary(params: SaleSummaryRequest): Promise<SaleSummaryResponse> {
+    return request.post('/api/saleSummary', params);
+} 

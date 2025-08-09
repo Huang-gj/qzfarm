@@ -14,6 +14,7 @@ import (
 	"make/Farm.api"
 	"make/Order.api"
 	"make/product.api"
+	"make/SaleData.api"
 )
 
 @server (
@@ -90,5 +91,21 @@ service intelligent_agriculture_sys {
 
 	@handler delProductHandler
 	post /delProduct (DelProductRequest) returns (DelProductResponse)
+}
+
+@server (
+	prefix: api
+	group:  SaleData
+	jwt:    Auth
+)
+service intelligent_agriculture_sys {
+	@handler saleSummaryHandler
+	post /saleSummary (SaleSummaryRequest) returns (SaleSummaryResponse)
+
+	@handler getTotalDataHandler
+	post /getTotalData (GetTotalDataRequest) returns (GetTotalDataResponse)
+
+	@handler getLastOneYearSaleDataHandler
+	post /getLastOneYearSaleData (GetLastOneYearSaleDataRequest) returns (GetLastOneYearSaleDataResponse)
 }
 

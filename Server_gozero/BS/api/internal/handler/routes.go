@@ -6,6 +6,7 @@ package handler
 import (
 	"net/http"
 
+	SaleData "Server_gozero/BS/api/internal/handler/SaleData"
 	farm "Server_gozero/BS/api/internal/handler/farm"
 	login "Server_gozero/BS/api/internal/handler/login"
 	order "Server_gozero/BS/api/internal/handler/order"
@@ -17,6 +18,28 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/getLastOneYearSaleData",
+				Handler: SaleData.GetLastOneYearSaleDataHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/getTotalData",
+				Handler: SaleData.GetTotalDataHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/saleSummary",
+				Handler: SaleData.SaleSummaryHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/api"),
+	)
+
 	server.AddRoutes(
 		[]rest.Route{
 			{

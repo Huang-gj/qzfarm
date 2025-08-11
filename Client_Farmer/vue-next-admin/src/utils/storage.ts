@@ -1,6 +1,22 @@
 import Cookies from 'js-cookie';
 
 /**
+ * 检查token是否过期
+ * @returns {boolean} true表示已过期，false表示未过期
+ */
+export const isTokenExpired = (): boolean => {
+	const accessExpire = sessionStorage.getItem('accessExpire');
+	if (!accessExpire) {
+		return true; // 没有过期时间信息，认为已过期
+	}
+	
+	const expireTime = parseInt(accessExpire);
+	const currentTime = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+	
+	return currentTime >= expireTime; // 当前时间大于等于过期时间则认为已过期
+};
+
+/**
  * window.localStorage 浏览器永久缓存
  * @method set 设置永久缓存
  * @method get 获取永久缓存

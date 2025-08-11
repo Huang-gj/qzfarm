@@ -33,15 +33,11 @@ func (l *SaleSummaryLogic) SaleSummary(req *types.SaleSummaryRequest) (resp *typ
 	if err != nil {
 		fmt.Println("解析开始日期错误:", err)
 	}
-	fmt.Println(req.StartDate)
-	fmt.Println(ts)
 
 	te, err := time.Parse(layout, req.EndDate)
 	if err != nil {
 		fmt.Println("解析结束日期错误:", err)
 	}
-	fmt.Println(req.EndDate)
-	fmt.Println(te)
 
 	dateRange, err := l.svcCtx.SaleData.FindByDateRange(l.ctx, int64(req.FarmID), ts, te)
 	if err != nil {

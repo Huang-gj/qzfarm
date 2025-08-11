@@ -107,5 +107,8 @@ service intelligent_agriculture_sys {
 
 	@handler getLastOneYearSaleDataHandler
 	post /getLastOneYearSaleData (GetLastOneYearSaleDataRequest) returns (GetLastOneYearSaleDataResponse)
+
+	@handler addSaleDataHandler
+    post /addSaleData (AddSaleDataRequest) returns (AddSaleDataResponse)
 }
 

@@ -70,7 +70,7 @@
 				<el-card class="overview-card">
 					<div class="card-content">
 						<div class="card-icon" style="background: var(--next-color-success-lighter)">
-							<i class="fa fa-chart-line" style="color: var(--el-color-success)"></i>
+							<i class="fa fa-user" style="color: var(--el-color-success)"></i>
 						</div>
 						<div class="card-info">
 							<div class="card-value">{{ state.overview.avgDailyUsers.toFixed(0) }}</div>
@@ -99,7 +99,7 @@
 				<el-card class="overview-card">
 					<div class="card-content">
 						<div class="card-icon" style="background: var(--next-color-danger-lighter)">
-							<i class="fa fa-calendar-day" style="color: var(--el-color-danger)"></i>
+							<i class="fa fa-calendar" style="color: var(--el-color-danger)"></i>
 						</div>
 						<div class="card-info">
 							<div class="card-value">{{ state.overview.activeDays }}</div>
@@ -391,14 +391,15 @@ const fetchSalesData = async () => {
 
 		const response = await getSaleSummary(params);
 
-		if (response.code === 200) {
-			state.allData = response.sale_data || [];
-			updateOverview(prevData); // Pass previous data to updateOverview
-			updateTableData();
-			updateChart();
-		} else {
-			ElMessage.error(`获取数据失败: ${response.msg}`);
-		}
+			if (response.code === 200) {
+		const prevData = state.allData; // Store previous data before updating
+		state.allData = response.sale_data || [];
+		updateOverview(prevData); // Pass previous data to updateOverview
+		updateTableData();
+		updateChart();
+	} else {
+		ElMessage.error(`获取数据失败: ${response.msg}`);
+	}
 	} catch (error) {
 		console.error('获取销售数据失败:', error);
 		ElMessage.error('获取数据失败，请稍后重试');

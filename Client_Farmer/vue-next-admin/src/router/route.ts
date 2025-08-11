@@ -75,7 +75,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 					isAffix: false,
 					isIframe: false,
 					roles: ['admin', 'common'],
-					icon: 'iconfont icon-xitongshezhi',
+					icon: 'iconfont icon-zhongduancanshuchaxun',
 				},
 				children: [
 					{
@@ -91,7 +91,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 							isAffix: false,
 							isIframe: false,
 							roles: ['admin', 'common'],
-							icon: 'iconfont icon-caidan',
+							icon: 'iconfont icon-zhongduancanshuchaxun',
 						},
 						children: [
 							{
@@ -124,7 +124,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 							isAffix: false,
 							isIframe: false,
 							roles: ['admin', 'common'],
-							icon: 'ele-ColdDrink',
+							icon: 'iconfont icon-zhongduancanshuchaxun',
 						},
 						children: [
 							{
@@ -388,7 +388,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 					isAffix: false,
 					isIframe: false,
 					roles: ['admin', 'common'],
-					icon: 'iconfont icon-crew_feature',
+					icon: 'fa fa-tty',
 				},
 				children: [
 					{
@@ -556,7 +556,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 					isAffix: false,
 					isIframe: false,
 					roles: ['admin', 'common'],
-					icon: 'iconfont icon-fuzhiyemian',
+					icon: 'ele-Cpu',
 				},
 				children: [
 					{
@@ -624,7 +624,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 							isAffix: false,
 							isIframe: false,
 							roles: ['admin', 'common'],
-							icon: 'ele-Present',
+							icon: 'iconfont icon-alipay',
 						},
 					},
 					{
@@ -654,7 +654,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 							isAffix: false,
 							isIframe: false,
 							roles: ['admin', 'common'],
-							icon: 'ele-SetUp',
+							icon: 'fa fa-font-awesome',
 						},
 					},
 					{
@@ -882,7 +882,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 					isAffix: false,
 					isIframe: false,
 					roles: ['admin', 'common'],
-					icon: 'iconfont icon-siweidaotu',
+					icon: 'fa fa-pagelines',
 				},
 				children: [
 					{
@@ -930,7 +930,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 					isAffix: false,
 					isIframe: false,
 					roles: ['admin', 'common'],
-					icon: 'iconfont icon-zhongduancanshu',
+					icon: 'fa fa-tree',
 				},
 				children: [
 					{
@@ -978,7 +978,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 					isAffix: false,
 					isIframe: false,
 					roles: ['admin', 'common'],
-					icon: 'ele-ChatLineRound',
+					icon: 'iconfont icon-ico_shuju',
 				},
 				/**
 				 * 打开内置全屏
@@ -998,7 +998,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 							isAffix: false,
 							isIframe: false,
 							roles: ['admin', 'common'],
-							icon: 'ele-ChatLineRound',
+							icon: 'iconfont icon-ico_shuju',
 						},
 					},
 					{
@@ -1013,7 +1013,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 							isAffix: false,
 							isIframe: false,
 							roles: ['admin', 'common'],
-							icon: 'ele-ChatLineRound',
+							icon: 'iconfont icon-ico_shuju',
 						},
 					},
 					{
@@ -1028,7 +1028,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 							isAffix: false,
 							isIframe: false,
 							roles: ['admin', 'common'],
-							icon: 'ele-ChatLineRound',
+							icon: 'iconfont icon-ico_shuju',
 						},
 					},
 					{
@@ -1043,7 +1043,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 							isAffix: false,
 							isIframe: false,
 							roles: ['admin', 'common'],
-							icon: 'ele-ChatLineRound',
+							icon: 'iconfont icon-ico_shuju',
 						},
 					},
 				],
@@ -1090,7 +1090,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 					isAffix: false,
 					isIframe: false,
 					roles: ['admin', 'common'],
-					icon: 'iconfont icon-gongju',
+					icon: 'ele-DocumentChecked',
 				},
 			},
 			// {

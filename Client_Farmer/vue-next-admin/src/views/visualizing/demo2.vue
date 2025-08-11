@@ -71,7 +71,7 @@
 				<el-card class="overview-card">
 					<div class="card-content">
 						<div class="card-icon" style="background: var(--next-color-success-lighter)">
-							<i class="fa fa-coins" style="color: var(--el-color-success)"></i>
+							<i class="fa fa-dollar" style="color: var(--el-color-success)"></i>
 						</div>
 						<div class="card-info">
 							<div class="card-value">¥{{ state.overview.totalSales.toFixed(2) }}</div>
@@ -87,7 +87,7 @@
 				<el-card class="overview-card">
 					<div class="card-content">
 						<div class="card-icon" style="background: var(--next-color-warning-lighter)">
-							<i class="fa fa-chart-line" style="color: var(--el-color-warning)"></i>
+							<i class="fa fa-dollar" style="color: var(--el-color-warning)"></i>
 						</div>
 						<div class="card-info">
 							<div class="card-value">¥{{ state.overview.avgOrderValue.toFixed(2) }}</div>
@@ -100,7 +100,7 @@
 				<el-card class="overview-card">
 					<div class="card-content">
 						<div class="card-icon" style="background: var(--next-color-danger-lighter)">
-							<i class="fa fa-calendar-day" style="color: var(--el-color-danger)"></i>
+							<i class="fa fa-calendar" style="color: var(--el-color-danger)"></i>
 						</div>
 						<div class="card-info">
 							<div class="card-value">{{ state.overview.activeDays }}</div>

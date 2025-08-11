@@ -57,7 +57,7 @@
 				<el-card class="overview-card">
 					<div class="card-content">
 						<div class="card-icon" style="background: var(--next-color-success-lighter)">
-							<i class="fa fa-coins" style="color: var(--el-color-success)"></i>
+							<i class="fa fa-dollar" style="color: var(--el-color-success)"></i>
 						</div>
 						<div class="card-info">
 							<div class="card-value">¥{{ state.overview.totalSales.toFixed(2) }}</div>
@@ -70,7 +70,7 @@
 				<el-card class="overview-card">
 					<div class="card-content">
 						<div class="card-icon" style="background: var(--next-color-primary-lighter)">
-							<i class="fa fa-chart-line" style="color: var(--el-color-primary)"></i>
+							<i class="fa fa-dollar" style="color: var(--el-color-primary); font-size: 1.5em;"></i>
 						</div>
 						<div class="card-info">
 							<div class="card-value">¥{{ state.overview.avgDailySales.toFixed(2) }}</div>
@@ -86,7 +86,7 @@
 				<el-card class="overview-card">
 					<div class="card-content">
 						<div class="card-icon" style="background: var(--next-color-warning-lighter)">
-							<i class="fa fa-seedling" style="color: var(--el-color-warning)"></i>
+							<i class="fa fa-dollar" style="color: var(--el-color-warning)"></i>
 						</div>
 						<div class="card-info">
 							<div class="card-value">¥{{ state.overview.goodSales.toFixed(2) }}</div>
@@ -99,7 +99,7 @@
 				<el-card class="overview-card">
 					<div class="card-content">
 						<div class="card-icon" style="background: var(--next-color-danger-lighter)">
-							<i class="fa fa-map" style="color: var(--el-color-danger)"></i>
+							<i class="fa fa-dollar" style="color: var(--el-color-danger)"></i>
 						</div>
 						<div class="card-info">
 							<div class="card-value">¥{{ state.overview.landSales.toFixed(2) }}</div>
@@ -398,14 +398,15 @@ const fetchSalesData = async () => {
 
 		const response = await getSaleSummary(params);
 
-		if (response.code === 200) {
-			state.allData = response.sale_data || [];
-			updateOverview(prevData); // Pass previous data for growth rate calculation
-			updateTableData();
-			updateChart();
-		} else {
-			ElMessage.error(`获取数据失败: ${response.msg}`);
-		}
+			if (response.code === 200) {
+		const prevData = state.allData; // Store previous data before updating
+		state.allData = response.sale_data || [];
+		updateOverview(prevData); // Pass previous data for growth rate calculation
+		updateTableData();
+		updateChart();
+	} else {
+		ElMessage.error(`获取数据失败: ${response.msg}`);
+	}
 	} catch (error) {
 		console.error('获取销售数据失败:', error);
 		ElMessage.error('获取数据失败，请稍后重试');

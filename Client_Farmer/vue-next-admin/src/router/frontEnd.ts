@@ -3,7 +3,7 @@ import { storeToRefs } from 'pinia';
 import { formatTwoStageRoutes, formatFlatteningRoutes, router } from '/@/router/index';
 import { dynamicRoutes, notFoundAndNoPower } from '/@/router/route';
 import pinia from '/@/stores/index';
-import { Session } from '/@/utils/storage';
+import { Session, isTokenExpired } from '/@/utils/storage';
 import { useUserInfo } from '/@/stores/userInfo';
 import { useTagsViewRoutes } from '/@/stores/tagsViewRoutes';
 import { useRoutesList } from '/@/stores/routesList';
@@ -27,6 +27,13 @@ export async function initFrontEndControlRoutes() {
 	console.log('路由初始化检查token:', token);
 	if (!token) {
 		console.log('没有token，返回false');
+		return false;
+	}
+	
+	// 检查token是否过期
+	if (isTokenExpired()) {
+		console.log('Token已过期，清除缓存并返回false');
+		Session.clear();
 		return false;
 	}
 	// 触发初始化用户信息 pinia

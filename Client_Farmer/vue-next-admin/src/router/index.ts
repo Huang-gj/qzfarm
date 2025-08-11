@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia';
 import { useKeepALiveNames } from '/@/stores/keepAliveNames';
 import { useRoutesList } from '/@/stores/routesList';
 import { useThemeConfig } from '/@/stores/themeConfig';
-import { Session } from '/@/utils/storage';
+import { Session, isTokenExpired } from '/@/utils/storage';
 import { staticRoutes, notFoundAndNoPower } from '/@/router/route';
 import { initFrontEndControlRoutes } from '/@/router/frontEnd';
 import { initBackEndControlRoutes } from '/@/router/backEnd';
@@ -96,48 +96,63 @@ router.beforeEach(async (to, from, next) => {
 	if (to.meta.title) NProgress.start();
 	const token = Session.get('token');
 	
+	// 如果访问登录页且没有token，直接允许访问
 	if (to.path === '/login' && !token) {
 		next();
 		NProgress.done();
-	} else {
-		if (!token) {
-			next(`/login?redirect=${to.path}&params=${JSON.stringify(to.query ? to.query : to.params)}`);
-			Session.clear();
-			NProgress.done();
-		} else if (token && to.path === '/login') {
-			next('/home');
-			NProgress.done();
+		return;
+	}
+	
+	// 如果没有token，跳转到登录页
+	if (!token) {
+		next(`/login?redirect=${to.path}&params=${JSON.stringify(to.query ? to.query : to.params)}`);
+		Session.clear();
+		NProgress.done();
+		return;
+	}
+	
+	// 检查token是否过期
+	if (isTokenExpired()) {
+		console.log('Token已过期，跳转到登录页');
+		Session.clear(); // 清除所有缓存数据
+		next(`/login?redirect=${to.path}&params=${JSON.stringify(to.query ? to.query : to.params)}`);
+		NProgress.done();
+		return;
+	}
+	
+	// 如果有token且token未过期，但访问登录页，跳转到首页
+	if (token && to.path === '/login') {
+		next('/home');
+		NProgress.done();
+		return;
+	}
+	
+	// 有效token的正常路由处理
+	const storesRoutesList = useRoutesList(pinia);
+	const { routesList } = storeToRefs(storesRoutesList);
+	console.log('路由列表长度:', routesList.value.length);
+	
+	if (routesList.value.length === 0) {
+		if (isRequestRoutes) {
+			// 后端控制路由：路由数据初始化，防止刷新时丢失
+			await initBackEndControlRoutes();
+			// 解决刷新时，一直跳 404 页面问题，关联问题 No match found for location with path 'xxx'
+			// to.query 防止页面刷新时，普通路由带参数时，参数丢失。动态路由（xxx/:id/:name"）isDynamic 无需处理
+			next({ path: to.path, query: to.query });
 		} else {
-			const storesRoutesList = useRoutesList(pinia);
-			const { routesList } = storeToRefs(storesRoutesList);
-			console.log('路由列表长度:', routesList.value.length);
-			if (routesList.value.length === 0) {
-				
-				if (isRequestRoutes) {
-					// 后端控制路由：路由数据初始化，防止刷新时丢失
-					await initBackEndControlRoutes();
-					// 解决刷新时，一直跳 404 页面问题，关联问题 No match found for location with path 'xxx'
-					// to.query 防止页面刷新时，普通路由带参数时，参数丢失。动态路由（xxx/:id/:name"）isDynamic 无需处理
-					next({ path: to.path, query: to.query });
-				} else {
-					// https://gitee.com/lyt-top/vue-next-admin/issues/I5F1HP
-					const initResult = await initFrontEndControlRoutes();
-					
-					next({ path: to.path, query: to.query });
-				}
-			} else {
-				
-				
-				// 检查路由是否存在
-				const targetRoute = router.getRoutes().find(r => r.path === to.path);
-				console.log('目标路由是否存在:', !!targetRoute);
-				if (targetRoute) {
-					console.log('目标路由详情:', targetRoute);
-				}
-				
-				next();
-			}
+			// https://gitee.com/lyt-top/vue-next-admin/issues/I5F1HP
+			const initResult = await initFrontEndControlRoutes();
+			next({ path: to.path, query: to.query });
 		}
+	} else {
+		// 检查路由是否存在
+		const targetRoute = router.getRoutes().find(r => r.path === to.path);
+		console.log('目标路由是否存在:', !!targetRoute);
+		if (targetRoute) {
+			console.log('目标路由详情:', targetRoute);
+		}
+		
+		next();
 	}
 });
 

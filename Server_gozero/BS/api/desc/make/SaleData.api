@@ -45,11 +45,3 @@ type GetLastOneYearSaleDataResponse{
     OneYearSaleData []*SaleData `json:"one_year_sale_data"`
 }
 
-type AddSaleDataRequest{
-    FarmID int `json:"farm_id"`
-}
-
-type AddSaleDataResponse{
-    Code int `json:"code"`
-    Msg string `json:"msg"`
-}

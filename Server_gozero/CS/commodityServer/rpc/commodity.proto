@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package commodity;
+
+option go_package = "./commodity";
+
+message getGoodRepReq {
+  int64 GoodID = 1;
+}
+
+message getGoodRepResp {
+  int64 repertory = 1;
+}
+
+message updateRepReq{
+  int64 GoodID =1;
+  int64 repertory = 2;
+}
+
+message updateRepResp{
+
+}
+
+
+message getLandRepReq {
+  int64 LandID = 1;
+}
+
+message getLandRepResp {
+  int64 sale_status = 1;
+}
+
+message updateStatusReq{
+  int64 LandID =1;
+  int64 sale_status = 2;
+}
+
+message updateStatusResp{
+
+}
+
+service commodity {
+  rpc getGood(getGoodRepReq) returns (getGoodRepResp);
+  rpc updateRep(updateRepReq) returns (updateRepResp);
+  rpc getLand(getLandRepReq) returns (getLandRepResp);
+  rpc updateStatus(updateStatusReq) returns(updateStatusResp);
+}
+

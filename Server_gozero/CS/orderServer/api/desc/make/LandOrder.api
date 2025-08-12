@@ -1,0 +1,80 @@
+type GetLandOrderRequest {
+	userID int `json:"user_id"`
+}
+
+type GetLandOrderResponse {
+	Code       int          `json:"code"`
+	Msg        string       `json:"msg"`
+	land_order []*LandOrder `json:"land_order"`
+}
+
+type LandOrder {
+	Id          int64   `json:"id"` // 主键ID
+	DelState    int64   `json:"del_state"` // 0-正常 1-删除
+	DelTime     string  `json:"del_time"` // 删除时间
+	CreateTime  string  `json:"create_time"` // 创建时间
+	LandOrderId int64   `json:"land_order_id"` // 分布式唯一ID
+	ImageUrls   string  `json:"image_urls"` // 图片信息
+	LandId      int64   `json:"land_id"` // 关联土地ID
+	FarmId      int64   `json:"farm_id"` // 所属农场ID
+	UserId      int64   `json:"user_id"` // 用户ID
+	FarmAddress string  `json:"farm_address"` // 农场地址
+	Price       float64 `json:"price"` // 租赁价格
+	Count       int64   `json:"count"` // 租赁时长
+	Detail      string  `json:"detail"` // 订单详情
+	OrderStatus string  `json:"order_status"`
+}
+
+type AddLandOrder {
+	ImageUrls   string  `json:"image_urls"` // 图片信息
+	LandId      int64   `json:"land_id"` // 关联土地ID
+	FarmId      int64   `json:"farm_id"` // 所属农场ID
+	UserId      int64   `json:"user_id"` // 用户ID
+	FarmAddress string  `json:"farm_address"` // 农场地址
+	Price       float64 `json:"price"` // 租赁价格
+	Count       int64   `json:"count"` // 租赁时长
+	Detail      string  `json:"detail"` // 订单详情
+	OrderStatus string  `json:"order_status"`
+}
+
+type GetLandOrderDetailRequest {
+	userID      int `json:"user_id"`
+	LandOrderID int `json:"land_order_id"`
+}
+
+type GetLandOrderDetailResponse {
+	Code       int       `json:"code"` // 状态码
+	Msg        string    `json:"msg"` // 响应信息
+	land_order LandOrder `json:"land_order"` // 商品列表
+}
+
+type AddLandOrderRequest {
+	land_order AddLandOrder `json:"land_order"`
+}
+
+type AddLandOrderResponse {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type UpdateLandOrderCountRequest {
+	LandOrderID int `json:"land_order_id"`
+	UserID      int `json:"user_id"`
+	Count       int `json:"count"`
+}
+
+type UpdateLandOrderCountResponse {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type GetLandOrderByStatusRequest {
+	UserID      int    `json:"user_id"`
+	OrderStatus string `json:"order_status"`
+}
+
+type GetLandOrderByStatusResponse {
+	Code       int          `json:"code"`
+	Msg        string       `json:"msg"`
+	land_order []*LandOrder `json:"land_order"`
+}

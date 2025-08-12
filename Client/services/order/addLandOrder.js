@@ -65,7 +65,7 @@ function addLandOrder(orderData) {
   console.log('[addLandOrder] 发送的请求数据:', requestData);
   
   const requestConfig = {
-    url: 'http://localhost:8892/api/AddLandOrder',
+    url: 'http://localhost:8891/api/AddLandOrder',
     method: 'POST',
     header: {
       'Authorization': `Bearer ${token.accessToken}`,

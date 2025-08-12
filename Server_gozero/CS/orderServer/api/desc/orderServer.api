@@ -1,0 +1,60 @@
+syntax = "v1"
+
+info (
+	title:   "order"
+	desc:    "qzf order api"
+	author:  "huang"
+	email:   "2302719556@qq.com"
+	version: "1.0"
+)
+
+//goctl api go -api orderServer.api -dir ../  --style=goZero
+import (
+	"make/GoodOrder.api"
+	"make/LandOrder.api"
+)
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  GoodOrder
+)
+service order {
+	@handler GetGoodOrder
+	post /GetGoodOrder (GetGoodOrderRequest) returns (GetGoodOrderResponse)
+
+	@handler GetGoodOrderDetail
+	post /GetGoodOrderDetail (GetGoodOrderDetailRequest) returns (GetGoodOrderDetailResponse)
+
+	@handler AddGoodOrder
+	post /AddGoodOrder (AddGoodOrderRequest) returns (AddGoodOrderResponse)
+
+	@handler UpdateGoodOrderCount
+	post /UpdateGoodOrderCount (UpdateGoodOrderCountRequest) returns (UpdateGoodOrderCountResponse)
+
+	@handler GetGoodOrderByStatus
+	post /GetGoodOrderByStatus (GetGoodOrderByStatusRequest) returns (GetGoodOrderByStatusResponse)
+}
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  LandOrder
+)
+service order {
+	@handler GetLandOrder
+	post /GetLandOrder (GetLandOrderRequest) returns (GetLandOrderResponse)
+
+	@handler GetLandOrderDetail
+	post /GetLandOrderDetail (GetLandOrderDetailRequest) returns (GetLandOrderDetailResponse)
+
+	@handler AddLandOrder
+	post /AddLandOrder (AddLandOrderRequest) returns (AddLandOrderResponse)
+
+	@handler UpdateLandOrderCount
+	post /UpdateLandOrderCount (UpdateLandOrderCountRequest) returns (UpdateLandOrderCountResponse)
+
+	@handler GetLandOrderByStatus
+	post /GetLandOrderByStatus (GetLandOrderByStatusRequest) returns (GetLandOrderByStatusResponse)
+}
+

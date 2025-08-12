@@ -47,7 +47,7 @@ export function fetchOrderDetail(params) {
     };
   } else if (isLandOrder) {
     // 土地订单
-    url = 'http://localhost:8892/api/GetLandOrderDetail';
+    url = 'http://localhost:8891/api/GetLandOrderDetail';
     requestData = {
       user_id: userId,
       land_order_id: parseInt(orderId)

@@ -231,3 +231,77 @@ CREATE TABLE `sale_data`
 CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci
 ROW_FORMAT = Dynamic;
+
+
+DELIMITER $$
+
+CREATE EVENT daily_sale_data_init_with_error_handling
+ON SCHEDULE EVERY 1 DAY
+STARTS '2024-01-01 00:00:00'
+ON COMPLETION PRESERVE
+ENABLE
+DO
+BEGIN
+    DECLARE exit_sqlstate CHAR(5);
+    DECLARE exit_errno INT;
+    DECLARE exit_message TEXT;
+    DECLARE rows_affected INT DEFAULT 0;
+
+    -- 异常处理器，捕获SQL异常并写日志
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+BEGIN
+ROLLBACK;
+GET DIAGNOSTICS CONDITION 1
+    exit_sqlstate = RETURNED_SQLSTATE,
+    exit_errno = MYSQL_ERRNO,
+    exit_message = MESSAGE_TEXT;
+INSERT INTO event_log (event_name, execution_time, message)
+VALUES ('daily_sale_data_init', NOW(),
+        CONCAT('ERROR: SQLSTATE=', exit_sqlstate, ', errno=', exit_errno, ', message=', exit_message));
+END;
+
+    -- 事件开始日志
+INSERT INTO event_log (event_name, execution_time, message)
+VALUES ('daily_sale_data_init', NOW(), 'INFO: Event started');
+
+START TRANSACTION;
+
+INSERT INTO sale_data
+(farm_id, stat_date, good_sale_count, land_sale_count, sys_use_count, create_time, del_time)
+SELECT
+    f.farm_id,
+    CURDATE(),
+    0,
+    0,
+    COALESCE((
+                 SELECT sd.sys_use_count
+                 FROM sale_data sd
+                 WHERE sd.farm_id = f.farm_id
+                   AND sd.stat_date = CURDATE() - INTERVAL 1 DAY
+             LIMIT 1
+        ), 0),
+    NOW(),
+    NOW()
+FROM farm f
+WHERE f.status = 0
+  AND NOT EXISTS (
+    SELECT 1 FROM sale_data sd
+    WHERE sd.farm_id = f.farm_id
+      AND sd.stat_date = CURDATE()
+);
+
+SET rows_affected = ROW_COUNT();
+
+COMMIT;
+
+INSERT INTO event_log (event_name, execution_time, message)
+VALUES ('daily_sale_data_init', NOW(),
+        CONCAT('SUCCESS: Inserted ', rows_affected, ' rows for date ', CURDATE()));
+
+-- 事件结束日志
+INSERT INTO event_log (event_name, execution_time, message)
+VALUES ('daily_sale_data_init', NOW(), 'INFO: Event finished successfully');
+
+END$$
+
+DELIMITER ;

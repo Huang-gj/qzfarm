@@ -1,6 +1,7 @@
 package svc
 
 import (
+	BS "Server_gozero/BS/rpc/bs"
 	"Server_gozero/CS/commodityServer/good/rpc/goodclient"
 	"Server_gozero/CS/orderServer/GoodOrder/api/internal/config"
 	"Server_gozero/CS/orderServer/GoodOrder/model"
@@ -18,6 +19,7 @@ type ServiceContext struct {
 	Ident     IDGenerator.Ident
 	GoodOrder model.GoodOrderModel
 	GoodRPC   goodclient.Good
+	BsRpc     BS.BS
 	RedisLock *redis.Redis
 }
 
@@ -51,6 +53,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Ident:     *Ident,
 		GoodOrder: model.NewGoodOrderModel(sqlxConn),
 		GoodRPC:   goodclient.NewGood(zrpc.MustNewClient(c.GoodRPC)),
+		BsRpc:     BS.NewBS(zrpc.MustNewClient(c.BSRpc)),
 		RedisLock: rds,
 	}
 }

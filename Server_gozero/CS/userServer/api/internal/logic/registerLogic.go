@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"Server_gozero/BS/rpc/BSRPC"
 	"Server_gozero/CS/userServer/model/userModel"
 	"Server_gozero/common/ISender/ISender"
 
@@ -65,6 +66,11 @@ func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Regist
 	if _, err := l.svcCtx.UserModel.Insert(context.Background(), user); err != nil {
 		logx.Errorf("user_signup_UserModel.Insert failed, err:%v", err)
 		return &types.RegisterResponse{Code: 400, Msg: "信息插入失败"}, err
+	}
+	Resp, err := l.svcCtx.BsRpc.AddUser(l.ctx, &BSRPC.AddUserReq{UserId: userid})
+	if err != nil {
+		logx.Errorf("user_updateUserData failed, err:%v,%v", Resp, err.Error())
+
 	}
 	return &types.RegisterResponse{Code: 200, Msg: "注册成功！"}, nil
 }

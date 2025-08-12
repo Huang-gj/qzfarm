@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package BSRPC;
+
+option go_package = "./BSRPC";
+
+message addUserReq{
+  int64  user_id =1 ;
+}
+
+message addUserResp{
+  int64 code =1;
+  string msg = 2;
+}
+
+message addLandDataReq{
+  int64 farm_id = 1;
+  double land_sale_count =2;
+}
+
+message addLandDataResp{
+  int64 code = 1;
+  string msg = 2;
+}
+
+message addGoodDataReq{
+  int64 farm_id = 1;
+  double good_sale_count =2;
+}
+
+message addGoodDataResp{
+  int64 code =1;
+  string msg =2 ;
+}
+
+service BS {
+  rpc addUser(addUserReq) returns (addUserResp);
+  rpc addLandData(addLandDataReq) returns(addLandDataResp);
+  rpc addGoodData(addGoodDataReq) returns(addGoodDataResp);
+}

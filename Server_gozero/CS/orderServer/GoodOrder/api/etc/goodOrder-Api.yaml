@@ -8,6 +8,11 @@ IdRPC:
       - 127.0.0.1:2379
     Key: isender.ISender
 
+BsRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: bs.rpc
 Log:
   ServiceName: "GoodOrder-srv"
   Mode: file

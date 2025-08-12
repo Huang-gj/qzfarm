@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"Server_gozero/BS/rpc/BSRPC"
 	"Server_gozero/CS/commodityServer/land/rpc/land"
 	"Server_gozero/common/ISender/ISender"
 	"fmt"
@@ -124,6 +125,11 @@ func (l *AddLandOrderLogic) AddLandOrder(req *types.AddLandOrderRequest) (resp *
 		}
 		logx.Errorw("LandUpdateStatus failed", logx.Field("err", err))
 		return &types.AddLandOrderResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")
+	}
+	msg, err := l.svcCtx.BsRpc.AddLandData(l.ctx, &BSRPC.AddLandDataReq{FarmId: req.Land_order.FarmId, LandSaleCount: req.Land_order.Price * float64(req.Land_order.Count)})
+	if err != nil {
+		logx.Errorw("AddLandData failed", logx.Field("err", err))
+		logx.Errorw("AddLandData failed", logx.Field("msg", msg))
 	}
 	resp = &types.AddLandOrderResponse{
 		Code: 200,

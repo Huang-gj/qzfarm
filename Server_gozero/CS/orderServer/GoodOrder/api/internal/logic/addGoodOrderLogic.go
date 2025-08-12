@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"Server_gozero/BS/rpc/BSRPC"
 	"Server_gozero/CS/commodityServer/good/rpc/good"
 	"Server_gozero/CS/orderServer/GoodOrder/api/internal/svc"
 	"Server_gozero/CS/orderServer/GoodOrder/api/internal/types"
@@ -117,6 +118,11 @@ func (l *AddGoodOrderLogic) AddGoodOrder(req *types.AddGoodOrderRequest) (resp *
 		}
 		logx.Errorw("GoodUpdateRep failed", logx.Field("err", err))
 		return &types.AddGoodOrderResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")
+	}
+	msg, err := l.svcCtx.BsRpc.AddGoodData(l.ctx, &BSRPC.AddGoodDataReq{FarmId: req.Good_order.FarmId, GoodSaleCount: req.Good_order.Price * float64(req.Good_order.Count)})
+	if err != nil {
+		logx.Errorw("AddGoodData failed", logx.Field("err", err))
+		logx.Errorw("AddGoodData failed", logx.Field("msg", msg))
 	}
 
 	resp = &types.AddGoodOrderResponse{

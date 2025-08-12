@@ -35,6 +35,9 @@ type (
 		Delete(ctx context.Context, id int64) error
 		FindAll(ctx context.Context, farmId int64) ([]*SaleData, error)
 		FindByDateRange(ctx context.Context, farmId int64, startDate, endDate time.Time) ([]*SaleData, error)
+		UpdateUserCount(ctx context.Context, num int64) error
+		AddLandData(ctx context.Context, farmId int64, landSaleCount float64) error
+		AddGoodData(ctx context.Context, farmId int64, goodSaleCount float64) error
 	}
 
 	defaultSaleDataModel struct {
@@ -147,6 +150,37 @@ func (m *defaultSaleDataModel) FindByDateRange(ctx context.Context, farmId int64
 		return nil, err
 	}
 	return resp, nil
+}
+
+// UpdateUserCount 将今天的所有 SysUseCount 更新为指定值
+func (m *defaultSaleDataModel) UpdateUserCount(ctx context.Context, num int64) error {
+	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		query := fmt.Sprintf("update %s set `sys_use_count` = ? where `stat_date` = CURDATE()", m.table)
+		return conn.ExecCtx(ctx, query, num)
+	})
+	return err
+}
+
+// AddLandData 给指定农场今天的 LandSaleCount 增加值，同时 LandOrderCount + 1
+func (m *defaultSaleDataModel) AddLandData(ctx context.Context, farmId int64, landSaleCount float64) error {
+	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		query := fmt.Sprintf(
+			"update %s set `land_sale_count` = `land_sale_count` + ?, `land_order_count` = `land_order_count` + 1 "+
+				"where `farm_id` = ? and `stat_date` = CURDATE()", m.table)
+		return conn.ExecCtx(ctx, query, landSaleCount, farmId)
+	})
+	return err
+}
+
+// AddGoodData 给指定农场今天的 GoodSaleCount 增加值，同时 GoodOrderCount + 1
+func (m *defaultSaleDataModel) AddGoodData(ctx context.Context, farmId int64, goodSaleCount float64) error {
+	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		query := fmt.Sprintf(
+			"update %s set `good_sale_count` = `good_sale_count` + ?, `good_order_count` = `good_order_count` + 1 "+
+				"where `farm_id` = ? and `stat_date` = CURDATE()", m.table)
+		return conn.ExecCtx(ctx, query, goodSaleCount, farmId)
+	})
+	return err
 }
 
 func (m *defaultSaleDataModel) tableName() string {

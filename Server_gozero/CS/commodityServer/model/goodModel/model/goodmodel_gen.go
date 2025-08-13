@@ -32,7 +32,7 @@ type (
 		Update(ctx context.Context, data *Good) error
 		Delete(ctx context.Context, id int64) error
 		UpdateRepertory(ctx context.Context, goodId int64, repertory int64) error
-
+		FindAllByKeyword(ctx context.Context, keyword string) ([]*Good, error)
 }
 
 	defaultGoodModel struct {
@@ -128,4 +128,16 @@ func (m *defaultGoodModel) UpdateRepertory(ctx context.Context, goodId int64, re
 	query := fmt.Sprintf("UPDATE %s SET repertory = ? WHERE good_id = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, repertory, goodId)
 	return err
+}
+
+func (m *defaultGoodModel) FindAllByKeyword(ctx context.Context, keyword string) ([]*Good, error) {
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE title LIKE ? OR good_tag LIKE ?", goodRows, m.table)
+	likePattern := "%" + keyword + "%"
+
+	var goods []*Good
+	err := m.conn.QueryRowsCtx(ctx, &goods, query, likePattern, likePattern)
+	if err != nil {
+		return nil, err
+	}
+	return goods, nil
 }

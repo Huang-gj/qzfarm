@@ -1,13 +1,13 @@
 import {
   getSearchHistory,
-  getSearchPopular,
+  // getSearchPopular,
 } from '../../../services/good/fetchSearchHistory';
 import { genPicURL } from '../../../utils/genURL';
 
 Page({
   data: {
     historyWords: [],
-    popularWords: [],
+    // popularWords: [],
     searchValue: '',
     dialog: {
       title: '确认删除当前历史记录',
@@ -27,7 +27,7 @@ Page({
 
   onShow() {
     this.queryHistory();
-    this.queryPopular();
+    // this.queryPopular();
   },
 
   loadSearchIcon() {
@@ -56,20 +56,20 @@ Page({
     }
   },
 
-  async queryPopular() {
-    try {
-      const data = await getSearchPopular();
-      const code = 'Success';
-      if (String(code).toUpperCase() === 'SUCCESS') {
-        const { popularWords = [] } = data;
-        this.setData({
-          popularWords,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  },
+  // async queryPopular() {
+  //   try {
+  //     const data = await getSearchPopular();
+  //     const code = 'Success';
+  //     if (String(code).toUpperCase() === 'SUCCESS') {
+  //       const { popularWords = [] } = data;
+  //       this.setData({
+  //         popularWords,
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // },
 
   confirm() {
     const { historyWords } = this.data;

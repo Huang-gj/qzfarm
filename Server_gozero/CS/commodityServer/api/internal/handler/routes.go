@@ -8,6 +8,7 @@ import (
 
 	good "Server_gozero/CS/commodityServer/api/internal/handler/good"
 	land "Server_gozero/CS/commodityServer/api/internal/handler/land"
+	search "Server_gozero/CS/commodityServer/api/internal/handler/search"
 	"Server_gozero/CS/commodityServer/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -52,6 +53,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/getLandsByTag",
 				Handler: land.GetLandsByTagHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/searchProduct",
+				Handler: search.SearchProductHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

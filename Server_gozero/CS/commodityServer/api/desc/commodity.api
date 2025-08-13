@@ -12,6 +12,7 @@ info (
 import (
 	"make/good.api"
 	"make/land.api"
+	"make/search.api"
 )
 
 @server (
@@ -44,5 +45,15 @@ service commodity {
 
 	@handler getLandsByTag
 	post /getLandsByTag (GetLandsByTagRequest) returns (GetLandsByTagResponse)
+}
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  search
+)
+service commodity {
+	@handler searchProduct
+	post /searchProduct (SearchProductRequest) returns (SearchProductResponse)
 }
 

@@ -99,3 +99,14 @@ type Land struct {
 	SaleStatus int64   `json:"sale_status"` // 租赁状态 0-出售中 1-已被租赁
 	SaleTime   string  `json:"sale_time"`   // 租赁剩余时间
 }
+
+type SearchProductRequest struct {
+	KeyWord string `json:"keyword"`
+}
+
+type SearchProductResponse struct {
+	Code  int     `json:"code"`
+	Msg   string  `json:"msg"`
+	Goods []*Good `json:"goods"`
+	Lands []*Land `json:"lands"`
+}

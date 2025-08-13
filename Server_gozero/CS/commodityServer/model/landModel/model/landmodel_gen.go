@@ -32,8 +32,9 @@ type (
 		GetAllLand(ctx context.Context) ([]*Land, error)
 		GetLandByTag(ctx context.Context, landTag string) ([]*Land, error)
 		UpdateStatus(ctx context.Context, landId int64, status int64) error
+		GetLandByKeyword(ctx context.Context, keyword string) ([]*Land, error)
 
-}
+	}
 
 	defaultLandModel struct {
 		conn  sqlx.SqlConn
@@ -127,4 +128,16 @@ func (m *defaultLandModel) UpdateStatus(ctx context.Context, landId int64, statu
 	query := fmt.Sprintf("UPDATE %s SET sale_status = ? WHERE land_id = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, status, landId)
 	return err
+}
+
+func (m *defaultLandModel) GetLandByKeyword(ctx context.Context, keyword string) ([]*Land, error) {
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE land_name LIKE ? OR land_tag LIKE ?", landRows, m.table)
+	likePattern := "%" + keyword + "%"
+
+	var lands []*Land
+	err := m.conn.QueryRowsCtx(ctx, &lands, query, likePattern, likePattern)
+	if err != nil {
+		return nil, err
+	}
+	return lands, nil
 }

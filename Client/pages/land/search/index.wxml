@@ -17,16 +17,7 @@
         </view>
       </view>
     </view>
-    <view class="popular-wrap">
-      <view class="search-header">
-        <text class="search-title">热门搜索</text>
-      </view>
-      <view class="search-content">
-        <view class="search-item" hover-class="hover-history-item" wx:for="{{popularWords}}" bind:tap="handleHistoryTap" data-index="{{index}}" wx:key="*this">
-          {{item}}
-        </view>
-      </view>
-    </view>
+    <!-- 热门搜索模块已移除 -->
   </view>
   <t-dialog visible="{{dialogShow}}" content="{{dialog.message}}" bindconfirm="confirm" bind:close="close" confirm-btn="确定" cancel-btn="{{dialog.showCancelButton ? '取消' : null}}" t-class-confirm="dialog__button-confirm" t-class-cancel="dialog__button-cancel" />
 </view>

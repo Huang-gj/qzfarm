@@ -1,11 +1,39 @@
 /* eslint-disable no-param-reassign */
 import { getSearchResult } from '../../../services/good/fetchSearchResult';
 import Toast from 'tdesign-miniprogram/toast/index';
+import { genPicURL } from '../../../utils/genURL';
 
 const initFilters = {
   overall: 1,
   sorts: '',
 };
+
+async function normalizeImages(list) {
+  const mapped = await Promise.all(
+    (list || []).map(async (item) => {
+      const next = { ...item };
+      const fixOne = async (url) => {
+        if (!url) return '';
+        if (typeof url === 'string' && url.startsWith('cloud://')) {
+          try {
+            return await genPicURL(url);
+          } catch (e) {
+            console.error('[result] genPicURL失败，使用原值', url, e);
+            return url;
+          }
+        }
+        return url;
+      };
+      next.primaryImage = await fixOne(next.primaryImage);
+      next.thumb = await fixOne(next.thumb || next.primaryImage);
+      if (!next.thumb) {
+        next.thumb = 'https://via.placeholder.com/300x300?text=%E5%95%86%E5%93%81';
+      }
+      return next;
+    })
+  );
+  return mapped;
+}
 
 Page({
   data: {
@@ -32,7 +60,7 @@ Page({
     const { searchValue = '' } = options || {};
     this.setData(
       {
-        keywords: searchValue,
+        keywords: decodeURIComponent(searchValue || ''),
       },
       () => {
         this.init(true);
@@ -45,35 +73,15 @@ Page({
     const { pageNum, pageSize } = this;
     const { sorts, overall } = filter;
     const params = {
-      sort: 0, // 0 综合，1 价格
-      pageNum: 1,
-      pageSize: 30,
+      // 后端仅需要 keyword
       keyword: keywords,
     };
-
-    if (sorts) {
-      params.sort = 1;
-      params.sortType = sorts === 'desc' ? 1 : 0;
-    }
-    if (overall) {
-      params.sort = 0;
-    } else {
-      params.sort = 1;
-    }
-    params.minPrice = minVal ? minVal * 100 : 0;
-    params.maxPrice = maxVal ? maxVal * 100 : undefined;
-    if (reset) return params;
-    return {
-      ...params,
-      pageNum: pageNum + 1,
-      pageSize,
-    };
+    return params;
   },
 
   async init(reset = true) {
     const { loadMoreStatus, goodsList = [] } = this.data;
     const params = this.generalQueryData(reset);
-    if (loadMoreStatus !== 0) return;
     this.setData({
       loadMoreStatus: 1,
       loading: true,
@@ -84,28 +92,15 @@ Page({
       const data = result;
       if (code.toUpperCase() === 'SUCCESS') {
         const { spuList, totalCount = 0 } = data;
-        if (totalCount === 0 && reset) {
-          this.total = totalCount;
-          this.setData({
-            emptyInfo: {
-              tip: '抱歉，未找到相关商品',
-            },
-            hasLoaded: true,
-            loadMoreStatus: 0,
-            loading: false,
-            goodsList: [],
-          });
-          return;
-        }
-
-        const _goodsList = reset ? spuList : goodsList.concat(spuList);
+        let _goodsList = spuList;
         _goodsList.forEach((v) => {
-          v.tags = v.spuTagList.map((u) => u.title);
+          v.tags = (v.spuTagList || []).map((u) => u.title || u);
           v.hideKey = { desc: true };
         });
-        const _loadMoreStatus = _goodsList.length === totalCount ? 2 : 0;
-        this.pageNum = params.pageNum || 1;
-        this.total = totalCount;
+        _goodsList = await normalizeImages(_goodsList);
+        const _loadMoreStatus = 2; // 后端不分页，直接置为没有更多
+        this.pageNum = 1;
+        this.total = _goodsList.length;
         this.setData({
           goodsList: _goodsList,
           loadMoreStatus: _loadMoreStatus,
@@ -148,15 +143,7 @@ Page({
   },
 
   onReachBottom() {
-    const { goodsList } = this.data;
-    const { total = 0 } = this;
-    if (goodsList.length === total) {
-      this.setData({
-        loadMoreStatus: 2,
-      });
-      return;
-    }
-    this.init(false);
+    // 无分页，忽略
   },
 
   handleAddCart() {
@@ -169,10 +156,12 @@ Page({
 
   gotoGoodsDetail(e) {
     const { index } = e.detail;
-    const { good_id } = this.data.goodsList[index];
-    wx.navigateTo({
-      url: `/pages/goods/details/index?goodId=${good_id}`,
-    });
+    const item = this.data.goodsList[index];
+    if (item?.isLand) {
+      wx.navigateTo({ url: `/pages/land/details/index?landId=${item.good_id}` });
+    } else {
+      wx.navigateTo({ url: `/pages/goods/details/index?goodId=${item.good_id}` });
+    }
   },
 
   handleFilterChange(e) {

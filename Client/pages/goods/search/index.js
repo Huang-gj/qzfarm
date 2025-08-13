@@ -1,13 +1,13 @@
 import {
   getSearchHistory,
-  getSearchPopular,
+  // getSearchPopular, // removed
 } from '../../../services/good/fetchSearchHistory';
 import { genPicURL } from '../../../utils/genURL';
 
 Page({
   data: {
     historyWords: [],
-    popularWords: [],
+    // popularWords: [], // removed
     searchValue: '',
     dialog: {
       title: '确认删除当前历史记录',
@@ -27,7 +27,42 @@ Page({
 
   onShow() {
     this.queryHistory();
-    this.queryPopular();
+    // this.queryPopular(); // removed
+  },
+
+  // 本地缓存key
+  getHistoryStorageKey() {
+    return 'search_history_words';
+  },
+
+  // 从本地缓存加载历史
+  queryHistory() {
+    try {
+      const key = this.getHistoryStorageKey();
+      const list = wx.getStorageSync(key) || [];
+      this.setData({ historyWords: Array.isArray(list) ? list : [] });
+    } catch (e) {
+      console.error('[queryHistory] 读取本地历史失败', e);
+      this.setData({ historyWords: [] });
+    }
+  },
+
+  // 保存关键字到本地历史（去重，最近在前，最多20条）
+  saveKeywordToHistory(keyword) {
+    const key = this.getHistoryStorageKey();
+    const trimmed = (keyword || '').trim();
+    if (!trimmed) return;
+    try {
+      let list = wx.getStorageSync(key) || [];
+      if (!Array.isArray(list)) list = [];
+      list = list.filter((w) => w !== trimmed);
+      list.unshift(trimmed);
+      if (list.length > 20) list = list.slice(0, 20);
+      wx.setStorageSync(key, list);
+      this.setData({ historyWords: list });
+    } catch (e) {
+      console.error('[saveKeywordToHistory] 写入本地历史失败', e);
+    }
   },
 
   loadSearchIcon() {
@@ -41,35 +76,22 @@ Page({
     });
   },
 
-  async queryHistory() {
-    try {
-      const data = await getSearchHistory();
-      const code = 'Success';
-      if (String(code).toUpperCase() === 'SUCCESS') {
-        const { historyWords = [] } = data;
-        this.setData({
-          historyWords,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  onInputChange(e) {
+    const { value } = e.detail;
+    this.setData({ searchValue: value });
   },
 
-  async queryPopular() {
-    try {
-      const data = await getSearchPopular();
-      const code = 'Success';
-      if (String(code).toUpperCase() === 'SUCCESS') {
-        const { popularWords = [] } = data;
-        this.setData({
-          popularWords,
-        });
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  onLeftIconTap() {
+    const { searchValue } = this.data;
+    const kw = (searchValue || '').trim();
+    if (!kw) return;
+    this.saveKeywordToHistory(kw);
+    wx.navigateTo({
+      url: `/pages/goods/result/index?searchValue=${kw}`,
+    });
   },
+
+  async queryHistoryMockRemoved() {},
 
   confirm() {
     const { historyWords } = this.data;
@@ -80,8 +102,10 @@ Page({
         historyWords,
         dialogShow: false,
       });
+      try { wx.setStorageSync(this.getHistoryStorageKey(), historyWords); } catch (e) {}
     } else {
       this.setData({ historyWords: [], dialogShow: false });
+      try { wx.setStorageSync(this.getHistoryStorageKey(), []); } catch (e) {}
     }
   },
 
@@ -118,7 +142,7 @@ Page({
   handleHistoryTap(e) {
     const { historyWords } = this.data;
     const { dataset } = e.currentTarget;
-    const _searchValue = historyWords[dataset.index || 0] || '';
+    const _searchValue = (historyWords[dataset.index || 0] || '').trim();
     if (_searchValue) {
       wx.navigateTo({
         url: `/pages/goods/result/index?searchValue=${_searchValue}`,
@@ -128,9 +152,11 @@ Page({
 
   handleSubmit(e) {
     const { value } = e.detail.value;
-    if (value.length === 0) return;
+    const kw = (value || '').trim();
+    if (!kw) return;
+    this.saveKeywordToHistory(kw);
     wx.navigateTo({
-      url: `/pages/goods/result/index?searchValue=${value}`,
+      url: `/pages/goods/result/index?searchValue=${kw}`,
     });
   },
 });

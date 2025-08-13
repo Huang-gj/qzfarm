@@ -45,13 +45,13 @@ export function genSettleDetail(params) {
       userAddress: null,
       totalGoodsCount: 3,
       packageCount: 1,
-      totalAmount: '289997',
+      totalAmount: '0',
       totalPayAmount: '',
-      totalDiscountAmount: '110000',
-      totalPromotionAmount: '1100',
+      totalDiscountAmount: '0',
+      totalPromotionAmount: '0',
       totalCouponAmount: '0',
-      totalSalePrice: '289997',
-      totalGoodsAmount: '289997',
+      totalSalePrice: '0',
+      totalGoodsAmount: '0',
       totalDeliveryFee: '0',
       invoiceRequest: null,
       skuImages: null,
@@ -65,8 +65,8 @@ export function genSettleDetail(params) {
           deliveryFee: '0',
           deliveryWords: null,
           storeTotalAmount: '0',
-          storeTotalPayAmount: '179997',
-          storeTotalDiscountAmount: '110000',
+          storeTotalPayAmount: '0',
+          storeTotalDiscountAmount: '0',
           storeTotalCouponAmount: '0',
           skuDetailVos: [],
           couponList: [
@@ -133,11 +133,18 @@ export function genSettleDetail(params) {
       : 0;
 
   resp.data.totalSalePrice = totalPrice;
+  resp.data.totalAmount = totalPrice;
+  resp.data.totalGoodsAmount = totalPrice;
 
   resp.data.totalCouponAmount = totalDiscountPrice;
 
   resp.data.totalPayAmount =
     totalPrice - totalDiscountPrice - Number(resp.data.totalPromotionAmount);
+  
+  // 更新store级别的金额
+  resp.data.storeGoodsList[0].storeTotalAmount = totalPrice;
+  resp.data.storeGoodsList[0].storeTotalPayAmount = resp.data.totalPayAmount;
+  resp.data.storeGoodsList[0].storeTotalDiscountAmount = totalDiscountPrice;
 
   if (userAddressReq) {
     resp.data.settleType = 1;

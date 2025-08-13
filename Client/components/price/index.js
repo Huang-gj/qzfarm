@@ -4,7 +4,7 @@ Component({
   properties: {
     priceUnit: {
       type: String,
-      value: 'fen',
+      value: 'yuan',
     }, // 价格单位，分 | 元, fen，yuan
     price: {
       type: null,
@@ -12,7 +12,7 @@ Component({
       observer(price) {
         this.format(price);
       },
-    }, // 价格, 以分为单位
+    }, // 价格, 以元为单位
     type: {
       type: String,
       value: '', //

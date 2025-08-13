@@ -355,7 +355,7 @@ function updateCartTotalPrice(cartData) {
   });
 
   // 更新购物车总价和选中商品数量
-  cartData.totalAmount = totalAmount.toFixed(0);
+  cartData.totalAmount = totalAmount.toFixed(2);
   cartData.selectedGoodsCount = selectedGoodsCount;
 
   return cartData;

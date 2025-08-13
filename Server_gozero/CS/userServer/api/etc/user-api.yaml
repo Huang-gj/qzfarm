@@ -15,7 +15,7 @@ BsRPC:
     Key: bs.rpc
 
 Log:
-  ServiceName: "idClient-srv"
+  ServiceName: "user-srv"
   Mode: file
   Encoding: json
   Path: logs/user

@@ -6,7 +6,7 @@ Log:
   ServiceName: "commodity-srv"
   Mode: file
   Encoding: json
-  Path: logs/Good
+  Path: logs/commodity
   Level: debug
   Stat: true
 

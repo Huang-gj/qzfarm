@@ -121,6 +121,21 @@ Page({
     }
   },
 
+  // 订单排序工具函数 - 按创建时间倒序排列，最新订单在顶部
+  sortOrdersByTime(orders) {
+    return orders.sort((a, b) => {
+      const timeA = new Date(a.createTime || 0).getTime() || 0;
+      const timeB = new Date(b.createTime || 0).getTime() || 0;
+      // 如果时间相同，则按订单ID倒序排列（假设ID越大越新）
+      if (timeA === timeB) {
+        const idA = parseInt(a.id) || 0;
+        const idB = parseInt(b.id) || 0;
+        return idB - idA;
+      }
+      return timeB - timeA; // 倒序：最新的在前
+    });
+  },
+
   // 处理订单数据的方法
   async processOrderData(orderData) {
     console.log('[order-list processOrderData] 处理订单数据:', orderData);
@@ -201,7 +216,7 @@ Page({
         storeName: `农场${order.farm_id}`,
         status: this.mapGoodOrderStatus(order), // 需要根据实际业务逻辑映射状态
         statusDesc: this.getGoodOrderStatusDesc(order),
-        amount: order.price || 0,
+        amount: (order.price * order.count) || 0,
         totalAmount: (order.price * order.count) || 0,
         createTime: order.create_time || '',
         // 商品信息
@@ -225,6 +240,9 @@ Page({
       console.log(`[order-list processGoodOrderData] 第${index + 1}个订单处理结果:`, processedOrder);
       processedOrders.push(processedOrder);
     }
+    
+    // 按创建时间倒序排列，最新订单在顶部
+    this.sortOrdersByTime(processedOrders);
     
     console.log('[order-list processGoodOrderData] 最终处理结果:', processedOrders);
     return processedOrders;
@@ -320,7 +338,7 @@ Page({
         storeName: `农场${order.farm_id}`,
         status: this.mapLandOrderStatus(order), // 需要根据实际业务逻辑映射状态
         statusDesc: this.getLandOrderStatusDesc(order),
-        amount: order.price || 0,
+        amount: (order.price * order.count) || 0,
         totalAmount: (order.price * order.count) || 0,
         createTime: order.create_time || '',
         // 土地信息
@@ -344,6 +362,9 @@ Page({
       console.log(`[order-list processLandOrderData] 第${index + 1}个订单处理结果:`, processedOrder);
       processedOrders.push(processedOrder);
     }
+    
+    // 按创建时间倒序排列，最新订单在顶部
+    this.sortOrdersByTime(processedOrders);
     
     console.log('[order-list processLandOrderData] 最终处理结果:', processedOrders);
     return processedOrders;
@@ -456,8 +477,12 @@ Page({
             this.setData({ orderList: [] }, () => resolve());
           } else resolve();
         }).then(() => {
+          // 合并订单列表并按创建时间倒序排列
+          const combinedOrderList = this.data.orderList.concat(orderList);
+          this.sortOrdersByTime(combinedOrderList);
+          
           this.setData({
-            orderList: this.data.orderList.concat(orderList),
+            orderList: combinedOrderList,
             listLoading: orderList.length > 0 ? 0 : 2,
           });
         });

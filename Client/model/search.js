@@ -57,8 +57,8 @@ export async function getSearchResult(params = {}) {
       // 根据sortType决定升序或降序
       // sortType: 0-升序, 1-降序
       spuList.sort((a, b) => {
-        const priceA = parseInt(a.minSalePrice, 10);
-        const priceB = parseInt(b.minSalePrice, 10);
+        const priceA = parseFloat(a.minSalePrice);
+        const priceB = parseFloat(b.minSalePrice);
         
         if (sortType === 0) {
           // 升序：从低到高

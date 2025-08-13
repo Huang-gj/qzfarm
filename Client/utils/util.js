@@ -5,7 +5,7 @@ const formatTime = (date, template) => dayjs(date).format(template);
 /**
  * 格式化价格数额为字符串
  * 可对小数部分进行填充，默认不填充
- * @param price 价格数额，以分为单位!
+ * @param price 价格数额，以元为单位!
  * @param fill 是否填充小数部分 0-不填充 1-填充第一位小数 2-填充两位小数
  */
 function priceFormat(price, fill = 0) {
@@ -14,7 +14,7 @@ function priceFormat(price, fill = 0) {
   }
 
   let priceFormatValue = Math.round(parseFloat(`${price}`) * 10 ** 8) / 10 ** 8; // 恢复精度丢失
-  priceFormatValue = `${Math.ceil(priceFormatValue) / 100}`; // 向上取整，单位转换为元，转换为字符串
+  priceFormatValue = `${priceFormatValue}`; // 不再除以100，直接转换为字符串
   if (fill > 0) {
     // 补充小数位数
     if (priceFormatValue.indexOf('.') === -1) {

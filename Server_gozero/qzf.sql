@@ -8,8 +8,8 @@ CREATE TABLE `user`
 (
     id           INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     del_state    INT          NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
-    del_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    del_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     user_id      INT          NOT NULL COMMENT '分布式唯一ID',
     phone_number VARCHAR(20)  NOT NULL DEFAULT '' COMMENT '用户电话号码',
     password     VARCHAR(128) NOT NULL DEFAULT '' COMMENT '用户密码',
@@ -53,14 +53,14 @@ CREATE TABLE `land`
 (
     id          INT         NOT NULL AUTO_INCREMENT PRIMARY KEY,
     del_state   INT         NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
-    del_time    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_time TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    del_time    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    create_time TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     land_id     INT         NOT NULL COMMENT '分布式唯一ID',
     farm_id     INT         NOT NULL COMMENT '土地所属农场id',
     land_name   VARCHAR(20) NOT NULL DEFAULT '' COMMENT '土地名称',
     area        VARCHAR(64) NOT NULL DEFAULT '' COMMENT '土地面积',
     image_urls  TEXT COMMENT '图片信息',
-    price       FLOAT       NOT NULL DEFAULT 0.0 COMMENT '价格',
+    price       DECIMAL(12,2)       NOT NULL DEFAULT 0.00 COMMENT '价格',
     detail      TEXT COMMENT '详情',
     sale_status TINYINT     NOT NULL DEFAULT 0 COMMENT '租赁状态 0-出售中 1-已被租赁',
     sale_time   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '租赁剩余时间'
@@ -76,13 +76,13 @@ CREATE TABLE `good`
 (
     id          INT         NOT NULL AUTO_INCREMENT PRIMARY KEY,
     del_state   INT         NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
-    del_time    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_time TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    del_time    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    create_time TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     good_id     INT         NOT NULL COMMENT '分布式唯一ID',
     good_name   VARCHAR(20) NOT NULL DEFAULT '' COMMENT '商品名称',
     farm_id     INT         NOT NULL COMMENT '商品所属农场id',
     image_urls  TEXT COMMENT '图片信息',
-    price       FLOAT       NOT NULL DEFAULT 0.0 COMMENT '价格',
+    price       DECIMAL(12,2)       NOT NULL DEFAULT 0.00 COMMENT '价格',
     units       VARCHAR(10) NOT NULL DEFAULT '' COMMENT '单位,个/斤/千克等',
     repertory   FLOAT       NOT NULL DEFAULT 0.0 COMMENT '库存',
     detail      TEXT COMMENT '详情'
@@ -98,8 +98,8 @@ CREATE TABLE `good_order`
 (
     id            INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     del_state     INT          NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
-    del_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    del_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     good_order_id INT          NOT NULL COMMENT '分布式唯一ID',
     image_urls    TEXT COMMENT '图片信息',
     good_id       INT          NOT NULL COMMENT '关联商品名称',
@@ -107,7 +107,7 @@ CREATE TABLE `good_order`
     user_id       INT          NOT NULL COMMENT '关联用户id',
     user_address  VARCHAR(128) NOT NULL COMMENT '用户所在地址',
     farm_address  VARCHAR(128) NOT NULL COMMENT '农场所在地址',
-    price         FLOAT        NOT NULL DEFAULT 0.0 COMMENT '价格',
+    price         DECIMAL(12,2)        NOT NULL DEFAULT 0.00 COMMENT '价格',
     units         VARCHAR(10)  NOT NULL DEFAULT '' COMMENT '单位,个/斤/千克等',
     count         INT          NOT NULL DEFAULT 0 COMMENT '购买数量',
     detail        TEXT COMMENT '详情',
@@ -124,15 +124,15 @@ CREATE TABLE `land_order`
 (
     id            INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     del_state     INT          NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
-    del_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    del_time      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     land_order_id INT          NOT NULL COMMENT '分布式唯一ID',
     image_urls    TEXT COMMENT '图片信息',
     land_id       INT          NOT NULL COMMENT '关联土地名称',
     farm_id       INT          NOT NULL COMMENT '商品所属农场id',
     user_id       INT          NOT NULL COMMENT '关联用户id',
     farm_address  VARCHAR(128) NOT NULL COMMENT '农场所在地址',
-    price         FLOAT        NOT NULL DEFAULT 0.0 COMMENT '价格',
+    price         DECIMAL(12,2)        NOT NULL DEFAULT 0.00 COMMENT '价格',
     count         INT          NOT NULL DEFAULT 0 COMMENT '租赁时长',
 
     detail        TEXT COMMENT '详情',
@@ -149,7 +149,7 @@ CREATE TABLE `id_sender`
     id          INT         NOT NULL AUTO_INCREMENT PRIMARY KEY,
     biz_tag     VARCHAR(64) NOT NULL DEFAULT '' COMMENT '服务名称',
     current_id  INT         NOT NULL DEFAULT 0 COMMENT '当前id范围',
-    update_time TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间'
+    update_time TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间'
 )ENGINE = InnoDB
 CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci
@@ -195,8 +195,8 @@ CREATE TABLE `admin`
 (
     id           INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     del_state    INT          NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
-    del_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    del_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     admin_id      INT          NOT NULL COMMENT '分布式唯一ID',
     phone_number VARCHAR(20)  NOT NULL DEFAULT '' COMMENT '用户电话号码',
     password     VARCHAR(128) NOT NULL DEFAULT '' COMMENT '用户密码',
@@ -217,14 +217,14 @@ CREATE TABLE `sale_data`
 (
     id           INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     del_state    INT          NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
-    del_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    del_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     farm_id INT NOT NULL DEFAULT 0 COMMENT '关联农场id',
     stat_date DATE  NOT NULL COMMENT '统计日期',
     good_order_count INT NOT NULL DEFAULT 0 COMMENT '农产品订单总数',
     land_order_count INT NOT NULL DEFAULT 0 COMMENT '土地订单总数',
-    good_sale_count DOUBLE NOT NULL DEFAULT 0 COMMENT '农产品订单总销售额',
-    land_sale_count DOUBLE NOT NULL DEFAULT 0 COMMENT '土地订单总销售额',
+    good_sale_count DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '农产品订单总销售额',
+    land_sale_count DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '土地订单总销售额',
     sys_use_count INT NOT NULL DEFAULT 0 COMMENT '当前系统适用人数'
 
 ) ENGINE = InnoDB

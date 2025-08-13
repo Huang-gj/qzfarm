@@ -401,7 +401,13 @@ Page({
       primaryImage: imageUrl, // 使用转换后的图片URL
       quantity: buyNum,
       stockQuantity: details.repertory || 100,
-      specInfo: selectItem.specInfo || []
+      specInfo: selectItem.specInfo || [],
+      // 添加缺失的关键字段
+      farm_id: details.farm_id,
+      farm_address: details.farm_address || '',
+      units: details.units || '个',
+      detail: details.detail || details.title || '',
+      thumb: imageUrl
     };
 
     console.log('[addToLocalCart] 准备添加到购物车的商品信息:', goodsInfo);

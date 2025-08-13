@@ -30,7 +30,9 @@ Page({
     
     // 延迟刷新数据，避免与页面加载冲突
     setTimeout(() => {
-      this.refreshData();
+      // 强制刷新数据，确保显示最新的购物车内容
+      console.log('[onShow] 确保购物车数据一致性');
+      this.ensureDataConsistency();
       updateCartNum(); // 更新购物车角标
     }, 100);
   },
@@ -41,6 +43,31 @@ Page({
       currentCartType: 'goods'
     });
     this.refreshData();
+    
+    // 监听购物车数据更新事件
+    this.setupEventListeners();
+
+    // 页面初次加载后，确保两种购物车类型都至少刷新一次，避免首次切换时为空
+    setTimeout(() => {
+      console.log('[onLoad] 预刷新两种购物车类型数据');
+      const currentType = this.data.currentCartType;
+      this.setData({ currentCartType: 'goods' });
+      this.refreshData();
+      setTimeout(() => {
+        this.setData({ currentCartType: 'land' });
+        this.refreshData();
+        // 恢复用户的当前类型
+        setTimeout(() => {
+          this.setData({ currentCartType: currentType });
+          this.refreshData();
+        }, 50);
+      }, 50);
+    }, 0);
+  },
+
+  onUnload() {
+    console.log('[cart] 页面卸载，清理事件监听器');
+    this.cleanupEventListeners();
   },
 
   // 切换购物车类型
@@ -54,13 +81,20 @@ Page({
   },
 
   refreshData() {
-    // 防止重复调用
+    // 防止重复调用（支持类型切换的抢占）
     if (this.isRefreshing) {
-      console.log('[refreshData] 正在刷新中，跳过重复调用');
-      return;
+      if (this.refreshingCartType !== this.data.currentCartType) {
+        console.log('[refreshData] 正在刷新其他类型，切换为', this.data.currentCartType, '并强制刷新');
+        this.isRefreshing = false; // 允许本次刷新继续
+      } else {
+        console.log('[refreshData] 正在刷新中，跳过重复调用');
+        this.pendingRefresh = true; // 记录一次待刷新请求
+        return;
+      }
     }
     
     this.isRefreshing = true;
+    this.refreshingCartType = this.data.currentCartType;
     console.log('[refreshData] 开始刷新购物车数据');
     console.log('[refreshData] 当前购物车类型:', this.data.currentCartType);
     
@@ -73,6 +107,13 @@ Page({
       const cartData = res.data;
       console.log('[refreshData] 购物车数据:', cartData);
       
+      // 调试：检查第一个商品的farm_id
+      if (cartData.goodsList && cartData.goodsList.length > 0) {
+        const firstItem = cartData.goodsList[0];
+        console.log('[refreshData] 第一个商品的farm_id:', firstItem.farm_id);
+        console.log('[refreshData] 第一个商品完整数据:', firstItem);
+      }
+      
       // 转换为组件需要的格式
       const cartGroupData = this.convertCartDataToGroupFormat(cartData);
       console.log('[refreshData] 转换后的购物车数据:', cartGroupData);
@@ -80,11 +121,44 @@ Page({
       this.setData({
         cartGroupData,
       });
+      
+      // 刷新数据后重新计算价格，确保界面显示正确
+      console.log('[refreshData] 重新计算价格');
+      this.updateCartTotalPrice();
     }).catch(err => {
       console.error('[refreshData] 获取购物车数据失败:', err);
     }).finally(() => {
       this.isRefreshing = false;
+      this.refreshingCartType = null;
+      if (this.pendingRefresh) {
+        console.log('[refreshData] 处理挂起的刷新请求');
+        this.pendingRefresh = false;
+        // 再次刷新，确保最终状态正确
+        setTimeout(() => this.refreshData(), 0);
+      }
     });
+  },
+
+  // 强制刷新数据，跳过防重复调用检查
+  forceRefreshData() {
+    const wasRefreshing = this.isRefreshing;
+    this.isRefreshing = false; // 临时重置标志
+    console.log('[forceRefreshData] 强制刷新购物车数据, 之前状态:', wasRefreshing);
+    this.refreshData();
+  },
+
+  // 确保数据和价格都正确的完整刷新
+  ensureDataConsistency() {
+    console.log('[ensureDataConsistency] 确保数据一致性');
+    
+    // 先强制刷新数据
+    this.forceRefreshData();
+    
+    // 延迟一下确保价格计算正确
+    setTimeout(() => {
+      console.log('[ensureDataConsistency] 重新计算价格确保一致性');
+      this.updateCartTotalPrice();
+    }, 150);
   },
 
   findGoods(good_id, skuId) {
@@ -99,6 +173,12 @@ Page({
     console.log('[findGoods] 查找商品:', { good_id, skuId });
     console.log('[findGoods] good_id类型:', typeof good_id);
     console.log('[findGoods] skuId类型:', typeof skuId);
+    console.log('[findGoods] cartGroupData.storeGoods长度:', cartGroupData.storeGoods.length);
+    
+    if (cartGroupData.storeGoods.length === 0) {
+      console.log('[findGoods] 购物车为空，没有商品可以查找');
+      return { goods: null, storeIndex: -1, promotionIndex: -1, goodsIndex: -1 };
+    }
 
     cartGroupData.storeGoods.forEach((store, storeIdx) => {
       store.promotionGoodsList.forEach((promotion, promotionIdx) => {
@@ -112,7 +192,11 @@ Page({
             skuId_match: item.skuId == skuId
           });
           
-          if (item.good_id == good_id && item.skuId == skuId) {
+          // 使用更严格的比较，确保类型一致
+          const good_id_match = String(item.good_id) === String(good_id);
+          const skuId_match = String(item.skuId) === String(skuId);
+          
+          if (good_id_match && skuId_match) {
             goods = item;
             storeIndex = storeIdx;
             promotionIndex = promotionIdx;
@@ -149,6 +233,11 @@ Page({
     const hasGoods = cartData.goodsList && cartData.goodsList.length > 0;
     console.log('[convertCartDataToGroupFormat] 是否有商品数据:', hasGoods);
     console.log('[convertCartDataToGroupFormat] 商品列表长度:', cartData.goodsList ? cartData.goodsList.length : 0);
+    console.log('[convertCartDataToGroupFormat] cartData.goodsList存在:', !!cartData.goodsList);
+    console.log('[convertCartDataToGroupFormat] cartData.goodsList类型:', typeof cartData.goodsList);
+    if (cartData.goodsList) {
+      console.log('[convertCartDataToGroupFormat] 商品列表前3项:', cartData.goodsList.slice(0, 3));
+    }
     
     // 构建组件需要的格式
     const cartGroupData = {
@@ -170,6 +259,18 @@ Page({
       totalDiscountAmount: cartData.totalDiscountAmount || '0',
       isNotEmpty: hasGoods // 添加这个属性来控制显示
     };
+    
+    console.log('[convertCartDataToGroupFormat] 输入的价格数据:', {
+      totalAmount: cartData.totalAmount,
+      selectedGoodsCount: cartData.selectedGoodsCount,
+      isAllSelected: cartData.isAllSelected
+    });
+    
+    console.log('[convertCartDataToGroupFormat] 输出的价格数据:', {
+      totalAmount: cartGroupData.totalAmount,
+      selectedGoodsCount: cartGroupData.selectedGoodsCount,
+      isAllSelected: cartGroupData.isAllSelected
+    });
     
     console.log('[convertCartDataToGroupFormat] 转换后的数据:', cartGroupData);
     console.log('[convertCartDataToGroupFormat] 商品列表:', cartGroupData.storeGoods[0].promotionGoodsList[0].goodsPromotionList);
@@ -261,11 +362,35 @@ Page({
     console.log('[changeQuantityService] 查找结果:', { storeIndex, promotionIndex, goodsIndex });
 
     if (goodsIndex > -1) {
-      cartGroupData.storeGoods[storeIndex].promotionGoodsList[promotionIndex].goodsPromotionList[goodsIndex].quantity = quantity;
+      const targetGoods = cartGroupData.storeGoods[storeIndex].promotionGoodsList[promotionIndex].goodsPromotionList[goodsIndex];
+      targetGoods.quantity = quantity;
+      
+      // 如果数量为0，自动取消选中状态
+      if (quantity <= 0) {
+        console.log('[changeQuantityService] 数量为0，取消选中状态');
+        targetGoods.isSelected = false;
+      }
+      
       console.log('[changeQuantityService] 更新商品数量成功');
       this.setData({
         cartGroupData,
       });
+      
+      // 更新本地存储
+      this.updateLocalStorage();
+      
+      // 发送购物车数据更新事件
+      try {
+        if (wx.eventCenter && typeof wx.eventCenter.emit === 'function') {
+          wx.eventCenter.emit('cartDataUpdate', {
+            type: this.data.currentCartType,
+            action: 'quantity_change',
+            data: null
+          });
+        }
+      } catch (e) {
+        console.log('[changeQuantityService] 发送事件通知失败:', e);
+      }
     } else {
       console.error('[changeQuantityService] 未找到商品:', { good_id, skuId });
     }
@@ -305,6 +430,25 @@ Page({
       this.setData({
         cartGroupData,
       });
+      
+      // 重新计算总价和选中商品数量
+      this.updateCartTotalPrice();
+      
+      // 更新本地存储
+      this.updateLocalStorage();
+      
+      // 发送购物车数据更新事件
+      try {
+        if (wx.eventCenter && typeof wx.eventCenter.emit === 'function') {
+          wx.eventCenter.emit('cartDataUpdate', {
+            type: this.data.currentCartType,
+            action: 'delete',
+            data: null
+          });
+        }
+      } catch (e) {
+        console.log('[deleteGoodsService] 发送事件通知失败:', e);
+      }
     } else {
       console.error('[deleteGoodsService] 未找到要删除的商品:', { good_id, skuId });
     }
@@ -369,7 +513,15 @@ Page({
               promotion.goodsPromotionList.forEach(goods => {
                 if (goods.isSelected) {
                   const price = parseFloat(goods.price) || 0;
-                  const quantity = parseInt(goods.quantity) || 0;
+                  const quantity = Math.max(0, parseInt(goods.quantity) || 0);
+                  
+                  // 如果商品数量为0，应该取消选中状态
+                  if (quantity === 0) {
+                    console.log('[updateCartTotalPrice] 发现数量为0的选中商品，取消选中:', goods.title);
+                    goods.isSelected = false;
+                    return; // 跳过此商品的价格计算
+                  }
+                  
                   const itemTotal = price * quantity;
                   totalAmount += itemTotal;
                   selectedGoodsCount += quantity;
@@ -569,37 +721,80 @@ Page({
 
   onGoodsDelete(e) {
     console.log('[onGoodsDelete] 收到删除事件:', e.detail);
+    console.log('[onGoodsDelete] e.detail的完整结构:', JSON.stringify(e.detail, null, 2));
+    
     const {
-      goods
+      goods,
+      skipConfirm
     } = e.detail;
     
+    console.log('[onGoodsDelete] goods对象:', goods);
+    console.log('[onGoodsDelete] goods类型:', typeof goods);
+    console.log('[onGoodsDelete] goods.good_id:', goods.good_id);
+    console.log('[onGoodsDelete] goods.skuId:', goods.skuId);
+    
     // 从goods对象中提取good_id和skuId
-    const good_id = goods.good_id;
-    const skuId = goods.skuId;
+    const good_id = goods.good_id || goods.id;
+    const skuId = goods.skuId || goods.good_id;
     
-    console.log('[onGoodsDelete] 提取的数据:', { good_id, skuId });
+    console.log('[onGoodsDelete] 提取的数据:');
+    console.log('[onGoodsDelete] good_id:', good_id, '类型:', typeof good_id);
+    console.log('[onGoodsDelete] skuId:', skuId, '类型:', typeof skuId);
+    console.log('[onGoodsDelete] good_id来源:', goods.good_id ? 'goods.good_id' : 'goods.id');
+    console.log('[onGoodsDelete] skuId来源:', goods.skuId ? 'goods.skuId' : 'goods.good_id');
     
-    Dialog.confirm({
-      context: this,
-      selector: '#t-dialog',
-      title: '确认删除',
-      content: '确定要删除这个商品吗？',
-      confirmBtn: '删除',
-      cancelBtn: '取消',
-    }).then(() => {
-      this.deleteGoodsService({
-        good_id,
-        skuId
-      });
-      this.updateLocalStorage();
-      Toast({
+    // 执行删除操作的函数
+    const performDelete = () => {
+      console.log('[onGoodsDelete] 执行删除操作');
+      console.log('[onGoodsDelete] 传递给deleteGoodsService的参数:', { good_id, skuId });
+      
+      if (good_id && skuId) {
+        this.deleteGoodsService({
+          good_id,
+          skuId
+        });
+        
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '删除成功',
+          icon: 'check-circle',
+          duration: 1000,
+        });
+      } else {
+        console.error('[onGoodsDelete] good_id或skuId为空，无法删除商品');
+        Toast({
+          context: this,
+          selector: '#t-toast',
+          message: '删除失败：商品信息不完整',
+          icon: 'close-circle',
+          duration: 1000,
+        });
+      }
+    };
+    
+    // 如果已经确认过（来自stepper减到0），直接删除
+    if (skipConfirm) {
+      console.log('[onGoodsDelete] 跳过确认对话框，直接删除');
+      performDelete();
+    } else {
+      // 显示确认对话框（来自swipe删除）
+      console.log('[onGoodsDelete] 准备显示确认对话框');
+      
+      Dialog.confirm({
         context: this,
-        selector: '#t-toast',
-        message: '删除成功',
-        icon: 'check-circle',
-        duration: 1000,
+        selector: '#t-dialog',
+        title: '确认删除',
+        content: '确定要删除这个商品吗？',
+        confirmBtn: '删除',
+        cancelBtn: '取消',
+      }).then(() => {
+        console.log('[onGoodsDelete] 用户点击了确认按钮');
+        performDelete();
+      }).catch(() => {
+        console.log('[onGoodsDelete] 用户取消了删除操作');
       });
-    });
+    }
   },
 
   onSelectAll(event) {
@@ -690,12 +885,16 @@ Page({
       // 批量创建订单
       const orderPromises = selectedGoods.map(async (goods) => {
         console.log('[onToSettle] 处理商品:', goods);
+        console.log('[onToSettle] 商品farm_id:', goods.farm_id, '类型:', typeof goods.farm_id);
+        console.log('[onToSettle] 商品farm_address:', goods.farm_address);
+        console.log('[onToSettle] 商品units:', goods.units);
+        console.log('[onToSettle] 商品detail:', goods.detail);
         
         if (currentCartType === 'goods') {
           // 创建商品订单
           const orderData = {
             good_id: goods.good_id,
-            farm_id: goods.farm_id || 1,
+            farm_id: goods.farm_id !== undefined ? goods.farm_id : 1,
             user_id: userInfo.user_id,
             user_address: userInfo.address || '',
             farm_address: goods.farm_address || '',
@@ -712,7 +911,7 @@ Page({
           // 创建土地订单
           const orderData = {
             land_id: goods.good_id, // 土地商品使用good_id作为land_id
-            farm_id: goods.farm_id || 1,
+            farm_id: goods.farm_id !== undefined ? goods.farm_id : 1,
             user_id: userInfo.user_id,
             farm_address: goods.farm_address || '',
             price: goods.price || goods.minSalePrice || 0,
@@ -817,5 +1016,69 @@ Page({
     wx.switchTab({
       url: '/pages/home/home',
     });
+  },
+
+  // 设置事件监听器
+  setupEventListeners() {
+    try {
+      if (wx.eventCenter && typeof wx.eventCenter.on === 'function') {
+        console.log('[setupEventListeners] 设置购物车数据更新监听器');
+        this.cartDataUpdateListener = (eventData) => {
+          console.log('[cartDataUpdate] 收到购物车数据更新事件:', eventData);
+          console.log('[cartDataUpdate] 当前页面状态:', {
+            currentCartType: this.data.currentCartType,
+            isRefreshing: this.isRefreshing
+          });
+          
+          // 只有当前购物车类型与更新的类型匹配时才刷新
+          if (eventData.type === this.data.currentCartType) {
+            // 去抖：相同时间戳的重复事件不处理
+            if (this.lastCartUpdateTs && eventData.ts && eventData.ts === this.lastCartUpdateTs) {
+              console.log('[cartDataUpdate] 跳过重复事件');
+              return;
+            }
+            this.lastCartUpdateTs = eventData.ts || Date.now();
+            console.log('[cartDataUpdate] 类型匹配，准备刷新购物车数据');
+            
+            // 如果正在刷新，等待刷新完成后再次刷新
+            if (this.isRefreshing) {
+              console.log('[cartDataUpdate] 当前正在刷新，延迟处理');
+              setTimeout(() => {
+                this.cartDataUpdateListener(eventData);
+              }, 200);
+              return;
+            }
+            
+            // 延迟一下刷新，确保数据已经保存完成
+            setTimeout(() => {
+              console.log('[cartDataUpdate] 执行完整的数据一致性检查');
+              this.ensureDataConsistency();
+            }, 100);
+          } else {
+            console.log('[cartDataUpdate] 类型不匹配，不刷新数据', {
+              eventType: eventData.type,
+              currentType: this.data.currentCartType
+            });
+          }
+        };
+        
+        wx.eventCenter.on('cartDataUpdate', this.cartDataUpdateListener);
+      }
+    } catch (e) {
+      console.error('[setupEventListeners] 设置事件监听器失败:', e);
+    }
+  },
+
+  // 清理事件监听器
+  cleanupEventListeners() {
+    try {
+      if (wx.eventCenter && typeof wx.eventCenter.off === 'function' && this.cartDataUpdateListener) {
+        console.log('[cleanupEventListeners] 清理购物车数据更新监听器');
+        wx.eventCenter.off('cartDataUpdate', this.cartDataUpdateListener);
+        this.cartDataUpdateListener = null;
+      }
+    } catch (e) {
+      console.error('[cleanupEventListeners] 清理事件监听器失败:', e);
+    }
   },
 });

@@ -406,7 +406,12 @@ Page({
       specInfo: selectItem.specInfo || [{
         specTitle: '租赁时长',
         specValue: '1个月'
-      }]
+      }],
+      // 添加缺失的关键字段
+      farm_id: details.farm_id,
+      farm_address: details.farm_address || '',
+      units: details.units || '个月',
+      detail: details.detail || details.land_name || details.title || ''
     };
 
     console.log('[addToLocalCart] 准备添加到购物车的土地信息:', goodsInfo);

@@ -115,7 +115,8 @@ Component({
             // 用户点击确定，触发删除事件
             console.log('[confirmDeleteGoods] 用户确认删除，触发删除事件');
             this.triggerEvent('delete', {
-              goods
+              goods,
+              skipConfirm: true // 标记已经确认过，跳过二次确认
             });
           } else {
             // 用户点击取消，恢复数量为1
@@ -198,9 +199,15 @@ Component({
       const {
         goods
       } = e.currentTarget.dataset;
-      const num = value;
+      const num = parseInt(value) || 0;
 
-      // input事件不处理数量为0的情况，已经在changeStepper中处理了
+      // 当数量为0时，触发删除确认，与changeStepper保持一致
+      if (num === 0) {
+        console.log('[input] 数量为0，触发删除确认');
+        this.confirmDeleteGoods(goods);
+        return;
+      }
+
       this.changeQuantity(num, goods);
     },
 

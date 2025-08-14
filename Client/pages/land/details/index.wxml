@@ -60,11 +60,12 @@
       </view>
     </view>
     <view class="comments-wrap">
-      <view class="comments-head">
+      <view class="comments-head" bindtap="navToCommentsListPage">
         <view class="comments-title-wrap">
           <view class="comments-title-label">土地评价</view>
           <view class="comments-title-count"> ({{ comments.length }}) </view>
         </view>
+        <t-icon name="chevron-right" size="40rpx" color="#BBBBBB" />
       </view>
       <view wx:if="{{ displayComments.length > 0 }}">
         <block wx:for="{{ displayComments }}" wx:for-item="comment" wx:key="id">
@@ -77,9 +78,6 @@
               </view>
             </view>
             <view class="comment-item-content"> {{comment.text}} </view>
-            <view class="comment-actions">
-              <t-button size="small" variant="text" data-id="{{comment.id}}" data-nickname="{{comment.nickname}}" bindtap="onReplyToComment">回复</t-button>
-            </view>
             <view wx:if="{{comment.comment_reply_num > 0}}" class="comment-reply-toggle">
               <t-button size="small" variant="text" data-id="{{comment.id}}" data-index="{{index}}" bindtap="onToggleReplies">
                 展开{{comment.comment_reply_num}}条回复
@@ -95,9 +93,6 @@
                 <view class="reply-content">
                   <text wx:if="{{item.reply_to}}">回复 {{item.reply_to}}：</text>{{item.text}}
                 </view>
-                <view class="comment-actions">
-                  <t-button size="small" variant="text" data-commentid="{{comment.id}}" data-replyid="{{item.id}}" data-nickname="{{item.nickname}}" bindtap="onReplyToReply">回复</t-button>
-                </view>
               </view>
             </view>
           </view>
@@ -111,11 +106,7 @@
           {{ showAllComments ? '收起评论' : '展开全部评论' }}
         </t-button>
       </view>
-      <view class="comment-compose">
-        <input class="comment-input" placeholder="{{ replyMode ? ('回复 @' + replyToNickname) : '说点什么…' }}" value="{{newCommentText}}" bindinput="onCommentInput"/>
-        <t-button size="small" theme="primary" bindtap="onSubmitComment">{{ replyMode ? '回复' : '发表' }}</t-button>
-        <t-button wx:if="{{replyMode}}" size="small" variant="text" bindtap="onCancelReply">取消</t-button>
-      </view>
+
     </view>
   </view>
   <view class="desc-content">

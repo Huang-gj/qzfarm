@@ -170,3 +170,21 @@
   font-size: 26rpx;
   color: #666666;
 }
+
+/* reply action styles */
+.comments-card-actions {
+	margin-top: 12rpx;
+	display: flex;
+	justify-content: flex-end;
+}
+.reply-btn-wrap {
+}
+.reply-btn {
+	display: flex;
+	align-items: center;
+	gap: 10rpx;
+	padding: 0 8rpx;
+}
+.reply-text {
+	font-size: 24rpx;
+}

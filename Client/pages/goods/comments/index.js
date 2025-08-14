@@ -28,6 +28,8 @@ Page({
       hasImageCount: '0',
       uidCount: '0',
     },
+    // 新评论输入框
+    newCommentText: '',
     // 回复框
     showCompose: false,
     replyToNickname: '',
@@ -226,5 +228,46 @@ Page({
     const { commenttype } = e.currentTarget.dataset;
     this.setData({ commentType: commenttype || '' });
     this.loadAllComments(this.data.good_id);
+  },
+  onNewCommentInput(e) {
+    this.setData({ newCommentText: e.detail.value });
+  },
+  async onSubmitNewComment() {
+    const text = (this.data.newCommentText || '').trim();
+    if (!text) {
+      wx.showToast({ title: '请输入内容', icon: 'none' });
+      return;
+    }
+    
+    // 获取用户信息
+    const app = getApp();
+    const userInfo = app?.globalData?.userInfo || wx.getStorageSync('userInfo') || {};
+    const user_id = userInfo.user_id || 0;
+    const avatar = userInfo.avatar || '';
+    const nickname = userInfo.nickname || '';
+
+    try {
+      const { addComment } = require('../../../services/comments/addComment');
+      const payload = {
+        id: 0,
+        create_time: '',
+        text: text,
+        comment_id: 0,
+        good_id: this.data.good_id || 0,
+        land_id: 0,
+        user_id: user_id,
+        avatar: avatar,
+        nickname: nickname,
+        comment_reply_num: 0,
+      };
+      await addComment(payload);
+      wx.showToast({ title: '已发表', icon: 'success' });
+      this.setData({ newCommentText: '' });
+      // 刷新评论列表
+      await this.loadAllComments(this.data.good_id);
+    } catch (err) {
+      console.error('[submit new comment] error:', err);
+      wx.showToast({ title: '提交失败', icon: 'none' });
+    }
   },
 });

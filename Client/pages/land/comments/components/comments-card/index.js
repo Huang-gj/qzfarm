@@ -36,6 +36,10 @@ Component({
       type: Array,
       value: [],
     },
+    commentId: {
+      type: Number,
+      value: 0,
+    },
   },
 
   data: {
@@ -46,6 +50,14 @@ Component({
     overText: false,
     isDisabled: true,
     startColors: ['#FFC51C', '#DDDDDD'],
+    showReplyAction: false,
   },
-  methods: {},
+  methods: {
+    handleCardTap() {
+      this.setData({ showReplyAction: !this.data.showReplyAction });
+    },
+    onTapReply() {
+      this.triggerEvent('reply', { id: this.properties.commentId, nickname: this.properties.userName });
+    },
+  },
 });

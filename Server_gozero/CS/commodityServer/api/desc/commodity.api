@@ -75,5 +75,8 @@ service commodity {
 
 	@handler AddCommentReply
 	post /addCommentReply (AddCommentReplyRequest) returns (AddCommentReplyResponse)
+
+	@handler GetCommentPreview
+	post /getCommentPreview (GetCommentRequest) returns (GetCommentResponse)
 }
 

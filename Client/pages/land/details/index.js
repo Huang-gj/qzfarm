@@ -116,11 +116,6 @@ Page({
     comments: [],
     displayComments: [],
     showAllComments: false,
-    newCommentText: '',
-    replyMode: false,
-    replyToCommentId: null,
-    replyToReplyId: null,
-    replyToNickname: '',
   },
 
   handlePopupHide() {
@@ -859,9 +854,17 @@ Page({
 
     this.setData({
       landId: landIdNum,
+      // 清理之前的评论数据，避免缓存问题
+      comments: [],
+      displayComments: [],
+      showAllComments: false,
     });
     this.getDetail(landIdNum);
-    this.loadComments();
+    // 确保在setData完成后再加载评论
+    wx.nextTick(() => {
+      console.log('[onLoad] 准备调用loadComments, 当前landId:', this.data.landId, 'landIdNum:', landIdNum);
+      this.loadComments(landIdNum);
+    });
     this.getCommentsStatistics(landIdNum);
 
     // 加载云存储图片链接
@@ -933,10 +936,14 @@ Page({
   },
 
   // 加载评论：初始2条（土地）
-	async loadComments() {
+	async loadComments(landId) {
+		const targetLandId = landId || this.data.landId;
+		console.log('[land loadComments] 开始加载评论, 参数landId:', landId, 'this.data.landId:', this.data.landId, '最终使用:', targetLandId);
 		try {
 			const { getComment } = require('../../../services/comments/getComment');
-			const res = await getComment({ good_id: 0, land_id: this.data.landId });
+			console.log('[land loadComments] 准备调用getComment, 参数:', { good_id: 0, land_id: targetLandId });
+			const res = await getComment({ good_id: 0, land_id: targetLandId });
+			console.log('[land loadComments] getComment响应:', res);
 			const list = Array.isArray(res?.comments) ? res.comments : [];
 			const normalized = list.map((c) => ({
 				id: c.id || c.ID,
@@ -1012,99 +1019,5 @@ Page({
 		} else {
 			this.setData({ displayComments: list });
 		}
-	},
-	onCommentInput(e) {
-		this.setData({ newCommentText: e.detail.value });
-	},
-	onReplyToComment(e) {
-		const { id, nickname } = e.currentTarget.dataset;
-		this.setData({
-			replyMode: true,
-			replyToCommentId: id,
-			replyToReplyId: null,
-			replyToNickname: nickname || '',
-			newCommentText: '',
-		});
-	},
-	onReplyToReply(e) {
-		const { commentid, replyid, nickname } = e.currentTarget.dataset;
-		this.setData({
-			replyMode: true,
-			replyToCommentId: commentid,
-			replyToReplyId: replyid,
-			replyToNickname: nickname || '',
-			newCommentText: '',
-		});
-	},
-	onCancelReply() {
-		this.setData({
-			replyMode: false,
-			replyToCommentId: null,
-			replyToReplyId: null,
-			replyToNickname: '',
-		});
-	},
-	async onSubmitComment() {
-		const text = (this.data.newCommentText || '').trim();
-		if (!text) {
-			wx.showToast({ title: '请输入内容', icon: 'none' });
-			return;
-		}
-		const app = getApp();
-		const userInfo = app?.globalData?.userInfo || wx.getStorageSync('userInfo') || {};
-		const user_id = userInfo.user_id || 0;
-		const avatar = userInfo.avatar || '';
-		const nickname = userInfo.nickname || '';
-
-		try {
-			if (!this.data.replyMode) {
-				const { addComment } = require('../../../services/comments/addComment');
-				        const payload = {
-          id: 0,
-          create_time: '',
-          text: text,
-          comment_id: 0,
-          good_id: 0,
-          land_id: this.data.landId || 0,
-          user_id: user_id,
-          avatar: avatar,
-          nickname: nickname,
-          comment_reply_num: 0,
-        };
-				await addComment(payload);
-				wx.showToast({ title: '已发表', icon: 'success' });
-				this.setData({ newCommentText: '' });
-				await this.loadComments();
-			} else {
-				const { addCommentReply } = require('../../../services/comments/addCommentReply');
-				        const payload = {
-          id: 0,
-          create_time: '',
-          comment_id: this.data.replyToCommentId || 0,
-          comment_reply_id: this.data.replyToReplyId || 0,
-          reply_to: this.data.replyToNickname || '',
-          text: text,
-          user_id: user_id,
-          avatar: avatar,
-          nickname: nickname,
-        };
-				await addCommentReply(payload);
-				wx.showToast({ title: '已回复', icon: 'success' });
-				this.setData({ newCommentText: '' });
-				this.setData({ showAllComments: true });
-				await this.onToggleReplies({ currentTarget: { dataset: { id: this.data.replyToCommentId, index: this.findCommentIndex(this.data.replyToCommentId) } } });
-			}
-			this.onCancelReply();
-		} catch (err) {
-			console.error('[land onSubmitComment] error:', err);
-			wx.showToast({ title: '提交失败', icon: 'none' });
-		}
-	},
-	findCommentIndex(commentId) {
-		const list = this.data.comments || [];
-		for (let i = 0; i < list.length; i++) {
-			if (String(list[i].id) === String(commentId)) return i;
-		}
-		return -1;
 	},
 });

@@ -144,11 +144,6 @@ Page({
     duration: 500,
     interval: 5000,
     soldNum: 0, // 已售数量
-    newCommentText: '',
-    replyMode: false,
-    replyToCommentId: null,
-    replyToReplyId: null,
-    replyToNickname: '',
   },
 
   handlePopupHide() {
@@ -857,9 +852,17 @@ Page({
 
     this.setData({
       goodId: goodIdNum,
+      // 清理之前的评论数据，避免缓存问题
+      comments: [],
+      displayComments: [],
+      showAllComments: false,
     });
     this.getDetail(goodIdNum);
-    this.loadComments();
+    // 确保在setData完成后再加载评论
+    wx.nextTick(() => {
+      console.log('[onLoad] 准备调用loadComments, 当前goodId:', this.data.goodId, 'goodIdNum:', goodIdNum);
+      this.loadComments(goodIdNum);
+    });
 
     // 加载云存储图片链接
     this.loadCustomIcons();
@@ -937,10 +940,14 @@ Page({
   },
 
   // 加载评论：初始2条
-  async loadComments() {
+  async loadComments(goodId) {
+    const targetGoodId = goodId || this.data.goodId;
+    console.log('[loadComments] 开始加载评论, 参数goodId:', goodId, 'this.data.goodId:', this.data.goodId, '最终使用:', targetGoodId);
     try {
       const { getComment } = require('../../../services/comments/getComment');
-      const res = await getComment({ good_id: this.data.goodId, land_id: 0 });
+      console.log('[loadComments] 准备调用getComment, 参数:', { good_id: targetGoodId, land_id: 0 });
+      const res = await getComment({ good_id: targetGoodId, land_id: 0 });
+      console.log('[loadComments] getComment响应:', res);
       // 返回结构：{ code, msg, comments }
       const list = Array.isArray(res?.comments) ? res.comments : [];
       // 规范字段名到小程序模板使用的驼峰/下划线保持后端
@@ -1022,105 +1029,5 @@ Page({
     } else {
       this.setData({ displayComments: list });
     }
-  },
-  onCommentInput(e) {
-    this.setData({ newCommentText: e.detail.value });
-  },
-  onReplyToComment(e) {
-    const { id, nickname } = e.currentTarget.dataset;
-    this.setData({
-      replyMode: true,
-      replyToCommentId: id,
-      replyToReplyId: null,
-      replyToNickname: nickname || '',
-      newCommentText: '',
-    });
-  },
-  onReplyToReply(e) {
-    const { commentid, replyid, nickname } = e.currentTarget.dataset;
-    this.setData({
-      replyMode: true,
-      replyToCommentId: commentid,
-      replyToReplyId: replyid,
-      replyToNickname: nickname || '',
-      newCommentText: '',
-    });
-  },
-  onCancelReply() {
-    this.setData({
-      replyMode: false,
-      replyToCommentId: null,
-      replyToReplyId: null,
-      replyToNickname: '',
-    });
-  },
-  async onSubmitComment() {
-    const text = (this.data.newCommentText || '').trim();
-    if (!text) {
-      wx.showToast({ title: '请输入内容', icon: 'none' });
-      return;
-    }
-    // 获取用户信息
-    const app = getApp();
-    const userInfo = app?.globalData?.userInfo || wx.getStorageSync('userInfo') || {};
-    const user_id = userInfo.user_id || 0;
-    const avatar = userInfo.avatar || '';
-    const nickname = userInfo.nickname || '';
-
-    try {
-      if (!this.data.replyMode) {
-        // 发表顶级评论
-        const { addComment } = require('../../../services/comments/addComment');
-                 const payload = {
-           id: 0,
-           create_time: '',
-           text: text,
-           comment_id: 0,
-           good_id: this.data.goodId || 0,
-           land_id: 0,
-           user_id: user_id,
-           avatar: avatar,
-           nickname: nickname,
-           comment_reply_num: 0,
-         };
-        await addComment(payload);
-        wx.showToast({ title: '已发表', icon: 'success' });
-        this.setData({ newCommentText: '' });
-        // 刷新评论
-        await this.loadComments();
-      } else {
-        // 发表回复
-        const { addCommentReply } = require('../../../services/comments/addCommentReply');
-                 const payload = {
-           id: 0,
-           create_time: '',
-           comment_id: this.data.replyToCommentId || 0,
-           comment_reply_id: this.data.replyToReplyId || 0,
-           reply_to: this.data.replyToNickname || '',
-           text: text,
-           user_id: user_id,
-           avatar: avatar,
-           nickname: nickname,
-         };
-        await addCommentReply(payload);
-        wx.showToast({ title: '已回复', icon: 'success' });
-        this.setData({ newCommentText: '' });
-        // 展开并刷新该评论的回复
-        this.setData({ showAllComments: true });
-        await this.onToggleReplies({ currentTarget: { dataset: { id: this.data.replyToCommentId, index: this.findCommentIndex(this.data.replyToCommentId) } } });
-      }
-      // 退出回复模式
-      this.onCancelReply();
-    } catch (err) {
-      console.error('[onSubmitComment] error:', err);
-      wx.showToast({ title: '提交失败', icon: 'none' });
-    }
-  },
-  findCommentIndex(commentId) {
-    const list = this.data.comments || [];
-    for (let i = 0; i < list.length; i++) {
-      if (String(list[i].id) === String(commentId)) return i;
-    }
-    return -1;
-  },
+    },
 });

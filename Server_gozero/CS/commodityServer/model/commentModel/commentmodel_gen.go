@@ -32,6 +32,8 @@ type (
 		FindAllByGoodID(ctx context.Context, goodId int64) ([]*Comment, error)
 		FindAllByLandID(ctx context.Context, landId int64) ([]*Comment, error)
 		IncrCommentReplyNum(ctx context.Context, commentId int64) error
+		FindTwoByGoodID(ctx context.Context, goodId int64) ([]*Comment, error)
+		FindTwoByLandID(ctx context.Context, landId int64) ([]*Comment, error)
 	}
 
 	defaultCommentModel struct {
@@ -119,6 +121,30 @@ func (m *defaultCommentModel) IncrCommentReplyNum(ctx context.Context, commentId
 	query := fmt.Sprintf("UPDATE %s SET comment_reply_num = comment_reply_num + 1 WHERE comment_id = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, commentId)
 	return err
+}
+
+// FindTwoByGoodID 根据 good_id 查询最新两条评论
+func (m *defaultCommentModel) FindTwoByGoodID(ctx context.Context, goodId int64) ([]*Comment, error) {
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE good_id = ? ORDER BY create_time DESC LIMIT 2", commentRows, m.table)
+
+	var comments []*Comment
+	err := m.conn.QueryRowsCtx(ctx, &comments, query, goodId)
+	if err != nil {
+		return nil, err
+	}
+	return comments, nil
+}
+
+// FindTwoByLandID 根据 land_id 查询最新两条评论
+func (m *defaultCommentModel) FindTwoByLandID(ctx context.Context, landId int64) ([]*Comment, error) {
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE land_id = ? ORDER BY create_time DESC LIMIT 2", commentRows, m.table)
+
+	var comments []*Comment
+	err := m.conn.QueryRowsCtx(ctx, &comments, query, landId)
+	if err != nil {
+		return nil, err
+	}
+	return comments, nil
 }
 
 func (m *defaultCommentModel) tableName() string {

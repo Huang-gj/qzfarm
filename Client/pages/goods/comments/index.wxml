@@ -71,6 +71,13 @@
 	  failedColor="#FA550F"
 	/>
 </view>
+<!-- 发表新评论 -->
+<view class="new-comment-compose">
+	<input class="comment-input" placeholder="说点什么…" value="{{newCommentText}}" bindinput="onNewCommentInput"/>
+	<t-button size="small" theme="primary" shape="round" bindtap="onSubmitNewComment">发表</t-button>
+</view>
+
+<!-- 回复评论 -->
 <view class="comment-compose" wx:if="{{showCompose}}">
 	<input class="comment-input" placeholder="回复 @{{replyToNickname}}" value="{{composeText}}" bindinput="onComposeInput"/>
 	<t-button size="small" theme="primary" shape="round" bindtap="onSubmitReply">发送</t-button>

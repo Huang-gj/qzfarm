@@ -10,25 +10,25 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type GetCommentLogic struct {
+type GetCommentPreviewLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewGetCommentLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetCommentLogic {
-	return &GetCommentLogic{
+func NewGetCommentPreviewLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetCommentPreviewLogic {
+	return &GetCommentPreviewLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *GetCommentLogic) GetComment(req *types.GetCommentRequest) (resp *types.GetCommentResponse, err error) {
+func (l *GetCommentPreviewLogic) GetCommentPreview(req *types.GetCommentRequest) (resp *types.GetCommentResponse, err error) {
 	// todo: add your logic here and delete this line
 	var Comments []*types.Comment
 	if req.LandID > 0 {
-		comments, err := l.svcCtx.CommentModel.FindAllByLandID(l.ctx, int64(req.LandID))
+		comments, err := l.svcCtx.CommentModel.FindTwoByLandID(l.ctx, int64(req.LandID))
 		if err != nil {
 			logx.Errorw("FindAllByLandID Fail ", logx.Field("err", err))
 			return &types.GetCommentResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")
@@ -54,7 +54,7 @@ func (l *GetCommentLogic) GetComment(req *types.GetCommentRequest) (resp *types.
 			})
 		}
 	} else if req.GoodID > 0 {
-		comments, err := l.svcCtx.CommentModel.FindAllByGoodID(l.ctx, int64(req.GoodID))
+		comments, err := l.svcCtx.CommentModel.FindTwoByGoodID(l.ctx, int64(req.GoodID))
 		if err != nil {
 			logx.Errorw("FindAllByGoodID Fail ", logx.Field("err", err))
 			return &types.GetCommentResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")

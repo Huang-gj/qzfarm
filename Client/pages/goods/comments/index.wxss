@@ -49,6 +49,15 @@ page {
 }
 
 /* compose area styles */
+.new-comment-compose {
+	display: flex;
+	align-items: center;
+	gap: 16rpx;
+	padding: 20rpx 24rpx;
+	background: #fff;
+	border-top: 1rpx solid #f0f0f0;
+	margin-bottom: 8rpx;
+}
 .comment-compose {
 	display: flex;
 	align-items: center;

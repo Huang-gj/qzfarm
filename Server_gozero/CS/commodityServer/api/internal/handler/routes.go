@@ -6,6 +6,7 @@ package handler
 import (
 	"net/http"
 
+	comment "Server_gozero/CS/commodityServer/api/internal/handler/comment"
 	good "Server_gozero/CS/commodityServer/api/internal/handler/good"
 	land "Server_gozero/CS/commodityServer/api/internal/handler/land"
 	search "Server_gozero/CS/commodityServer/api/internal/handler/search"
@@ -15,6 +16,33 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/addComment",
+				Handler: comment.AddCommentHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/addCommentReply",
+				Handler: comment.AddCommentReplyHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/getComment",
+				Handler: comment.GetCommentHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/getCommentReply",
+				Handler: comment.GetCommentReplyHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/api"),
+	)
+
 	server.AddRoutes(
 		[]rest.Route{
 			{

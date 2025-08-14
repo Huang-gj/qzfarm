@@ -59,32 +59,65 @@
         <t-icon name="chevron-right" size="40rpx" color="#BBBBBB" />
       </view>
     </view>
-    <view wx:if="{{ commentsStatistics.commentCount > 0 }}" class="comments-wrap">
+    <view class="comments-wrap">
       <view class="comments-head" bindtap="navToCommentsListPage">
         <view class="comments-title-wrap">
           <view class="comments-title-label">商品评价</view>
-          <view class="comments-title-count"> ({{ commentsStatistics.commentCount }}) </view>
+          <view class="comments-title-count"> ({{ comments.length }}) </view>
         </view>
         <view class="comments-rate-wrap">
-          <view class="comments-good-rate">{{commentsStatistics.goodRate}}% 好评</view>
           <t-icon name="chevron-right" size="40rpx" color="#BBBBBB" />
         </view>
       </view>
-      <view class="comment-item-wrap" wx:for="{{ commentsList }}" wx:for-item="commentItem" wx:key="goodsSpu">
-        <view class="comment-item-head">
-          <t-image src="{{commentItem.userHeadUrl}}" t-class="comment-item-avatar" />
-          <view class="comment-head-right">
-            <view class="comment-username">{{commentItem.userName}}</view>
-            <t-rate
-              value="{{ commentItem.commentScore }}"
-              count="{{5}}"
-              size="12"
-              gap="2"
-              color="{{['#ffc51c', '#ddd']}}"
-            />
+      <view wx:if="{{ displayComments.length > 0 }}">
+        <block wx:for="{{ displayComments }}" wx:for-item="comment" wx:key="id">
+          <view class="comment-item-wrap">
+            <view class="comment-item-head">
+              <t-image src="{{comment.avatar}}" t-class="comment-item-avatar" />
+              <view class="comment-head-right">
+                <view class="comment-username">{{comment.nickname}}</view>
+                <view class="comment-time">{{comment.create_time}}</view>
+              </view>
+            </view>
+            <view class="comment-item-content"> {{comment.text}} </view>
+            <view class="comment-actions">
+              <t-button size="small" variant="text" data-id="{{comment.id}}" data-nickname="{{comment.nickname}}" bindtap="onReplyToComment">回复</t-button>
+            </view>
+            <view wx:if="{{comment.comment_reply_num > 0}}" class="comment-reply-toggle">
+              <t-button size="small" variant="text" data-id="{{comment.id}}" data-index="{{index}}" bindtap="onToggleReplies">
+                展开{{comment.comment_reply_num}}条回复
+              </t-button>
+            </view>
+            <view wx:if="{{comment.showReplies}}" class="comment-replies">
+              <view class="reply-item" wx:for="{{comment.replies}}" wx:key="id">
+                <view class="reply-head">
+                  <t-image src="{{item.avatar}}" t-class="reply-avatar" />
+                  <view class="reply-user">{{item.nickname}}</view>
+                  <view class="reply-time">{{item.create_time}}</view>
+                </view>
+                <view class="reply-content">
+                  <text wx:if="{{item.reply_to}}">回复 {{item.reply_to}}：</text>{{item.text}}
+                </view>
+                <view class="comment-actions">
+                  <t-button size="small" variant="text" data-commentid="{{comment.id}}" data-replyid="{{item.id}}" data-nickname="{{item.nickname}}" bindtap="onReplyToReply">回复</t-button>
+                </view>
+              </view>
+            </view>
           </view>
-        </view>
-        <view class="comment-item-content"> {{commentItem.commentContent}} </view>
+        </block>
+      </view>
+      <view wx:else class="comment-item-wrap">
+        <view class="comment-item-content">暂无评论</view>
+      </view>
+      <view wx:if="{{comments.length > 2}}" class="comments-expand-all">
+        <t-button size="small" variant="text" bindtap="onToggleAllComments">
+          {{ showAllComments ? '收起评论' : '展开全部评论' }}
+        </t-button>
+      </view>
+      <view class="comment-compose">
+        <input class="comment-input" placeholder="{{ replyMode ? ('回复 @' + replyToNickname) : '说点什么…' }}" value="{{newCommentText}}" bindinput="onCommentInput"/>
+        <t-button size="small" theme="primary" bindtap="onSubmitComment">{{ replyMode ? '回复' : '发表' }}</t-button>
+        <t-button wx:if="{{replyMode}}" size="small" variant="text" bindtap="onCancelReply">取消</t-button>
       </view>
     </view>
   </view>

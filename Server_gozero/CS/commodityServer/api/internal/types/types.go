@@ -3,6 +3,70 @@
 
 package types
 
+type AddCommentReplyRequest struct {
+	CommentReply CommentReply `json:"comment_reply"`
+}
+
+type AddCommentReplyResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type AddCommentRequest struct {
+	Comment Comment `json:"comment"`
+}
+
+type AddCommentResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type Comment struct {
+	ID              int    `json:"id"`
+	CreateTime      string `json:"create_time"`
+	TEXT            string `json:"text"`
+	CommentID       int    `json:"comment_id"`
+	GoodID          int    `json:"good_id"`
+	LandID          int    `json:"land_id"`
+	UserID          int    `json:"user_id"`
+	Avatar          string `json:"avatar"`
+	Nickname        string `json:"nickname"`
+	CommentReplyNum int    `json:"comment_reply_num"`
+}
+
+type CommentReply struct {
+	ID             int    `json:"id"`
+	CreateTime     string `json:"create_time"`
+	CommentID      int    `json:"comment_id"`
+	CommentReplyID int    `json:"comment_reply_id"`
+	ReplyTo        string `json:"reply_to"`
+	TEXT           string `json:"text"`
+	UserID         int    `json:"user_id"`
+	Avatar         string `json:"avatar"`
+	Nickname       string `json:"nickname"`
+}
+
+type GetCommentReplyRequest struct {
+	CommentID int `json:"comment_id"`
+}
+
+type GetCommentReplyResponse struct {
+	Code           int             `json:"code"`
+	Msg            string          `json:"msg"`
+	CommentReplies []*CommentReply `json:"comment_reply"`
+}
+
+type GetCommentRequest struct {
+	GoodID int `json:"good_id"`
+	LandID int `json:"land_id"`
+}
+
+type GetCommentResponse struct {
+	Code     int        `json:code"`
+	Msg      string     `json:"msg"`
+	Comments []*Comment `json:"comments"`
+}
+
 type GetGoodRequest struct {
 	UserID int `json:"user_id"`
 	GoodID int `json:"good_id"`

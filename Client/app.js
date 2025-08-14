@@ -36,6 +36,26 @@ App({
   // 初始化事件中心
   wx.eventCenter = eventCenter;
   
+  // 恢复所有日志输出；如需只看 request，可将 enableRequestOnlyLogging 设为 true
+  try {
+    const __origLog = console.log;
+    const enableRequestOnlyLogging = false; // 默认关闭过滤，展示全部日志
+    console.log = function (...args) {
+      try {
+        if (!enableRequestOnlyLogging) {
+          return __origLog.apply(console, args);
+        }
+        const first = args && args[0];
+        if (typeof first === 'string' && first.indexOf('[request]') === 0) {
+          return __origLog.apply(console, args);
+        }
+        return; // 过滤非 request 日志
+      } catch (e) {
+        return __origLog.apply(console, args);
+      }
+    };
+  } catch (e) {}
+  
   wx.cloud.init({
     env: 'cloud1-2gorklioe3299acb',
     traceUser: true

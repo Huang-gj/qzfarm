@@ -13,6 +13,7 @@ import (
 	"make/good.api"
 	"make/land.api"
 	"make/search.api"
+	"make/comment.api"
 )
 
 @server (
@@ -55,5 +56,24 @@ service commodity {
 service commodity {
 	@handler searchProduct
 	post /searchProduct (SearchProductRequest) returns (SearchProductResponse)
+}
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  comment
+)
+service commodity {
+	@handler GetComment
+	post /getComment (GetCommentRequest) returns (GetCommentResponse)
+
+	@handler AddComment
+	post /addComment (AddCommentRequest) returns (AddCommentResponse)
+
+	@handler GetCommentReply
+	post /getCommentReply (GetCommentReplyRequest) returns (GetCommentReplyResponse)
+
+	@handler AddCommentReply
+	post /addCommentReply (AddCommentReplyRequest) returns (AddCommentReplyResponse)
 }
 

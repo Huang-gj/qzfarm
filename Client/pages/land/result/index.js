@@ -60,8 +60,8 @@ Page({
     } else {
       params.sort = 1;
     }
-    params.minPrice = minVal ? minVal * 100 : 0;
-    params.maxPrice = maxVal ? maxVal * 100 : undefined;
+    params.minPrice = minVal ? parseFloat(minVal) : 0; // 单位：元
+    params.maxPrice = maxVal ? parseFloat(maxVal) : undefined; // 单位：元
     if (reset) return params;
     return {
       ...params,

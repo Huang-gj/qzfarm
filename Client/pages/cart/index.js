@@ -720,16 +720,16 @@ Page({
   },
 
   onGoodsDelete(e) {
-    console.log('[onGoodsDelete] 收到删除事件:', e.detail);
-    console.log('[onGoodsDelete] e.detail的完整结构:', JSON.stringify(e.detail, null, 2));
+    /* keep */
+    /* keep */
     
     const {
       goods,
       skipConfirm
     } = e.detail;
     
-    console.log('[onGoodsDelete] goods对象:', goods);
-    console.log('[onGoodsDelete] goods类型:', typeof goods);
+    /* keep */
+    /* keep */
     console.log('[onGoodsDelete] goods.good_id:', goods.good_id);
     console.log('[onGoodsDelete] goods.skuId:', goods.skuId);
     

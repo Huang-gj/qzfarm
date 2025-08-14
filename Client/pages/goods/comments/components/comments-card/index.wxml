@@ -1,4 +1,4 @@
-<view class="comments-card-item wr-class">
+<view class="comments-card-item wr-class" bindtap="handleCardTap">
   <view class="comments-card-item-container">
     <view class="comments-title">
       <view class="comments-card-item-userImg">
@@ -22,6 +22,16 @@
     <view class="comments-card-reply" wx:if="{{sellerReply}}">
       <text class="prefix">店家回复：</text>
       <text class="content">{{sellerReply}}</text>
+    </view>
+    <view class="comments-card-actions" wx:if="{{showReplyAction}}">
+      <view class="reply-btn-wrap" catchtap="onTapReply">
+        <t-button size="small" variant="outline" theme="primary" shape="round">
+          <view class="reply-btn">
+            <t-icon name="chat" size="28rpx" />
+            <text class="reply-text">回复</text>
+          </view>
+        </t-button>
+      </view>
     </view>
   </view>
 </view>

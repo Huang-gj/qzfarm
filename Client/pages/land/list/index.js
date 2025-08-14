@@ -79,11 +79,11 @@ Page({
     
     // 设置价格范围（只有当值存在时才设置）
     if (minVal) {
-      params.minPrice = parseFloat(minVal) * 100; // 转换为分
+      params.minPrice = parseFloat(minVal); // 单位：元
     }
     
     if (maxVal) {
-      params.maxPrice = parseFloat(maxVal) * 100; // 转换为分
+      params.maxPrice = parseFloat(maxVal); // 单位：元
     }
     
     if (reset) return params;
@@ -119,20 +119,18 @@ Page({
     if (!goodsList || !goodsList.length) return [];
     if (!minVal && !maxVal) return goodsList; // 如果没有价格筛选条件，返回原列表
     
+    const min = minVal !== '' ? parseFloat(minVal) : null;
+    const max = maxVal !== '' ? parseFloat(maxVal) : null;
+    
     return goodsList.filter(item => {
-      const price = item.minSalePrice || item.price || 0;
-      
-      if (minVal && maxVal) {
-        // 有最低价和最高价
-        return price >= parseFloat(minVal) * 100 && price <= parseFloat(maxVal) * 100;
-      } else if (minVal && !maxVal) {
-        // 只有最低价
-        return price >= parseFloat(minVal) * 100;
-      } else if (!minVal && maxVal) {
-        // 只有最高价
-        return price <= parseFloat(maxVal) * 100;
+      const price = parseFloat(item.minSalePrice || item.price || 0);
+      if (min !== null && max !== null) {
+        return price >= min && price <= max;
+      } else if (min !== null) {
+        return price >= min;
+      } else if (max !== null) {
+        return price <= max;
       }
-      
       return true;
     });
   },

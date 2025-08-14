@@ -2,6 +2,12 @@ Name: good-api
 Host: 127.0.0.1
 Port: 8889
 
+IdRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: isender.ISender
+
 Log:
   ServiceName: "commodity-srv"
   Mode: file

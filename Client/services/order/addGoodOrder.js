@@ -16,7 +16,7 @@ const { request } = require('../_utils/request');
  * @returns {Promise} 返回添加结果
  */
 function addGoodOrder(orderData) {
-  console.log('[addGoodOrder] 请求参数:', orderData);
+  /* keep */
   
   // 获取token
   const token = wx.getStorageSync('token');
@@ -66,7 +66,7 @@ function addGoodOrder(orderData) {
     }
   };
   
-  console.log('[addGoodOrder] 发送的请求数据:', requestData);
+  /* keep */
   
   const requestConfig = {
     url: 'http://localhost:8891/api/AddGoodOrder',
@@ -78,10 +78,10 @@ function addGoodOrder(orderData) {
     data: requestData
   };
   
-  console.log('[addGoodOrder] 完整请求配置:', requestConfig);
+  /* keep */
   
   return request(requestConfig).then(res => {
-    console.log('[addGoodOrder] 响应数据:', res);
+    /* keep */
     return res;
   }).catch(err => {
     console.error('[addGoodOrder] 请求失败:', err);

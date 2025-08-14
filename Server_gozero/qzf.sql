@@ -163,14 +163,18 @@ CREATE TABLE `comment`
     create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     text TEXT COMMENT '评论内容',
     comment_id INT NOT NULL COMMENT '评论分布式唯一id',
+    good_id INT NOT NULL COMMENT '关联商品ID',
+    land_id INT NOT NULL COMMENT '关联土地ID',
     user_id       INT          NOT NULL COMMENT '评论用户id',
     avatar       VARCHAR(512) NOT NULL DEFAULT '' COMMENT '用户头像url',
-    nickname     VARCHAR(128) NOT NULL DEFAULT '' COMMENT '用户昵称'
+    nickname     VARCHAR(128) NOT NULL DEFAULT '' COMMENT '用户昵称',
+    comment_reply_num INT NOT NULL DEFAULT 0 COMMENT '该评论有多少回复'
 
 )ENGINE = InnoDB
 CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci
 ROW_FORMAT = Dynamic;
+
 
 DROP TABLE IF EXISTS `comment_reply`;
 CREATE TABLE `comment_reply`
@@ -179,6 +183,7 @@ CREATE TABLE `comment_reply`
     create_time   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     comment_id INT NOT NULL COMMENT '关联根评论ID',
     comment_reply_id INT NOT NULL COMMENT '评论回复分布式唯一ID',
+    reply_to VARCHAR(128) NOT NULL COMMENT '被回复者的Nickname',
     text TEXT COMMENT '评论内容',
     user_id       INT          NOT NULL COMMENT '评论用户id',
     avatar       VARCHAR(512) NOT NULL DEFAULT '' COMMENT '用户头像url',

@@ -31,7 +31,7 @@ Page({
 
   handleFilterChange(e) {
     const { layout, overall, sorts } = e.detail;
-    console.log('[handleFilterChange] 过滤条件变更:', e.detail);
+    /* keep */
     
     // 防止重复触发 - 检查排序条件是否真的变化了
     if (sorts === this.data.sorts && overall === this.data.overall) {
@@ -60,13 +60,7 @@ Page({
     const { filter, keywords, minVal, maxVal, groupId, sorts, overall } = this.data;
     const { pageNum, pageSize } = this;
     
-    console.log('[generalQueryData] 当前过滤条件:', { 
-      filter, 
-      sorts, 
-      overall, 
-      minVal, 
-      maxVal 
-    });
+    /* keep */
     
     const params = {
       sort: 0, // 0 综合，1 价格
@@ -89,14 +83,14 @@ Page({
     
     // 设置价格范围（只有当值存在时才设置）
     if (minVal) {
-      params.minPrice = parseFloat(minVal) * 100; // 转换为分
+      params.minPrice = parseFloat(minVal); // 单位：元
     }
     
     if (maxVal) {
-      params.maxPrice = parseFloat(maxVal) * 100; // 转换为分
+      params.maxPrice = parseFloat(maxVal); // 单位：元
     }
     
-    console.log('[generalQueryData] 生成查询参数:', params);
+    /* keep */
     
     if (reset) return params;
     return {
@@ -131,20 +125,18 @@ Page({
     if (!goodsList || !goodsList.length) return [];
     if (!minVal && !maxVal) return goodsList; // 如果没有价格筛选条件，返回原列表
     
+    const min = minVal !== '' ? parseFloat(minVal) : null;
+    const max = maxVal !== '' ? parseFloat(maxVal) : null;
+    
     return goodsList.filter(item => {
-      const price = item.minSalePrice || item.price || 0;
-      
-      if (minVal && maxVal) {
-        // 有最低价和最高价
-        return price >= parseFloat(minVal) * 100 && price <= parseFloat(maxVal) * 100;
-      } else if (minVal && !maxVal) {
-        // 只有最低价
-        return price >= parseFloat(minVal) * 100;
-      } else if (!minVal && maxVal) {
-        // 只有最高价
-        return price <= parseFloat(maxVal) * 100;
+      const price = parseFloat(item.minSalePrice || item.price || 0);
+      if (min !== null && max !== null) {
+        return price >= min && price <= max;
+      } else if (min !== null) {
+        return price >= min;
+      } else if (max !== null) {
+        return price <= max;
       }
-      
       return true;
     });
   },
@@ -158,12 +150,12 @@ Page({
       this.setData({ loadMoreStatus: 1, loading: true });
       
       try {
-        console.log('[init] 开始根据标签获取商品列表, 标签:', groupId);
+        /* keep */
         
         // 使用分类名称作为标签来获取商品
         const goodsList = await getGoodsByTag(groupId, 0); // 使用默认用户ID 0
         
-        console.log('[init] 获取到商品列表:', goodsList);
+        /* keep */
         
         if (Array.isArray(goodsList)) {
           const totalCount = goodsList.length;
@@ -188,10 +180,7 @@ Page({
             if (item.image_urls && item.image_urls.length > 0) {
               try {
                 thumbUrl = await genPicURL(item.image_urls[0]);
-                console.log('[init] 图片URL转换成功:', {
-                  original: item.image_urls[0],
-                  converted: thumbUrl
-                });
+                /* keep */
               } catch (error) {
                 console.error('[init] 图片URL转换失败:', error);
                 thumbUrl = item.image_urls[0]; // 转换失败时使用原始URL

@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="screen__background">
+    <view class="screen__background__shape screen__background__shape4"></view>
+    <view class="screen__background__shape screen__background__shape3"></view>
+    <view class="screen__background__shape screen__background__shape2"></view>
+    <view class="screen__background__shape screen__background__shape1"></view>
+  </view>
+
+  <view class="form-container {{currentForm === 'login' ? '' : 'hidden'}}" id="loginForm">
+    <view class="input-group">
+      <input type="text" placeholder="手机号" bindinput="onInputUsername" value="{{phone_number}}" />
+    </view>
+    <view class="input-group">
+      <input type="password" placeholder="密码" bindinput="onInputPassword" value="{{user_passwd}}" />
+    </view>
+    <button class="btn" bindtap="handleLogin">登录</button>
+    <view class="links">
+      <text class="link" bindtap="showForgotForm" style="color: #5e56a4">忘记密码?</text>
+      <text class="link" bindtap="navigateToRegister" style="color: #786ccc">注册</text>
+    </view>
+  </view>
+
+  <view class="form-container {{currentForm === 'forgot' ? '' : 'hidden'}}" id="forgotForm">
+    <view class="input-group">
+      <input type="text" placeholder="手机号" bindinput="onInputPhoneNumber" value="{{PhoneNumber}}" />
+    </view>
+    <button class="btn" bindtap="handleResetPassword">重置密码</button>
+    <view class="links">
+      <text class="link" bindtap="showLoginForm">返回登录</text>
+    </view>
+  </view>
+</view>

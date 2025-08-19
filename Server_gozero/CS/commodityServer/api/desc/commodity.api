@@ -1,0 +1,82 @@
+syntax = "v1"
+
+//goctl api go -api commodity.api -dir ../  --style=goZero
+info (
+	title:   "commodity"
+	desc:    "qzf commodity api"
+	author:  "huang"
+	email:   "2302719556@qq.com"
+	version: "1.0"
+)
+
+import (
+	"make/good.api"
+	"make/land.api"
+	"make/search.api"
+	"make/comment.api"
+)
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  good
+)
+service commodity {
+	@handler GetAllGoods
+	post /getAllGoods (GetGoodsRequest) returns (GetGoodsResponse)
+
+	@handler GetGood
+	post /getGood (GetGoodRequest) returns (GetGoodResponse)
+
+	@handler getGoodsByTag
+	post /getGoodsByTag (GetGoodsByTagRequest) returns (GetGoodsByTagResponse)
+}
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  land
+)
+service commodity {
+	@handler GetAllLands
+	post /getAllLands (GetLandsRequest) returns (GetLandsResponse)
+
+	@handler GetLand
+	post /getLand (GetLandRequest) returns (GetLandResponse)
+
+	@handler getLandsByTag
+	post /getLandsByTag (GetLandsByTagRequest) returns (GetLandsByTagResponse)
+}
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  search
+)
+service commodity {
+	@handler searchProduct
+	post /searchProduct (SearchProductRequest) returns (SearchProductResponse)
+}
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  comment
+)
+service commodity {
+	@handler GetComment
+	post /getComment (GetCommentRequest) returns (GetCommentResponse)
+
+	@handler AddComment
+	post /addComment (AddCommentRequest) returns (AddCommentResponse)
+
+	@handler GetCommentReply
+	post /getCommentReply (GetCommentReplyRequest) returns (GetCommentReplyResponse)
+
+	@handler AddCommentReply
+	post /addCommentReply (AddCommentReplyRequest) returns (AddCommentReplyResponse)
+
+	@handler GetCommentPreview
+	post /getCommentPreview (GetCommentRequest) returns (GetCommentResponse)
+}
+

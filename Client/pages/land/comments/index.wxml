@@ -1,0 +1,87 @@
+<view class="comments-header">
+	<t-tag t-class="comments-header-tag {{commentType === '' ? 'comments-header-active' : ''}}" data-commentType="" bindtap="changeTag">
+		全部({{countObj.commentCount}})
+	</t-tag>
+	<t-tag
+	  t-class="comments-header-tag {{commentType === '5' ? 'comments-header-active' : ''}}"
+	  wx:if="{{countObj.uidCount !== '0'}}"
+	  data-commentType="5"
+	  bindtap="changeTag"
+	>
+		自己({{countObj.uidCount}})
+	</t-tag>
+	<t-tag t-class="comments-header-tag {{commentType === '4' ? 'comments-header-active' : ''}}" data-commentType="4" bindtap="changeTag">
+		带图({{countObj.hasImageCount}})
+	</t-tag>
+	<t-tag t-class="comments-header-tag {{commentType === '3' ? 'comments-header-active' : ''}}" data-commentType="3" bindtap="changeTag">
+		好评({{countObj.goodCount}})
+	</t-tag>
+	<t-tag t-class="comments-header-tag {{commentType === '2' ? 'comments-header-active' : ''}}" data-commentType="2" bindtap="changeTag">
+		中评({{countObj.middleCount}})
+	</t-tag>
+	<t-tag t-class="comments-header-tag {{commentType === '1' ? 'comments-header-active' : ''}}" data-commentType="1" bindtap="changeTag">
+		差评({{countObj.badCount}})
+	</t-tag>
+</view>
+<view class="comments-card-list">
+	<block wx:for="{{commentList}}" wx:key="index">
+		<view class="comment-item">
+			<comments-card
+				data-id="{{item._rootCommentId}}"
+				data-nickname="{{item.userName}}"
+				data-index="{{index}}"
+				commentId="{{item._rootCommentId}}"
+				commentScore="{{item.commentScore}}"
+				userName="{{item.userName}}"
+				commentResources="{{item.commentResources || []}}"
+				commentContent="{{item.commentContent}}"
+				isAnonymity="{{item.isAnonymity}}"
+				commentTime="{{item.commentTime}}"
+				isAutoComment="{{item.isAutoComment}}"
+				userHeadUrl="{{item.userHeadUrl}}"
+				specInfo="{{item.specInfo}}"
+				sellerReply="{{item.sellerReply || ''}}"
+				goodsDetailInfo="{{item.goodsDetailInfo || ''}}"
+				bind:reply="onTapReplyFromCard"
+			/>
+			<view wx:if="{{item.showExpand}}" class="comment-reply-toggle">
+				<view class="expand-btn" data-id="{{item._rootCommentId}}" data-index="{{index}}" bindtap="onToggleReplies">
+					{{ item.showReplies ? '收起回复' : ('展开' + item.replyCount + '条回复') }}
+				</view>
+			</view>
+			<view wx:if="{{item.showReplies}}" class="comment-replies">
+				<view class="reply-item" wx:for="{{item.replies}}" wx:for-item="reply" wx:key="id">
+					<view class="reply-head">
+						<t-image class="reply-avatar" src="{{reply.avatar}}" width="60rpx" height="60rpx" shape="circle" />
+						<view class="reply-user">{{reply.nickname}}</view>
+						<view class="reply-time">{{reply.create_time}}</view>
+					</view>
+					<view class="reply-content indent">
+						<text wx:if="{{reply.reply_to}}">回复 {{reply.reply_to}}：</text>{{reply.text}}
+					</view>
+				</view>
+			</view>
+		</view>
+	</block>
+	<t-load-more
+	  t-class="no-more"
+	  status="{{loadMoreStatus}}"
+	  no-more-text="没有更多了"
+	  color="#BBBBBB"
+	  failedColor="#FA550F"
+	/>
+</view>
+
+<!-- 发表新评论 -->
+<view class="new-comment-compose">
+	<input class="comment-input" placeholder="说点什么…" value="{{newCommentText}}" bindinput="onNewCommentInput"/>
+	<t-button size="small" theme="primary" shape="round" bindtap="onSubmitNewComment">发表</t-button>
+</view>
+
+<!-- 回复评论 -->
+<view class="comment-compose" wx:if="{{showCompose}}">
+	<input class="comment-input" placeholder="回复 @{{replyToNickname}}" value="{{composeText}}" bindinput="onComposeInput"/>
+	<t-button size="small" theme="primary" shape="round" bindtap="onSubmitReply">发送</t-button>
+	<t-button size="small" variant="outline" shape="round" bindtap="onCancelCompose">取消</t-button>
+</view>
+

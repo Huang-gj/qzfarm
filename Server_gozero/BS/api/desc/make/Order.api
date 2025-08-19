@@ -1,0 +1,58 @@
+type GetGoodOrderRequest {
+	FarmID int `json:"farm_id"`
+}
+
+type GetGoodOrderResponse {
+	Code       int          `json:"code"`
+	Msg        string       `json:"msg"`
+	good_order []*GoodOrder `json:"good_order"`
+}
+
+type GoodOrder {
+	Id          int64   `json:"id"`
+	DelState    int64   `json:"del_state"` // 0-正常 1-删除
+	DelTime     string  `json:"del_time"` // 删除时间
+	CreateTime  string  `json:"create_time"` // 创建时间
+	GoodOrderId int64   `json:"good_order_id"` // 分布式唯一ID
+	ImageUrls   string  `json:"image_urls"` // 图片信息（JSON字符串或逗号分隔）
+	GoodId      int64   `json:"good_id"` // 关联商品ID
+	FarmId      int64   `json:"farm_id"` // 商品所属农场ID
+	UserId      int64   `json:"user_id"` // 关联用户ID
+	UserAddress string  `json:"user_address"` // 用户所在地址
+	FarmAddress string  `json:"farm_address"` // 农场所在地址
+	Price       float64 `json:"price"` // 价格
+	Units       string  `json:"units"` // 单位（个/斤/千克等）
+	Count       int64   `json:"count"` // 购买数量
+	Detail      string  `json:"detail"` // 订单详情
+	OrderStatus string  `json:"order_status"`
+}
+
+
+
+type GetLandOrderRequest {
+	FarmID int `json:"farm_id"`
+}
+
+type GetLandOrderResponse {
+	Code       int          `json:"code"`
+	Msg        string       `json:"msg"`
+	land_order []*LandOrder `json:"land_order"`
+}
+
+type LandOrder {
+	Id          int64   `json:"id"` // 主键ID
+	DelState    int64   `json:"del_state"` // 0-正常 1-删除
+	DelTime     string  `json:"del_time"` // 删除时间
+	CreateTime  string  `json:"create_time"` // 创建时间
+	LandOrderId int64   `json:"land_order_id"` // 分布式唯一ID
+	ImageUrls   string  `json:"image_urls"` // 图片信息
+	LandId      int64   `json:"land_id"` // 关联土地ID
+	FarmId      int64   `json:"farm_id"` // 所属农场ID
+	UserId      int64   `json:"user_id"` // 用户ID
+	FarmAddress string  `json:"farm_address"` // 农场地址
+	Price       float64 `json:"price"` // 租赁价格
+	Count       int64   `json:"count"` // 租赁时长
+	Detail      string  `json:"detail"` // 订单详情
+	OrderStatus string  `json:"order_status"`
+}
+

@@ -1,0 +1,28 @@
+<view class="container">
+  <view class="screen__background">
+    <view class="screen__background__shape screen__background__shape4"></view>
+    <view class="screen__background__shape screen__background__shape3"></view>
+    <view class="screen__background__shape screen__background__shape2"></view>
+    <view class="screen__background__shape screen__background__shape1"></view>
+  </view>
+
+  <view class="form-container">
+
+    <view class="input-group">
+      <input type="text" placeholder="电话号码" bindinput="onInputPhoneNumber" value="{{PhoneNumber}}" />
+    </view>
+    <view class="input-group">
+      <input type="text" placeholder="昵称" bindinput="onInputNickName" value="{{NickName}}" />
+    </view>
+    <view class="input-group">
+      <input type="password" placeholder="密码" bindinput="onInputPassword" value="{{password}}" />
+    </view>
+    <view class="input-group">
+      <input type="password" placeholder="确认密码" bindinput="onInputConfirmPassword" value="{{confirmPassword}}" />
+    </view>
+    <button class="btn" bindtap="handleRegister">注册</button>
+    <view class="links">
+      <text class="link" bindtap="navigateToLogin" style="color: #786ccc">返回登录</text>
+    </view>
+  </view>
+</view>

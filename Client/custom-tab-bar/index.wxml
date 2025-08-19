@@ -1,0 +1,30 @@
+<view class="tab-bar">
+	<view class="tab-bar-border"></view>
+	<view 
+		wx:for="{{list}}" 
+		wx:key="index" 
+		class="tab-bar-item {{active === index ? 'active' : ''}}"
+		bindtap="onChange"
+		data-value="{{index}}"
+	>
+		<view wx:if="{{!item.icon || !item.selectedIcon}}" class="debug-text">缺少图标</view>
+		
+		<view class="icon-container">
+			<image 
+				src="{{active === index ? item.selectedIcon : item.icon}}" 
+				class="tab-bar-icon"
+				mode="widthFix"
+				binderror="onImageError"
+				data-index="{{index}}"
+				data-type="{{active === index ? 'selected' : 'normal'}}"
+			/>
+			<!-- 购物车角标 -->
+			<view wx:if="{{item.text === '购物车' && cartCount > 0}}" class="cart-badge">
+				{{cartCount > 99 ? '99+' : cartCount}}
+			</view>
+		</view>
+		
+		<view class="text">{{item.text}}</view>
+	</view>
+</view>
+

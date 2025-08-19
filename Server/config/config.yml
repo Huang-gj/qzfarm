@@ -1,0 +1,12 @@
+userServer:
+  port: 8888
+datasource:
+  driverName: mysql
+  host: 127.0.0.1
+  port: "3306"
+  database: qzf
+  username: root
+  password: root
+  charset: utf8
+  loc: Asia/Shanghai
+  version: 20250324V0.0.1

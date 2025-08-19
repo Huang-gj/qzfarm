@@ -1,0 +1,84 @@
+// Land 表对应的结构体
+type Land  {
+    ID         int     `json:"id"`
+    DelState   int     `json:"del_state"`
+    DelTime    string  `json:"del_time"`
+    CreateTime string  `json:"create_time"`
+    LandID     int     `json:"land_id"`
+    FarmID     int     `json:"farm_id"`
+    LandName   string  `json:"land_name"`
+    LandTag string `json:"land_tag"`
+    Area       string  `json:"area"`
+    ImageURLs  []string  `json:"image_urls"`
+    Price      float64 `json:"price"`
+    Detail     string  `json:"detail"`
+    SaleStatus int     `json:"sale_status"`
+    SaleTime   string  `json:"sale_time"`
+}
+
+// Good 表对应的结构体
+type Good  {
+    ID         int     `json:"id"`
+    DelState   int     `json:"del_state"`
+    DelTime    string  `json:"del_time"`
+    CreateTime string  `json:"create_time"`
+    GoodID     int     `json:"good_id"`
+    GoodTag string `json:"good_tag"`
+    GoodName   string  `json:"good_name"`
+    FarmID     int     `json:"farm_id"`
+    ImageURLs  []string  `json:"image_urls"`
+    Price      float64 `json:"price"`
+    Units      string  `json:"units"`
+    Repertory  float64 `json:"repertory"`
+    Detail     string `json:"detail"`
+}
+
+type GetProductRequest{
+    ProductType int `json:"product_type"`
+    FarmID int `json:"farm_id"`
+}
+
+type GetProductResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+    Good []*Good `json:"good"`
+    Land []*Land `json:"land"`
+}
+
+type AddProductRequest{
+    ProductType int `json:"product_type"`
+    FarmID int `json:"farm_id"`
+    Good Good `json:"good"`
+    Land Land `json:"land"`
+}
+
+type AddProductResponse{
+    GoodID int `json:"good_id"`
+    LandID int `json:"land_id"`
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type UpdateProductRequest{
+    FarmID int `json:"farm_id"`
+    ProductType int `json:"product_type"`
+    Good Good `json:"good"`
+    Land Land `json:"land"`
+}
+
+type UpdateProductResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type DelProductRequest{
+    FarmID int `json:"farm_id"`
+    ProductType int `json:"product_type"`
+    GoodID int `json:"good_id"`
+    LandID int `json:"land_id"`
+}
+
+type DelProductResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}

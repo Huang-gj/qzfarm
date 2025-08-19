@@ -1,0 +1,62 @@
+<!-- 过滤组件 -->
+<view class="wr-class filter-wrap">
+	<view class="filter-left-content">
+		<view class="filter-item {{overall === 1 ? 'filter-active-item' : ''}}" bindtap="onOverallAction">
+			综合
+		</view>
+		<view class="filter-item price-filter-item" bind:tap="handlePriseSort">
+			<text style="color: {{sorts !== '' ? color : '' }}">价格</text>
+			<view class="filter-price">
+				<!-- 使用自定义的向上箭头图标 -->
+				<image 
+				  wx:if="{{caretUpIcon}}" 
+				  src="{{caretUpIcon}}" 
+				  class="price-icon {{sorts === 'asc' ? 'active-icon' : ''}}"
+				  mode="aspectFit"
+				/>
+				<icon
+				  wx:else
+				  prefix="wr"
+				  name="arrow_drop_up"
+				  size="18rpx"
+				  style="color:{{sorts === 'asc' ? color : '#bbb'}}"
+				/>
+				
+				<!-- 使用自定义的向下箭头图标 -->
+				<image 
+				  wx:if="{{caretDownIcon}}" 
+				  src="{{caretDownIcon}}" 
+				  class="price-icon {{sorts === 'desc' ? 'active-icon' : ''}}"
+				  mode="aspectFit"
+				/>
+				<icon
+				  wx:else
+				  prefix="wr"
+				  name="arrow_drop_down"
+				  size="18rpx"
+				  style="color:{{sorts === 'desc' ? color : '#bbb'}}"
+				/>
+			</view>
+		</view>
+		<view class="filter-item filter-item-last {{prices.length ? 'filter-active-item' : ''}}" bindtap="open" data-index="5">
+			筛选
+			<!-- 使用自定义的筛选图标 -->
+			<image 
+			  wx:if="{{filterIcon}}" 
+			  src="{{filterIcon}}" 
+			  class="filter-icon"
+			  mode="aspectFit"
+			/>
+			<icon
+			  wx:else
+			  name="filter"
+			  prefix="wr"
+			  color="#333"
+			  size="32rpx"
+			/>
+		</view>
+	</view>
+</view>
+<!-- 筛选弹框 -->
+<slot name="filterPopup" />
+

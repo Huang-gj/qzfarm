@@ -1,0 +1,11 @@
+Name: isender.ISender
+ListenOn: 0.0.0.0:8080
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: isender.ISender
+Mysql:
+  DataSource: root:root@tcp(127.0.0.1:3306)/qzf?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+
+CacheRedis:
+  - Host: 127.0.0.1:6379

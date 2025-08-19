@@ -1,0 +1,71 @@
+<view class="goods-list-container">
+  <filter
+    wr-class="filter-container"
+    bind:change="handleFilterChange"
+    layout="{{layout}}"
+    sorts="{{sorts}}"
+    overall="{{overall}}"
+    bind:showFilterPopup="showFilterPopup"
+  >
+    <filter-popup
+      slot="filterPopup"
+      show="{{show}}"
+      bind:showFilterPopupClose="showFilterPopupClose"
+      bind:reset="reset"
+      bind:confirm="confirm"
+    >
+      <view class="price-container-wrapper" slot="filterSlot">
+        <view class="price-header">价格区间</view>
+        <view class="price-content">
+          <view class="price-input-box">
+            <t-input
+              align="center"
+              type="digit"
+              t-class="price-ipt"
+              placeholder="最低价"
+              value="{{minVal}}"
+              bindchange="onMinValAction"
+            />
+            <text class="price-unit">元</text>
+          </view>
+          <view class="price-divided">-</view>
+          <view class="price-input-box">
+            <t-input
+              align="center"
+              type="digit"
+              t-class="price-ipt"
+              placeholder="最高价"
+              value="{{maxVal}}"
+              bindchange="onMaxValAction"
+            />
+            <text class="price-unit">元</text>
+          </view>
+        </view>
+        <view class="price-tip">设置价格区间可以筛选对应价格范围的土地</view>
+        <view class="price-spacer"></view>
+      </view>
+    </filter-popup>
+  </filter>
+  <view class="filter-tags" wx:if="{{minVal || maxVal}}">
+    <view class="filter-tag">
+      价格: {{minVal ? minVal : '0'}}{{maxVal ? ' - ' + maxVal : '+'}}元
+      <text class="clear-tag" bindtap="clearPriceFilter">×</text>
+    </view>
+  </view>
+  <view class="empty-wrap" wx:if="{{landsList.length === 0 && hasLoaded}}">
+    <t-empty t-class="empty-tips" size="240rpx" description="暂无相关土地" />
+  </view>
+  <view class="category-lands-list" wx:if="{{landsList.length}}">
+    <goods-list
+      wr-class="wr-goods-list"
+      goodsList="{{landsList}}"
+      bind:click="gotoLandDetail"
+      bind:addcart="handleAddCart"
+    />
+  </view>
+  <load-more wx:if="{{landsList.length > 0}}" status="{{loadMoreStatus}}" no-more-text="没有更多了" />
+  <view class="loading-mask" wx:if="{{loading}}">
+    <t-loading theme="circular" size="40rpx" loading />
+  </view>
+</view>
+<t-toast id="t-toast" />

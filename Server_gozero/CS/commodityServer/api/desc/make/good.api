@@ -1,0 +1,47 @@
+type GetGoodsRequest {
+	userID int `json:"user_id"`
+}
+
+type GetGoodRequest {
+	userID int `json:"user_id"`
+	GoodID int `json:"good_id"`
+}
+
+type Good {
+	Id         int64   `json:"id"` // 主键ID
+	DelState   int64   `json:"del_state"` // 0-正常 1-删除
+	DelTime    string  `json:"del_time"` // 删除时间
+	CreateTime string  `json:"create_time"` // 创建时间
+	GoodId     int64   `json:"good_id"` // 分布式唯一ID
+	Title      string  `json:"title"` // 商品名称
+	GoodTag    string  `json:"good_tag"` // 商品标签
+	FarmId     int64   `json:"farm_id"` // 所属农场ID
+	ImageUrls  []string  `json:"image_urls"` // 图片信息（JSON字符串或逗号分隔）
+	Price      float64 `json:"price"` // 价格
+	Units      string  `json:"units"` // 单位，如个/斤/千克等
+	Repertory  float64 `json:"repertory"` // 库存
+	Detail     string  `json:"detail"` // 商品详情
+}
+
+type GetGoodsResponse {
+	Code  int     `json:"code"` // 状态码
+	Msg   string  `json:"msg"` // 响应信息
+	Goods []*Good `json:"goods_list"` // 商品列表
+}
+
+type GetGoodResponse {
+	Code int    `json:"code"` // 状态码
+	Msg  string `json:"msg"` // 响应信息
+	Good Good   `json:"good"` // 商品列表
+}
+
+type GetGoodsByTagRequest {
+	userID  int    `json:"user_id"`
+	GoodTag string `json:"good_tag"`
+}
+
+type GetGoodsByTagResponse {
+	Code  int     `json:"code"` // 状态码
+	Msg   string  `json:"msg"` // 响应信息
+	Goods []*Good `json:"goods_list"` // 商品列表
+}

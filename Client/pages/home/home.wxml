@@ -1,0 +1,86 @@
+<view style="text-align: center; color: #b9b9b9" wx:if="{{pageLoading}}">
+  <t-loading theme="circular" size="40rpx" text="加载中..." inherit-color />
+</view>
+<view class="home-page-header">
+  <view class="search" bind:tap="navToSearchPage">
+    <t-search
+      t-class-input="t-search__input"
+      t-class-input-container="t-search__input-container"
+      placeholder="衢州学院"
+      leftIcon=""
+      disabled
+    >
+      <view slot="left-icon" class="search-icon-container">
+        <image wx:if="{{searchIconUrl}}" src="{{searchIconUrl}}" class="search-icon" mode="aspectFit" />
+        <icon wx:else prefix="wr" name="search" size="40rpx" color="#bbb" />
+      </view>
+    </t-search>
+  </view>
+  <view class="swiper-wrap">
+    <t-swiper
+      wx:if="{{imgSrcs.length > 0}}"
+      current="{{current}}"
+      autoplay="{{autoplay}}"
+      duration="{{duration}}"
+      interval="{{interval}}"
+      navigation="{{navigation}}"
+      imageProps="{{swiperImageProps}}"
+      list="{{imgSrcs}}"
+      bind:click="navToActivityDetail"
+    />
+  </view>
+</view>
+<view class="home-page-container">
+  <view class="home-page-tabs">
+    <t-tabs
+      t-class="t-tabs"
+      t-class-active="tabs-external__active"
+      t-class-item="tabs-external__item"
+      defaultValue="{{0}}"
+      space-evenly="{{false}}"
+      bind:change="tabChangeHandle"
+    >
+      <t-tab-panel
+        wx:for="{{tabList}}"
+        wx:for-index="index"
+        wx:key="index"
+        label="{{item.text}}"
+        value="{{item.key}}"
+      />
+    </t-tabs>
+  </view>
+
+  <!-- 商品列表 -->
+  <goods-list
+    wx:if="{{currentTabIndex === 0}}"
+    wr-class="goods-list-container"
+    goodsList="{{goodsList}}"
+    cart-icon-url="{{cartIconUrl}}"
+    bind:click="goodListClickHandle"
+    bind:addcart="goodListAddCartHandle"
+  />
+  
+  <!-- 土地列表 -->
+  <goods-list
+    wx:if="{{currentTabIndex === 1}}"
+    wr-class="goods-list-container"
+    goodsList="{{landsList}}"
+    cart-icon-url="{{cartIconUrl}}"
+    bind:click="landListClickHandle"
+    bind:addcart="goodListAddCartHandle"
+  />
+  
+  <load-more 
+    wx:if="{{currentTabIndex === 0}}"
+    list-is-empty="{{!goodsList.length}}" 
+    status="{{goodsListLoadStatus}}" 
+    bind:retry="onReTry" 
+  />
+  <load-more 
+    wx:if="{{currentTabIndex === 1}}"
+    list-is-empty="{{!landsList.length}}" 
+    status="{{landsListLoadStatus}}" 
+    bind:retry="onReTry" 
+  />
+  <t-toast id="t-toast" />
+</view>

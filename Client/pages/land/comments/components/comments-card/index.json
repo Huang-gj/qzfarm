@@ -1,0 +1,10 @@
+{
+  "component": true,
+  "usingComponents": {
+    "t-rate": "tdesign-miniprogram/rate/rate",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "images-videos": "./components/images-videos",
+    "t-image": "/components/webp-image/index"
+  }
+}

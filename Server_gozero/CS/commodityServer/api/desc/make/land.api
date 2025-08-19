@@ -1,0 +1,48 @@
+type GetLandsRequest {
+	userID int `json:"user_id"`
+}
+
+type GetLandRequest {
+	userID int `json:"user_id"`
+	LandID int `json:"land_id"`
+}
+
+type Land {
+	Id         int64   `json:"id"` // 主键ID
+	DelState   int64   `json:"del_state"` // 0-正常 1-删除
+	DelTime    string  `json:"del_time"` // 删除时间
+	CreateTime string  `json:"create_time"` // 创建时间
+	LandId     int64   `json:"land_id"` // 分布式唯一ID
+	FarmId     int64   `json:"farm_id"` // 土地所属农场id
+	LandName   string  `json:"land_name"` // 土地名称
+	LandTag    string  `json:"land_tag"`
+	Area       string  `json:"area"` // 土地面积
+	ImageUrls  []string  `json:"image_urls"` // 图片信息
+	Price      float64 `json:"price"` // 价格
+	Detail     string  `json:"detail"` // 详情
+	SaleStatus int64   `json:"sale_status"` // 租赁状态 0-出售中 1-已被租赁
+	SaleTime   string  `json:"sale_time"` // 租赁剩余时间
+}
+
+type GetLandsResponse {
+	Code  int     `json:"code"` // 状态码
+	Msg   string  `json:"msg"` // 响应信息
+	Lands []*Land `json:"lands_list"` // 商品列表
+}
+
+type GetLandResponse {
+	Code int    `json:"code"` // 状态码
+	Msg  string `json:"msg"` // 响应信息
+	Land Land   `json:"land"` // 商品列表
+}
+
+type GetLandsByTagRequest {
+	userID  int    `json:"user_id"`
+	LandTag string `json:"land_tag"`
+}
+
+type GetLandsByTagResponse {
+	Code  int     `json:"code"` // 状态码
+	Msg   string  `json:"msg"` // 响应信息
+	Lands []*Land `json:"lands_list"` // 商品列表
+}

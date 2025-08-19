@@ -1,0 +1,80 @@
+syntax = "v1"
+
+info (
+	title:   "user"
+	desc:    "qzf user api"
+	author:  "huang"
+	email:   "2302719556@qq.com"
+	version: "1.0"
+)
+
+type RegisterRequest {
+	PhoneNumber string `json:"phone_number"`
+	Nickname    string `json:"nickname"`
+	Password    string `json:"password"`
+}
+
+type RegisterResponse {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+// 定义类型
+type LoginRequest {
+	PhoneNumber string `json:"phone_number"`
+	Password    string `json:"password"`
+}
+
+type UserInfo {
+	UserID      int    `json:"user_id"`
+	PhoneNumber string `json:"phone_number"`
+	Avatar      string `json:"avatar"`
+	NickName    string `json:"nickname"`
+	Address     string `json:"address"`
+	Gender      int    `json:"gender"`
+}
+
+type LoginResponse {
+	Code         int      `json:"code"`
+	msg          string   `json:"msg"`
+	userinfo     UserInfo `json:"user_info"`
+	AccessToken  string   `json:"accessToken"`
+	AccessExpire int      `json:"accessExpire"`
+	RefreshAfter int      `json:"refreshAfter"`
+}
+
+type UpdateUserInfoRequest {
+	userinfo UserInfo `json:"user_info"`
+}
+
+type UpdateUserInfoResponse {
+	Code int    `json:"code"`
+	msg  string `json:"msg"`
+}
+
+type UpdateAvatarRequest {
+	UserID int `form:"user_id"`
+}
+
+type UpdateAvatarResponse {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+@server (
+	prefix: api
+)
+service user-api {
+	@handler RegisterHandler
+	post /userRegister (RegisterRequest) returns (RegisterResponse)
+
+	@handler LoginHandler
+	post /userLogin (LoginRequest) returns (LoginResponse)
+
+	@handler UploadUserInfoHandler
+	post /uploadUserInfo (UpdateUserInfoRequest) returns (UpdateUserInfoResponse)
+
+	@handler UpdateAvatarHandler
+	post /updateAvatar (UpdateAvatarRequest) returns (UpdateAvatarResponse)
+}
+

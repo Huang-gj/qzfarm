@@ -1,0 +1,76 @@
+
+type Admin {
+    AdminID     int    `json:"admin_id"`
+    PhoneNumber string `json:"phone_number"`
+    Avatar      string `json:"avatar"`
+    NickName    string `json:"nickname"`
+    QQEmail     string `json:"qq_email"`
+    Gender      int    `json:"gender"`
+    FarmID      int    `json:"farm_id"`
+}
+
+type LoginRequest {
+	PhoneNumber string `json:"phone_number"`
+	Password    string `json:"password"`
+}
+
+type LoginResponse {
+	Code         int    `json:"code"`
+	msg          string `json:"msg"`
+	Admin        Admin  `json:"admin"`
+	AccessToken  string `json:"accessToken"`
+	AccessExpire int    `json:"accessExpire"`
+	RefreshAfter int    `json:"refreshAfter"`
+}
+
+type GetAdminInfoRequest {
+    AdminID int `json:"admin_id"`
+}
+
+type GetAdminInfoResponse {
+    Code  int   `json:"code"`
+    Msg   string `json:"msg"`
+    Admin Admin  `json:"admin"`
+}
+
+type UpdateAdminRequest {
+    AdminID     int    `json:"admin_id"`      // 明确传入的管理员 ID
+    NickName    string `json:"nickname"`
+    QQEmail     string `json:"qq_email"`
+    Gender      int    `json:"gender"`
+}
+
+type UpdateAdminResponse {
+    Code int    `json:"code"`
+    Msg  string `json:"msg"`
+}
+
+type UpdatePassRequest {
+    AdminID int `json:"admin_id"`
+    Password string `json:"password"`
+}
+
+type UpdatePassResponse {
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type UpdatePhoneNumberRequest {
+    AdminID int `json:"admin_id"`
+    PhoneNumber string `json:"phone_number"`
+    Password string `json:"password"`
+}
+
+type UpdatePhoneNumberResponse {
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type UpdateAvatarRequest{
+    AdminID int `form:"admin_id"`
+}
+
+type UpdateAvatarResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}

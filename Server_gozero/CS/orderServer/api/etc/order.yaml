@@ -1,0 +1,46 @@
+Name: order
+Host: 0.0.0.0
+Port: 8891
+
+IdRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: isender.ISender
+
+BsRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: bs.rpc
+Log:
+  ServiceName: "order-srv"
+  Mode: file
+  Encoding: json
+  Path: logs/order
+  Level: debug
+  Stat: true
+
+Auth:
+  AccessSecret: 江城路
+  AccessExpire: 100000
+
+Mysql:
+  DataSource: root:root@tcp(127.0.0.1:3306)/qzf?parseTime=true
+
+CacheRedis:
+  - Host: 127.0.0.1:6379
+
+CommodityRPC:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: commodity.rpc
+
+RedisLockConf:
+  Type: node
+  Host: 127.0.0.1:6379
+  Pass: ""
+  NonBlock: true
+  PingTimeout: 5s
+

@@ -1,0 +1,118 @@
+/* 层级定义
+@z-index-0: 1;
+@z-index-1: 100;
+@z-index-2: 200;
+@z-index-5: 500;
+@z-index-component: 1000; // 通用组件级别
+@z-index-dropdown: @z-index-component;
+@z-index-sticky: @z-index-component + 20;
+@z-index-fixed: @z-index-component + 30;
+@z-index-modal-backdrop:@z-index-component + 40;
+@z-index-modal:@z-index-component + 50;
+@z-index-popover:@z-index-component + 60;
+@z-index-tooltip:@z-index-component + 70;
+*/
+/* var() css变量适配*/
+page {
+  background-color: #FFFFFF;
+}
+
+.comments-header {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 32rpx 32rpx 0rpx;
+  background-color: #fff;
+  margin-top: -24rpx;
+  margin-left: -24rpx;
+}
+
+.comments-header-tag {
+  margin-top: 24rpx;
+  margin-left: 24rpx;
+  height: 56rpx !important;
+  font-size: 24rpx !important;
+  justify-content: center;
+  background-color: #F5F5F5 !important;
+  border-radius: 8rpx !important;
+  border: 1px solid #F5F5F5 !important;
+}
+
+.comments-header-active {
+  background-color: #FFECE9 !important;
+  color: #FA4126 !important;
+  border: 1px solid #FA4126 !important;
+}
+
+.no-more {
+  padding-left: 20rpx;
+  padding-right: 20rpx;
+}
+
+/* compose area styles */
+.new-comment-compose {
+	display: flex;
+	align-items: center;
+	gap: 16rpx;
+	padding: 20rpx 24rpx;
+	background: #fff;
+	border-top: 1rpx solid #f0f0f0;
+	margin-bottom: 8rpx;
+}
+.comment-compose {
+	display: flex;
+	align-items: center;
+	gap: 16rpx;
+	padding: 20rpx 24rpx;
+	background: #fff;
+	border-top: 1rpx solid #f0f0f0;
+	position: sticky;
+	bottom: 0;
+}
+.comment-input {
+	flex: 1;
+	height: 72rpx;
+	padding: 0 20rpx;
+	border: 1rpx solid #e6e6e6;
+	border-radius: 36rpx;
+	background: #fafafa;
+}
+
+/* replies list styles */
+.comment-item {
+	padding: 12rpx 0;
+}
+.comment-reply-toggle {
+	padding: 4rpx 24rpx 0 24rpx;
+}
+.comment-replies {
+	padding: 8rpx 24rpx 0 88rpx;
+}
+.reply-item {
+	padding: 10rpx 0;
+	border-top: 1rpx dashed #f0f0f0;
+}
+.reply-head {
+	display: flex;
+	align-items: center;
+	gap: 12rpx;
+}
+.reply-avatar {
+	width: 44rpx;
+	height: 44rpx;
+	border-radius: 50%;
+}
+.reply-user { font-size: 26rpx; color: #333; }
+.reply-time { font-size: 22rpx; color: #999; }
+.reply-content { font-size: 26rpx; color: #555; margin-top: 4rpx; }
+
+/* indent for replies */
+.indent {
+	margin-left: 32rpx;
+}
+
+/* expand button */
+.expand-btn {
+	color: #2a82e4;
+	font-size: 26rpx;
+	padding: 6rpx 24rpx;
+}

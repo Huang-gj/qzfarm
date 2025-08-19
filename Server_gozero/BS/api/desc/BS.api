@@ -1,0 +1,128 @@
+syntax = "v1"
+
+//goctl api go -api BS.api -dir ../  --style=goZero
+info (
+	title:   "BS"
+	desc:    "qzf BS api"
+	author:  "huang"
+	email:   "2302719556@qq.com"
+	version: "1.0"
+)
+
+import (
+	"make/adminCenter.api"
+	"make/Farm.api"
+	"make/Order.api"
+	"make/product.api"
+	"make/SaleData.api"
+)
+
+@server (
+	prefix: api
+	group:  login
+)
+service intelligent_agriculture_sys {
+	@handler LoginHandler
+	post /userLogin (LoginRequest) returns (LoginResponse)
+}
+
+@server (
+	prefix: api
+	group:  userCenter
+	jwt:    Auth
+)
+service intelligent_agriculture_sys {
+	@handler getAdminHandler
+	post /getAdminInfo (GetAdminInfoRequest) returns (GetAdminInfoResponse)
+
+	@handler updateAdminHandler
+	post /updateAdmin (UpdateAdminRequest) returns (UpdateAdminResponse)
+
+	@handler updatePassHandler
+	post /updatePass (UpdatePassRequest) returns (UpdatePassResponse)
+
+	@handler updatePhoneNumberHandler
+	post /updatePhoneNumber (UpdatePhoneNumberRequest) returns (UpdatePhoneNumberResponse)
+
+	@handler updateAvatarHandler
+	post /updateAvatar (UpdateAvatarRequest) returns (UpdateAvatarResponse)
+}
+
+@server (
+	prefix: api
+	group:  farm
+	jwt:    Auth
+)
+service intelligent_agriculture_sys {
+	@handler bindFarmHandler
+	post /bindFarm (BindFarmRequest) returns (BindFarmResponse)
+
+	@handler getFarmHandler
+	post /getFarm (GetFarmRequest) returns (GetFarmResponse)
+
+	@handler updateFarmInfoHandler
+	post /updateFarmInfo (UpdateFarmInfoRequest) returns (UpdateFarmInfoResponse)
+}
+
+@server (
+	prefix: api
+	group:  order
+	jwt:    Auth
+)
+service intelligent_agriculture_sys {
+	@handler getGoodOrderHandler
+	post /getGoodOrder (GetGoodOrderRequest) returns (GetGoodOrderResponse)
+
+	@handler getLandOrderHandler
+	post /getLandOrder (GetLandOrderRequest) returns (GetLandOrderResponse)
+}
+
+type TestRequest {
+	FarmID int `form:"farm_id"`
+	GoodID int `form:"good_id"`
+	LandID int `form:"land_id"`
+}
+
+type TestResponse {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+@server (
+	prefix: api
+	group:  product
+	jwt:    Auth
+)
+service intelligent_agriculture_sys {
+	@handler getProductHandler
+	post /getProduct (GetProductRequest) returns (GetProductResponse)
+
+	@handler addProductHandler
+	post /addProduct (AddProductRequest) returns (AddProductResponse)
+
+	@handler updateProductHandler
+	post /updateProduct (UpdateProductRequest) returns (UpdateProductResponse)
+
+	@handler delProductHandler
+	post /delProduct (DelProductRequest) returns (DelProductResponse)
+
+	@handler testHandler
+	post /test (TestRequest) returns (TestResponse)
+}
+
+@server (
+	prefix: api
+	group:  SaleData
+	jwt:    Auth
+)
+service intelligent_agriculture_sys {
+	@handler saleSummaryHandler
+	post /saleSummary (SaleSummaryRequest) returns (SaleSummaryResponse)
+
+	@handler getTotalDataHandler
+	post /getTotalData (GetTotalDataRequest) returns (GetTotalDataResponse)
+
+	@handler getLastOneYearSaleDataHandler
+	post /getLastOneYearSaleData (GetLastOneYearSaleDataRequest) returns (GetLastOneYearSaleDataResponse)
+}
+

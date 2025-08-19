@@ -1,0 +1,11 @@
+
+type SearchProductRequest{
+    KeyWord string `json:"keyword"`
+}
+
+type SearchProductResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+    Goods []*Good `json:"goods"`
+    Lands []*Land `json:"lands"`
+}

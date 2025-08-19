@@ -3,15 +3,14 @@ package common
 import (
 	"context"
 	"fmt"
+	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
+	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
 	"log"
 	"mime/multipart"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
-	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
 )
 
 /*
@@ -35,11 +34,9 @@ Go SDK V2 客户端初始化配置说明：
 // ossKey: 在OSS中的对象名称（可以包含路径，如 "images/logo.png"）
 // 返回: 上传成功后的访问URL和错误信息
 func OssUploadPicture(imagePath, ossKey string) (string, error) {
-
 	// 从环境变量获取凭证
-	accessKeyId := "LTAI5t82s6p6S86K5YJ8VWk5"
-	accessKeySecret := "akg5JOTLxBfsCb3UI3jQB8YtjIwb4T"
-
+	accessKeyId := os.Getenv("OSS_ACCESS_KEY_ID")
+	accessKeySecret := os.Getenv("OSS_ACCESS_KEY_SECRET")
 	// 检查文件是否存在
 	fileInfo, err := os.Stat(imagePath)
 	if os.IsNotExist(err) {
@@ -200,10 +197,9 @@ func BatchUploadPictures(imagePaths []string, folder string) ([]string, error) {
 // folder: OSS中的文件夹路径（可选），如 "images" 或 "uploads/2024"
 // 返回: 上传成功后的访问URL和错误信息
 func OssUploadFromMultipart(fileHeader *multipart.FileHeader, folder string) (string, error) {
-
 	// 从环境变量获取凭证
-	accessKeyId := "LTAI5t82s6p6S86K5YJ8VWk5"
-	accessKeySecret := "akg5JOTLxBfsCb3UI3jQB8YtjIwb4T"
+	accessKeyId := os.Getenv("OSS_ACCESS_KEY_ID")
+	accessKeySecret := os.Getenv("OSS_ACCESS_KEY_SECRET")
 
 	// 验证文件大小（限制为10MB）
 	const maxFileSize = 10 * 1024 * 1024 // 10MB

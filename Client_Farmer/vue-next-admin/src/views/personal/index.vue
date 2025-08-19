@@ -69,7 +69,6 @@
 					<el-card shadow="hover">
 						<template #header>
 							<span>消息通知</span>
-							<span class="personal-info-more">更多</span>
 						</template>
 						<div class="personal-info-box">
 							<ul class="personal-info-ul">
@@ -270,6 +269,8 @@ const userInfo = computed(() => {
 const currentTime = computed(() => {
 	return formatAxis(new Date());
 });
+
+
 
 // 初始化表单数据
 const initFormData = () => {
@@ -603,29 +604,49 @@ const onAvatarChange: UploadProps['onChange'] = (uploadFile: UploadFile) => {
 		}
 	}
 	.personal-info {
-		.personal-info-more {
-			float: right;
-			color: var(--el-text-color-secondary);
-			font-size: 13px;
-			&:hover {
-				color: var(--el-color-primary);
-				cursor: pointer;
-			}
-		}
 		.personal-info-box {
 			height: 130px;
-			overflow: hidden;
+			overflow-y: auto;
+			overflow-x: hidden;
+			padding-right: 5px;
+			
+			/* 自定义滚动条样式 */
+			&::-webkit-scrollbar {
+				width: 6px;
+			}
+			
+			&::-webkit-scrollbar-track {
+				background: var(--el-border-color-lighter);
+				border-radius: 3px;
+			}
+			
+			&::-webkit-scrollbar-thumb {
+				background: var(--el-border-color-dark);
+				border-radius: 3px;
+				
+				&:hover {
+					background: var(--el-color-primary);
+				}
+			}
+			
 			.personal-info-ul {
 				list-style: none;
+				margin: 0;
+				padding: 0;
+				
 				.personal-info-li {
 					font-size: 13px;
 					padding-bottom: 10px;
+					margin-right: 5px;
+					
 					.personal-info-li-title {
 						display: inline-block;
 						@include text-ellipsis(1);
 						color: var(--el-text-color-secondary);
 						text-decoration: none;
+						line-height: 1.4;
 					}
+					
 					& a:hover {
 						color: var(--el-color-primary);
 						cursor: pointer;

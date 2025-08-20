@@ -44,3 +44,5 @@ RedisLockConf:
   NonBlock: true
   PingTimeout: 5s
 
+WechatPay :
+  apiV3 : "apiv3key"

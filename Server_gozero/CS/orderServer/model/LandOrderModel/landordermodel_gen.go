@@ -34,6 +34,7 @@ type (
 		FindOneByUidAndStatus(ctx context.Context, userId int64, orderStatus string) ([]*LandOrder, error)
 		UpdateOrderCount(ctx context.Context, userId, landOrderId, newCount int64) error
 		DeleteSoft(ctx context.Context, userId, landOrderId int64) error
+		UpdateOrderStatus(ctx context.Context, landOrderId int64) error
 	}
 
 	defaultLandOrderModel struct {
@@ -145,5 +146,24 @@ func (m *defaultLandOrderModel) UpdateOrderCount(ctx context.Context, userId, la
 func (m *defaultLandOrderModel) DeleteSoft(ctx context.Context, userId, landOrderId int64) error {
 	query := fmt.Sprintf("update %s set `del_state` = 1, `del_time` = ? where `user_id` = ? and `land_order_id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, time.Now(), userId, landOrderId)
+	return err
+}
+
+func (m *defaultLandOrderModel) UpdateOrderStatus(ctx context.Context, landOrderId int64) error {
+	// 先检查订单是否存在
+	queryCheck := fmt.Sprintf("select count(1) from %s where `land_order_id` = ?", m.table)
+	var count int
+	err := m.conn.QueryRowCtx(ctx, &count, queryCheck, landOrderId)
+	if err != nil {
+		return err
+	}
+
+	if count == 0 {
+		return ErrNotFound
+	}
+
+	// 更新订单状态为待发货
+	query := fmt.Sprintf("update %s set `order_status` = ? where `land_order_id` = ?", m.table)
+	_, err = m.conn.ExecCtx(ctx, query, "待发货", landOrderId)
 	return err
 }

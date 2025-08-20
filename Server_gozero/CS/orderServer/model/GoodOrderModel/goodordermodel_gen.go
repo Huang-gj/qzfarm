@@ -34,6 +34,7 @@ type (
 		FindOneByUidAndStatus(ctx context.Context, userId int64, orderStatus string) ([]*GoodOrder, error)
 		UpdateOrderCount(ctx context.Context, userId, goodOrderId, newCount int64) error
 		DeleteSoft(ctx context.Context, userId, goodOrderId int64) error
+		UpdateOrderStatus(ctx context.Context, goodOrderId int64) error
 	}
 
 	defaultGoodOrderModel struct {
@@ -149,4 +150,24 @@ func (m *defaultGoodOrderModel) DeleteSoft(ctx context.Context, userId, goodOrde
 	query := fmt.Sprintf("update %s set `del_state` = 1, `del_time` = ? where `user_id` = ? and `good_order_id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, time.Now(), userId, goodOrderId)
 	return err
+}
+func (m *defaultGoodOrderModel) UpdateOrderStatus(ctx context.Context, goodOrderId int64) error {
+	// 先检查订单是否存在
+	query := fmt.Sprintf("select %s from %s where `good_order_id` = ? limit 1", goodOrderRows, m.table)
+	var resp GoodOrder
+	err := m.conn.QueryRowCtx(ctx, &resp, query, goodOrderId)
+	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return ErrNotFound
+		}
+		return err
+	}
+
+	// 存在则更新状态
+	updateQuery := fmt.Sprintf("update %s set `order_status` = ? where `good_order_id` = ?", m.table)
+	_, err = m.conn.ExecCtx(ctx, updateQuery, "待发货", goodOrderId)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -36,6 +36,7 @@
 - `POST /api/AddGoodOrder` - 添加商品订单
 - `POST /api/AddLandOrder` - 添加土地订单
 - `POST /api/WechatOrder` - 微信支付下单
+- `POST /api/WechatOrderHandler` - 微信支付回调通知
 
 **相关文件**：
 - `Client/services/order/fetchGoodOrder.js`
@@ -108,6 +109,7 @@ wx.request({
 - **getComment接口**：从8891端口修正为8889端口，添加token认证
 - **getCommentReply接口**：从8891端口修正为8889端口，添加token认证
 - **微信支付接口**：使用8891端口（订单服务）
+- **微信支付回调接口**：使用8891端口（订单服务），路径为`/api/WechatOrderHandler`
 - **用户登录接口**：使用8893端口（认证服务）
 
 ## 认证说明

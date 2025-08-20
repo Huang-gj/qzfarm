@@ -34,7 +34,7 @@ export const devConfig = {
   wechat: {
     appid: 'wx56a50ebd55771e08',
     mchid: 'test_merchant_id',
-    notifyUrl: 'http://localhost:8891/api/payment/notify'
+    notifyUrl: 'http://localhost:8891/api/WechatOrderHandler'
   }
 };
 
@@ -44,7 +44,7 @@ export const prodConfig = {
   wechat: {
     appid: 'wx56a50ebd55771e08',
     mchid: 'prod_merchant_id',
-    notifyUrl: 'https://your-production-domain.com/api/payment/notify'
+    notifyUrl: 'https://your-production-domain.com/api/WechatOrderHandler'
   }
 };
 

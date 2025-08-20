@@ -170,6 +170,14 @@ type Payer struct {
 	OpenID string `json:"openid"`
 }
 
+type Resource struct {
+	Algorithm       string `json:"algorithm"`
+	Ciphertext      string `json:"ciphertext string"`
+	Associated_data string `json:"associated_data"`
+	Original_type   string `json:"original_type"`
+	Nonce           string `json:"nonce"`
+}
+
 type SceneInfo struct {
 	PayerClientIP string    `json:"payer_client_ip,optional"`
 	DeviceID      string    `json:"device_id,optional"`
@@ -207,6 +215,19 @@ type UpdateLandOrderCountRequest struct {
 type UpdateLandOrderCountResponse struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
+}
+
+type WechatOrderHandlerRequest struct {
+	ID            string   `json:"id"`
+	Create_time   string   `json:"create_time"`
+	Event_type    string   `json:"event_type"`
+	Resource_type string   `json:"resource_type"`
+	Resource      Resource `json:"resource"`
+}
+
+type WechatOrderHandlerResponse struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
 }
 
 type WechatOrderRequest struct {

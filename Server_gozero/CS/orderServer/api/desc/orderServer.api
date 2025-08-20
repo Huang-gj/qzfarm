@@ -67,5 +67,8 @@ service order {
 service order {
 	@handler WechatOrder
 	post /WechatOrder (WechatOrderRequest) returns (WechatOrderResponse)
+
+	@handler WechatOrderHdl
+	post /WechatOrderHandler (WechatOrderHandlerRequest) returns (WechatOrderHandlerResponse)
 }
 

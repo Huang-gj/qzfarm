@@ -24,4 +24,8 @@ type Config struct {
 	CommodityRPC zrpc.RpcClientConf
 
 	RedisLockConf redis.RedisConf // 用于分布式锁
+
+	WechatPay struct {
+		ApiV3 string
+	}
 }

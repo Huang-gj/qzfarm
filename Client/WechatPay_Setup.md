@@ -118,6 +118,49 @@ handlePay(data, settleDetailData) {
 }
 ```
 
+### 3. 微信支付回调
+
+**接口地址**：`POST http://localhost:8891/api/WechatOrderHandler`
+
+**API定义**：
+```go
+@handler WechatOrderHdl
+post /WechatOrderHandler (WechatOrderHandlerRequest) returns (WechatOrderHandlerResponse)
+```
+
+**请求参数**：
+```go
+type WechatOrderHandlerRequest {
+    ID string `json:"id"`
+    create_time string `json:"create_time"`
+    event_type string `json:"event_type"`
+    resource_type string `json:"resource_type"`
+    resource Resource `json:"resource"`
+}
+
+type Resource {
+    algorithm string `json:"algorithm"`
+    ciphertext string `json:"ciphertext"`
+    associated_data string `json:"associated_data"`
+    original_type string `json:"original_type"`
+    nonce string `json:"nonce"`
+}
+```
+
+**响应数据**：
+```go
+type WechatOrderHandlerResponse {
+    Code string `json:"code"`
+    Message string `json:"message"`
+}
+```
+
+**注意事项**：
+- 回调地址必须是HTTPS（生产环境）
+- 开发环境可使用：`http://localhost:8891/api/WechatOrderHandler`
+- 需要配置在微信支付商户平台
+- 回调数据需要解密处理
+
 ## 注意事项
 
 1. **金额单位**：所有金额都以分为单位

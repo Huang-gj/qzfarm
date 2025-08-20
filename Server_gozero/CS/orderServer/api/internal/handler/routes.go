@@ -8,6 +8,7 @@ import (
 
 	GoodOrder "Server_gozero/CS/orderServer/api/internal/handler/GoodOrder"
 	LandOrder "Server_gozero/CS/orderServer/api/internal/handler/LandOrder"
+	WechatPay "Server_gozero/CS/orderServer/api/internal/handler/WechatPay"
 	"Server_gozero/CS/orderServer/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -72,6 +73,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/UpdateLandOrderCount",
 				Handler: LandOrder.UpdateLandOrderCountHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/WechatOrder",
+				Handler: WechatPay.WechatOrderHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

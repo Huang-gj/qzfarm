@@ -12,6 +12,7 @@ info (
 import (
 	"make/GoodOrder.api"
 	"make/LandOrder.api"
+	"make/WechatPay.api"
 )
 
 @server (
@@ -56,5 +57,15 @@ service order {
 
 	@handler GetLandOrderByStatus
 	post /GetLandOrderByStatus (GetLandOrderByStatusRequest) returns (GetLandOrderByStatusResponse)
+}
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  WechatPay
+)
+service order {
+	@handler WechatOrder
+	post /WechatOrder (WechatOrderRequest) returns (WechatOrderResponse)
 }
 

@@ -115,14 +115,14 @@ export async function setAddRoute() {
  * @returns 返回后端路由菜单数据
  */
 export function getBackEndControlRoutes() {
-	// 模拟 admin 与 test
+	// 获取管理员菜单
 	const stores = useUserInfo(pinia);
 	const { userInfos } = storeToRefs(stores);
 	const auth = userInfos.value.roles[0];
 	// 管理员 admin
 	if (auth === 'admin') return menuApi.getAdminMenu();
-	// 其它用户 test
-	else return menuApi.getTestMenu();
+	// 其它用户也返回管理员菜单
+	else return menuApi.getAdminMenu();
 }
 
 /**

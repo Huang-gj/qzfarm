@@ -30,8 +30,8 @@ service.interceptors.request.use(
 			console.log('request.ts - 检测到FormData，已删除Content-Type让浏览器自动设置');
 		}
 		
-		// 添加请求调试信息（仅针对农场相关API和测试API）
-		if (config.url?.includes('/api/updateFarmInfo') || config.url?.includes('/api/bindFarm') || config.url?.includes('/api/test')) {
+		// 添加请求调试信息（仅针对农场相关API）
+		if (config.url?.includes('/api/updateFarmInfo') || config.url?.includes('/api/bindFarm')) {
 			console.log('request.ts - 发送请求:', {
 				url: config.url,
 				method: config.method,

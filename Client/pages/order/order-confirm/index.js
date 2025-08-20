@@ -46,10 +46,44 @@ Page({
   noteInfo: [],
   tempNoteInfo: [],
   onLoad(options) {
+    console.log('[onLoad] 订单确认页面加载，参数:', options);
+    
     this.setData({
       loading: true,
     });
-    this.handleOptionsParams(options);
+    
+    // 检查options是否存在
+    if (!options) {
+      console.error('[onLoad] options is undefined');
+      this.handleError();
+      return;
+    }
+    
+    // 如果没有商品数据，使用测试数据
+    if (!options.goodsRequestList) {
+      console.log('[onLoad] 没有商品数据，使用测试数据');
+      const testOptions = {
+        goodsRequestList: JSON.stringify([{
+          quantity: 1,
+          storeId: '1000',
+          good_id: 1000,
+          goodsName: '测试商品',
+          skuId: 'sku_001',
+          available: true,
+          price: 99.99,
+          specInfo: [{
+            specTitle: '规格',
+            specValue: '标准规格'
+          }],
+          primaryImage: 'https://via.placeholder.com/100x100',
+          thumb: 'https://via.placeholder.com/100x100',
+          title: '测试商品'
+        }])
+      };
+      this.handleOptionsParams(testOptions);
+    } else {
+      this.handleOptionsParams(options);
+    }
   },
   onShow() {
     const invoiceData = wx.getStorageSync('invoiceData');
@@ -68,6 +102,14 @@ Page({
       loading: true,
     });
     const { goodsRequestList } = this;
+    
+    // 检查goodsRequestList是否存在
+    if (!goodsRequestList || goodsRequestList.length === 0) {
+      console.error('[init] goodsRequestList为空');
+      this.handleError();
+      return;
+    }
+    
     this.handleOptionsParams({ goodsRequestList });
   },
   // 处理不同情况下跳转到结算页时需要的参数
@@ -84,9 +126,37 @@ Page({
       // 从购物车跳转过来时，获取传入的商品列表数据
       const goodsRequestListJson = wx.getStorageSync('order.goodsRequestList');
       goodsRequestList = JSON.parse(goodsRequestListJson);
+      console.log('[handleOptionsParams] 从购物车获取的商品列表:', goodsRequestList);
     } else if (typeof options.goodsRequestList === 'string') {
-      goodsRequestList = JSON.parse(options.goodsRequestList);
+      try {
+        goodsRequestList = JSON.parse(options.goodsRequestList);
+        console.log('[handleOptionsParams] 从参数获取的商品列表:', goodsRequestList);
+      } catch (error) {
+        console.error('[handleOptionsParams] 解析商品列表JSON失败:', error);
+        console.log('[handleOptionsParams] 原始字符串:', options.goodsRequestList);
+        this.handleError();
+        return;
+      }
     }
+    
+    console.log('[handleOptionsParams] 最终使用的商品列表:', goodsRequestList);
+    
+    // 检查商品列表是否存在
+    if (!goodsRequestList || goodsRequestList.length === 0) {
+      console.error('[handleOptionsParams] 商品列表为空');
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '商品数据异常，请重新选择商品',
+        duration: 2000,
+        icon: 'help-circle',
+      });
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 2000);
+      return;
+    }
+    
     //获取结算页请求数据列表
     const storeMap = {};
     goodsRequestList.forEach((goods) => {
@@ -111,27 +181,54 @@ Page({
         this.setData({
           loading: false,
         });
-        this.initData(res.data);
+        console.log('[handleOptionsParams] fetchSettleDetail响应:', res);
+        
+        if (res && res.data) {
+          this.initData(res.data);
+        } else {
+          console.error('[handleOptionsParams] fetchSettleDetail返回数据异常:', res);
+          this.handleError();
+        }
       },
-      () => {
+      (error) => {
+        console.error('[handleOptionsParams] fetchSettleDetail请求失败:', error);
         //接口异常处理
         this.handleError();
       },
     );
   },
   initData(resData) {
+    console.log('[initData] 接收到的结算数据:', resData);
+    
+    // 检查resData是否存在
+    if (!resData) {
+      console.error('[initData] resData is undefined');
+      this.handleError();
+      return;
+    }
+    
     // 转换商品卡片显示数据
-    const data = this.handleResToGoodsCard(resData);
+    this.handleResToGoodsCard(resData);
+    console.log('[initData] 处理后的结算数据:', resData);
+    console.log('[initData] 商品总额 totalSalePrice:', resData.totalSalePrice);
+    console.log('[initData] 总支付金额 totalPayAmount:', resData.totalPayAmount);
+    
     this.userAddressReq = resData.userAddress;
 
     if (resData.userAddress) {
       this.setData({ userAddress: resData.userAddress });
     }
-    this.setData({ settleDetailData: data });
-    this.isInvalidOrder(data);
+    this.setData({ settleDetailData: resData });
+    this.isInvalidOrder(resData);
   },
 
   isInvalidOrder(data) {
+    // 检查data是否存在
+    if (!data) {
+      console.error('[isInvalidOrder] settleDetailData is undefined');
+      return false;
+    }
+    
     // 失效 不在配送范围 限购的商品 提示弹窗
     if (
       (data.limitGoodsList && data.limitGoodsList.length > 0) ||
@@ -206,6 +303,18 @@ Page({
     };
   },
   handleResToGoodsCard(data) {
+    // 检查data是否存在
+    if (!data) {
+      console.error('[handleResToGoodsCard] data is undefined');
+      return {
+        storeGoodsList: [],
+        totalSalePrice: 0,
+        totalPayAmount: 0,
+        totalGoodsCount: 0,
+        settleType: 0
+      };
+    }
+    
     // 转换数据 符合 goods-card展示
     const orderCardList = []; // 订单卡片列表
     const storeInfoList = [];
@@ -361,7 +470,27 @@ Page({
     } = this.data;
     const { goodsRequestList } = this;
 
-    if (!userAddressReq && !settleDetailData.userAddress) {
+    console.log('[submitOrder] 开始提交订单');
+    console.log('[submitOrder] settleDetailData:', settleDetailData);
+    console.log('[submitOrder] userAddressReq:', userAddressReq);
+    console.log('[submitOrder] goodsRequestList:', goodsRequestList);
+
+    // 检查settleDetailData是否存在
+    if (!settleDetailData) {
+      console.error('[submitOrder] settleDetailData is undefined');
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '订单数据异常，请重新进入',
+        duration: 2000,
+        icon: 'help-circle',
+      });
+      return;
+    }
+
+    // 检查是否有收货地址
+    const hasAddress = userAddressReq || settleDetailData.userAddress;
+    if (!hasAddress) {
       Toast({
         context: this,
         selector: '#t-toast',
@@ -369,45 +498,65 @@ Page({
         duration: 2000,
         icon: 'help-circle',
       });
-
       return;
     }
-    if (
-      this.payLock ||
-      !settleDetailData.settleType ||
-      !settleDetailData.totalAmount
-    ) {
+
+    // 检查订单状态
+    if (this.payLock) {
+      console.log('[submitOrder] 支付锁定中，忽略重复提交');
+      return;
+    }
+
+    if (!settleDetailData.settleType || !settleDetailData.totalAmount) {
+      console.error('[submitOrder] 订单数据不完整:', {
+        settleType: settleDetailData.settleType,
+        totalAmount: settleDetailData.totalAmount
+      });
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '订单数据不完整，请重新进入',
+        duration: 2000,
+        icon: 'help-circle',
+      });
       return;
     }
     this.payLock = true;
     const resSubmitCouponList = this.handleCouponList(submitCouponList);
+    
+    // 获取用户地址信息
+    const userAddress = settleDetailData.userAddress || userAddressReq;
+    const userName = userAddress ? userAddress.name : '未知用户';
+    
     const params = {
-      userAddressReq: settleDetailData.userAddress || userAddressReq,
+      userAddressReq: userAddress,
       goodsRequestList: goodsRequestList,
-      userName: settleDetailData.userAddress.name || userAddressReq.name,
+      userName: userName,
       totalAmount: settleDetailData.totalPayAmount, //取优惠后的结算金额
       invoiceRequest: null,
       storeInfoList,
       couponList: resSubmitCouponList,
     };
+    
+    console.log('[submitOrder] 提交订单参数:', params);
+    
     if (invoiceData && invoiceData.email) {
       params.invoiceRequest = invoiceData;
     }
     commitPay(params).then(
       (res) => {
         this.payLock = false;
+        console.log('[submitOrder] commitPay响应:', res);
+        
         const { data } = res;
-        // 提交出现 失效 不在配送范围 限购的商品 提示弹窗
-        if (this.isInvalidOrder(data)) {
-          return;
-        }
-        if (res.code === 'Success') {
-          this.handlePay(data, settleDetailData);
-        } else {
+        
+        // 检查响应是否成功
+        if (!res || res.code !== 'Success') {
+          console.error('[submitOrder] 订单提交失败:', res);
           Toast({
             context: this,
             selector: '#t-toast',
-            message: res.msg || '提交订单超时，请稍后重试',
+            message: res?.msg || '提交订单超时，请稍后重试',
             duration: 2000,
             icon: '',
           });
@@ -415,7 +564,16 @@ Page({
             // 提交支付失败   返回购物车
             wx.navigateBack();
           }, 2000);
+          return;
         }
+        
+        // 提交出现 失效 不在配送范围 限购的商品 提示弹窗
+        if (this.isInvalidOrder(data)) {
+          return;
+        }
+        
+        console.log('[submitOrder] 订单提交成功，开始处理支付');
+        this.handlePay(data, settleDetailData);
       },
       (err) => {
         this.payLock = false;
@@ -473,8 +631,58 @@ Page({
 
   // 处理支付
   handlePay(data, settleDetailData) {
+    console.log('[handlePay] 开始处理支付');
+    console.log('[handlePay] 订单数据:', data);
+    console.log('[handlePay] 结算数据:', settleDetailData);
+    
+    // 检查数据是否存在
+    if (!data) {
+      console.error('[handlePay] 订单数据为空');
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '订单数据异常',
+        duration: 2000,
+        icon: 'help-circle',
+      });
+      return;
+    }
+    
+    if (!settleDetailData) {
+      console.error('[handlePay] 结算数据为空');
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '结算数据异常',
+        duration: 2000,
+        icon: 'help-circle',
+      });
+      return;
+    }
+    
     const { channel, payInfo, tradeNo, interactId, transactionId } = data;
-    const { totalAmount, totalPayAmount } = settleDetailData;
+    const { totalAmount, totalPayAmount, storeGoodsList } = settleDetailData;
+    
+    // 构建商品列表
+    const goodsList = [];
+    if (storeGoodsList && storeGoodsList.length > 0) {
+      storeGoodsList.forEach(store => {
+        if (store.skuDetailVos && store.skuDetailVos.length > 0) {
+          store.skuDetailVos.forEach(goods => {
+            goodsList.push({
+              skuId: goods.skuId,
+              good_id: goods.good_id,
+              goodsName: goods.goodsName,
+              title: goods.goodsName,
+              quantity: goods.quantity,
+              price: goods.tagPrice || goods.settlePrice,
+              settlePrice: goods.settlePrice
+            });
+          });
+        }
+      });
+    }
+    
     const payOrderInfo = {
       payInfo: payInfo,
       orderId: tradeNo,
@@ -483,6 +691,7 @@ Page({
       interactId: interactId,
       tradeNo: tradeNo,
       transactionId: transactionId,
+      goodsList: goodsList
     };
 
     if (channel === 'wechat') {

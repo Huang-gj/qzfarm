@@ -61,6 +61,18 @@ type UpdateAvatarResponse {
 	Msg  string `json:"msg"`
 }
 
+type GetOpenidRequest {
+	Code string `json:"code"`
+}
+
+type GetOpenidResponse {
+	Openid     string `json:"openid"`
+	SessionKey string `json:"session_key"`
+	Unionid    string `json:"unionid,optional"`
+	ErrCode    int    `json:"errcode,optional"`
+	ErrMsg     string `json:"errmsg,optional"`
+}
+
 @server (
 	prefix: api
 )
@@ -76,5 +88,8 @@ service user-api {
 
 	@handler UpdateAvatarHandler
 	post /updateAvatar (UpdateAvatarRequest) returns (UpdateAvatarResponse)
+
+	@handler GetOpenid
+	post /getOpenid (GetOpenidRequest) returns (GetOpenidResponse)
 }
 

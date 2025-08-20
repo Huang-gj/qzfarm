@@ -91,7 +91,7 @@ export function genSettleDetail(params) {
     success: true,
   };
 
-  const list = transformGoodsDataToConfirmData(goodsRequestList);
+  const list = transformGoodsDataToConfirmData(goodsRequestList || []);
 
   // 获取购物车传递的商品数据
   resp.data.storeGoodsList[0].skuDetailVos = list;

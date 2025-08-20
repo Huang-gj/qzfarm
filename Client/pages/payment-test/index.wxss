@@ -1,0 +1,95 @@
+.payment-test-container {
+  padding: 40rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-section {
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  margin-bottom: 40rpx;
+}
+
+.form-item {
+  margin-bottom: 40rpx;
+}
+
+.form-item:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  display: block;
+  font-size: 32rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.input {
+  width: 100%;
+  height: 80rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 10rpx;
+  padding: 0 20rpx;
+  font-size: 32rpx;
+  box-sizing: border-box;
+}
+
+.button-section {
+  margin-bottom: 40rpx;
+}
+
+.test-btn {
+  width: 100%;
+  height: 88rpx;
+  background-color: #07c160;
+  color: #fff;
+  border: none;
+  border-radius: 10rpx;
+  font-size: 32rpx;
+  margin-bottom: 20rpx;
+}
+
+.config-btn {
+  width: 100%;
+  height: 88rpx;
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 10rpx;
+  font-size: 32rpx;
+}
+
+.info-section {
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 40rpx;
+}
+
+.info-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.info-text {
+  display: block;
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 10rpx;
+} 

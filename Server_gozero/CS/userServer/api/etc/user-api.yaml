@@ -31,3 +31,7 @@ Mysql:
 
 CacheRedis:
   - Host: 127.0.0.1:6379
+
+Wechat:
+  AppID : "wx56a50ebd55771e08"
+  AppSecret: "1b1b3393a7674470bbecca8d29487d65"

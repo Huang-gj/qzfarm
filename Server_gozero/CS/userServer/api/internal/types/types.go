@@ -3,6 +3,18 @@
 
 package types
 
+type GetOpenidRequest struct {
+	Code string `json:"code"`
+}
+
+type GetOpenidResponse struct {
+	Openid     string `json:"openid"`
+	SessionKey string `json:"session_key"`
+	Unionid    string `json:"unionid,optional"`
+	ErrCode    int    `json:"errcode,optional"`
+	ErrMsg     string `json:"errmsg,optional"`
+}
+
 type LoginRequest struct {
 	PhoneNumber string `json:"phone_number"`
 	Password    string `json:"password"`

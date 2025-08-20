@@ -1,6 +1,7 @@
 import Toast from 'tdesign-miniprogram/toast/index';
 import Dialog from 'tdesign-miniprogram/dialog/index';
 import { OrderButtonTypes } from '../../config';
+import { wechatPayOrder } from '../../order-confirm/pay';
 
 Component({
   options: {
@@ -149,13 +150,20 @@ Component({
         });
     },
 
-    onPay() {
-      Toast({
-        context: this,
-        selector: '#t-toast',
-        message: '你点击了去支付',
-        icon: 'check-circle',
-      });
+    onPay(order) {
+      console.log('[onPay] 开始支付订单:', order);
+      
+      // 构建支付信息
+      const payOrderInfo = {
+        orderId: order.orderNo,
+        orderAmt: order.totalAmount,
+        payAmt: order.amount,
+        tradeNo: order.orderNo,
+        goodsList: order.goodsList || []
+      };
+      
+      // 调用微信支付
+      wechatPayOrder(payOrderInfo);
     },
 
     onBuyAgain() {

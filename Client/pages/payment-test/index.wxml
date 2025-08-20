@@ -1,0 +1,46 @@
+<view class="payment-test-container">
+  <view class="header">
+    <text class="title">微信支付测试</text>
+  </view>
+
+  <view class="form-section">
+    <view class="form-item">
+      <text class="label">测试金额（元）</text>
+      <input 
+        class="input" 
+        type="digit" 
+        value="{{testAmount}}" 
+        placeholder="请输入测试金额"
+        bindinput="onAmountInput"
+      />
+    </view>
+
+    <view class="form-item">
+      <text class="label">商品描述</text>
+      <input 
+        class="input" 
+        type="text" 
+        value="{{testDescription}}" 
+        placeholder="请输入商品描述"
+        bindinput="onDescriptionInput"
+      />
+    </view>
+  </view>
+
+  <view class="button-section">
+    <button class="test-btn" bindtap="onTestPay">
+      测试支付
+    </button>
+    
+    <button class="config-btn" bindtap="onViewConfig">
+      查看配置
+    </button>
+  </view>
+
+  <view class="info-section">
+    <text class="info-title">测试说明：</text>
+    <text class="info-text">1. 请确保已配置正确的微信支付参数</text>
+    <text class="info-text">2. 测试金额建议使用小额（如1元）</text>
+    <text class="info-text">3. 支付成功后会自动跳转到相应页面</text>
+  </view>
+</view> 

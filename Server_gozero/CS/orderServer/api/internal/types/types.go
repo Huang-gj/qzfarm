@@ -49,13 +49,13 @@ type AddLandOrderResponse struct {
 
 type Amount struct {
 	Total    int    `json:"total"`
-	Currency string `json:"currency"`
+	Currency string `json:"currency,optional"`
 }
 
 type Detail struct {
-	CostPrice   int         `json:"cost_price"`
-	InvoiceID   string      `json:"invoice_id"`
-	GoodsDetail GoodsDetail `json:"goods_detail"`
+	CostPrice   int           `json:"cost_price,optional"`
+	InvoiceID   string        `json:"invoice_id,optional"`
+	GoodsDetail []GoodsDetail `json:"goods_detail,optional"`
 }
 
 type GetGoodOrderByStatusRequest struct {
@@ -171,13 +171,13 @@ type Payer struct {
 }
 
 type SceneInfo struct {
-	PayerClientIP string    `json:"payer_client_ip"`
-	DeviceID      string    `json:"device_id"`
-	StoreInfo     StoreInfo `json:"store_info"`
+	PayerClientIP string    `json:"payer_client_ip,optional"`
+	DeviceID      string    `json:"device_id,optional"`
+	StoreInfo     StoreInfo `json:"store_info,optional"`
 }
 
 type SettleInfo struct {
-	ProfitSharing bool `json:"profit_sharing"`
+	ProfitSharing bool `json:"profit_sharing,optional"`
 }
 
 type StoreInfo struct {
@@ -214,16 +214,16 @@ type WechatOrderRequest struct {
 	MchID         string     `json:"mchid"`
 	Description   string     `json:"description"`
 	OutTradeNo    string     `json:"out_trade_no"`
-	TimeExpire    string     `json:"time_expire"`
-	Attach        string     `json:"attach"`
+	TimeExpire    string     `json:"time_expire,optional"`
+	Attach        string     `json:"attach,optional"`
 	NotifyUrl     string     `json:"notify_url"`
-	GoodsTag      string     `json:"goods_tag"`
-	SupportFapiao bool       `json:"support_fapiao"`
+	GoodsTag      string     `json:"goods_tag,optional"`
+	SupportFapiao bool       `json:"support_fapiao,optional"`
 	Amount        Amount     `json:"amount"`
 	Payer         Payer      `json:"payer"`
-	Detail        Detail     `json:"detail"`
-	SceneInfo     SceneInfo  `json:"scene_info"`
-	SettleInfo    SettleInfo `json:"settle_info"`
+	Detail        Detail     `json:"detail,optional"`
+	SceneInfo     SceneInfo  `json:"scene_info,optional"`
+	SettleInfo    SettleInfo `json:"settle_info,optional"`
 }
 
 type WechatOrderResponse struct {

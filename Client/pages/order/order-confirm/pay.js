@@ -2,6 +2,7 @@ import Dialog from 'tdesign-miniprogram/dialog/index';
 import Toast from 'tdesign-miniprogram/toast/index';
 
 import { dispatchCommitPay } from '../../../services/order/orderConfirm';
+import { createWechatOrder, requestWechatPayment, getUserOpenid, generateOrderNo } from '../../../services/payment/wechatPay';
 
 // 真实的提交支付
 export const commitPay = (params) => {
@@ -49,8 +50,31 @@ export const paySuccess = (payOrderInfo) => {
   const paramsStr = Object.keys(params)
     .map((k) => `${k}=${params[k]}`)
     .join('&');
-  // 跳转支付结果页面
-  wx.redirectTo({ url: `/pages/order/pay-result/index?${paramsStr}` });
+  
+  // 根据当前页面决定跳转行为
+  const pages = getCurrentPages();
+  const currentPage = pages[pages.length - 1];
+  
+  if (currentPage.route.includes('order-confirm')) {
+    // 在订单确认页面，跳转到支付结果页面
+    wx.redirectTo({ url: `/pages/order/pay-result/index?${paramsStr}` });
+  } else {
+    // 在其他页面（如订单列表），跳转到订单列表并刷新
+    wx.redirectTo({ 
+      url: '/pages/order/order-list/index',
+      success: () => {
+        // 延迟刷新订单列表
+        setTimeout(() => {
+          const orderListPage = getCurrentPages().find(page => 
+            page.route.includes('order-list')
+          );
+          if (orderListPage && orderListPage.refreshList) {
+            orderListPage.refreshList();
+          }
+        }, 500);
+      }
+    });
+  }
 };
 
 export const payFail = (payOrderInfo, resultMsg) => {
@@ -90,26 +114,56 @@ export const payFail = (payOrderInfo, resultMsg) => {
 };
 
 // 微信支付方式
-export const wechatPayOrder = (payOrderInfo) => {
-  // const payInfo = JSON.parse(payOrderInfo.payInfo);
-  // const { timeStamp, nonceStr, signType, paySign } = payInfo;
-  return new Promise((resolve) => {
-    // demo 中直接走支付成功
-    paySuccess(payOrderInfo);
-    resolve();
-    /* wx.requestPayment({
-      timeStamp,
-      nonceStr,
-      package: payInfo.package,
-      signType,
-      paySign,
-      success: function () {
-        paySuccess(payOrderInfo);
-        resolve();
-      },
-      fail: function (err) {
-        payFail(payOrderInfo, err.errMsg);
-      },
-    }); */
-  });
+export const wechatPayOrder = async (payOrderInfo) => {
+  try {
+    console.log('[wechatPayOrder] 开始微信支付流程:', payOrderInfo);
+    
+    // 获取用户openid
+    const openid = await getUserOpenid();
+    console.log('[wechatPayOrder] 获取到openid:', openid);
+    
+    // 获取用户信息
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!userInfo || !userInfo.user_id) {
+      throw new Error('用户信息不存在，请重新登录');
+    }
+    
+    // 生成商户订单号
+    const outTradeNo = generateOrderNo();
+    console.log('[wechatPayOrder] 生成订单号:', outTradeNo);
+    
+    // 构建商品列表
+    const goodsList = payOrderInfo.goodsList || [];
+    
+    // 调用微信支付JSAPI下单
+    const wechatOrderRes = await createWechatOrder({
+      totalAmount: payOrderInfo.payAmt * 100, // 转换为分
+      description: `QZFarm订单-${outTradeNo}`,
+      outTradeNo: outTradeNo,
+      openid: openid,
+      goodsList: goodsList,
+      userId: userInfo.user_id
+    });
+    
+    console.log('[wechatPayOrder] 微信下单成功:', wechatOrderRes);
+    
+    // 发起微信支付
+    await requestWechatPayment({
+      timeStamp: wechatOrderRes.timeStamp,
+      nonceStr: wechatOrderRes.nonceStr,
+      package: wechatOrderRes.package,
+      signType: wechatOrderRes.signType,
+      paySign: wechatOrderRes.paySign
+    });
+    
+    // 支付成功
+    paySuccess({
+      ...payOrderInfo,
+      tradeNo: outTradeNo
+    });
+    
+  } catch (err) {
+    console.error('[wechatPayOrder] 微信支付失败:', err);
+    payFail(payOrderInfo, err.message || err.errMsg || '支付失败');
+  }
 };

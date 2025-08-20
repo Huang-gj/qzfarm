@@ -25,7 +25,7 @@ function request(options = {}) {
     }
 
     // 构建完整的URL - 开发阶段写死后端地址
-    const baseUrl = 'http://localhost:8889'; // 开发阶段写死
+    const baseUrl = 'http://localhost:8891'; // 开发阶段写死
     const url = options.url.startsWith('http') ? options.url : `${baseUrl}${options.url}`;
 
     console.log('[request] 发送请求:', {

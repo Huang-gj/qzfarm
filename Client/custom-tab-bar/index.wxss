@@ -42,13 +42,8 @@
   position: relative;
   display: flex;
   justify-content: center;
-}
-
-.tab-bar-icon {
-  width: 48rpx;
-  height: 48rpx;
+  align-items: center;
   margin-bottom: 4rpx;
-  background-color: rgba(200, 200, 200, 0.1);
 }
 
 .text {
@@ -57,7 +52,7 @@
 }
 
 .tab-bar-item.active .text {
-  color: #FF5F15;
+  color: #333;
 }
 
 /* 添加调试文本样式 */

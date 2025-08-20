@@ -1,5 +1,5 @@
 <view class="cart-empty">
-	<t-image t-class="cart-img" src="{{actualImgUrl || imgUrl}}" />
+	<t-icon name="add" size="120rpx" color="#ccc" t-class="cart-icon" />
 	<view class="tip">{{tip}}</view>
 	<view class="btn" bind:tap="handleClick">{{btnText}}</view>
 </view>

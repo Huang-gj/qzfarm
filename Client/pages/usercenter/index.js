@@ -4,9 +4,6 @@ import {
 import { fetchGoodOrder } from '../../services/order/fetchGoodOrder';
 import { fetchLandOrder } from '../../services/order/fetchLandOrder';
 import Toast from 'tdesign-miniprogram/toast/index';
-import {
-  genPicURL
-} from '../../utils/genURL';
 
 const menuData = [
   [{
@@ -46,8 +43,7 @@ const menuData = [
 
 const orderTagInfos = [{
     title: '待付款',
-    iconName: 'wallet',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/TdesignMoney.png',
+    iconName: 'add',
     orderNum: 0,
     tabType: 5,
     status: 1,
@@ -55,31 +51,27 @@ const orderTagInfos = [{
   {
     title: '待发货',
     iconName: 'deliver',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/StreamlineShippingTruck.png',
     orderNum: 0,
     tabType: 10,
     status: 1,
   },
   {
     title: '待收货',
-    iconName: 'package',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/HugeiconsPackageDelivered.png',
+    iconName: 'location',
     orderNum: 0,
     tabType: 40,
     status: 1,
   },
   {
     title: '待评价',
-    iconName: 'comment',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/PajamasReviewList.png',
+    iconName: 'chat',
     orderNum: 0,
     tabType: 60,
     status: 1,
   },
   {
     title: '退款/售后',
-    iconName: 'exchang',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/MingcuteRefundCnyFill.png',
+    iconName: 'close',
     orderNum: 0,
     tabType: 0,
     status: 1,
@@ -89,8 +81,7 @@ const orderTagInfos = [{
 // 商品订单数据
 const goodsOrderTagInfos = [{
     title: '待付款',
-    iconName: 'wallet',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/TdesignMoney.png',
+    iconName: 'add',
     orderNum: 0,
     tabType: 5,
     status: 1,
@@ -99,7 +90,6 @@ const goodsOrderTagInfos = [{
   {
     title: '待发货',
     iconName: 'deliver',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/StreamlineShippingTruck.png',
     orderNum: 0,
     tabType: 10,
     status: 1,
@@ -107,8 +97,7 @@ const goodsOrderTagInfos = [{
   },
   {
     title: '待收货',
-    iconName: 'package',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/HugeiconsPackageDelivered.png',
+    iconName: 'location',
     orderNum: 0,
     tabType: 40,
     status: 1,
@@ -116,8 +105,7 @@ const goodsOrderTagInfos = [{
   },
   {
     title: '待评价',
-    iconName: 'comment',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/PajamasReviewList.png',
+    iconName: 'chat',
     orderNum: 0,
     tabType: 60,
     status: 1,
@@ -125,8 +113,7 @@ const goodsOrderTagInfos = [{
   },
   {
     title: '退款/售后',
-    iconName: 'exchang',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/MingcuteRefundCnyFill.png',
+    iconName: 'close',
     orderNum: 0,
     tabType: 0,
     status: 1,
@@ -137,8 +124,7 @@ const goodsOrderTagInfos = [{
 // 土地订单数据
 const landsOrderTagInfos = [{
     title: '待付款',
-    iconName: 'wallet',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/TdesignMoney.png',
+    iconName: 'add',
     orderNum: 0,
     tabType: 5,
     status: 1,
@@ -147,7 +133,6 @@ const landsOrderTagInfos = [{
   {
     title: '待发货',
     iconName: 'deliver',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/StreamlineShippingTruck.png',
     orderNum: 0,
     tabType: 10,
     status: 1,
@@ -155,8 +140,7 @@ const landsOrderTagInfos = [{
   },
   {
     title: '待收货',
-    iconName: 'package',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/HugeiconsPackageDelivered.png',
+    iconName: 'location',
     orderNum: 0,
     tabType: 40,
     status: 1,
@@ -164,8 +148,7 @@ const landsOrderTagInfos = [{
   },
   {
     title: '待评价',
-    iconName: 'comment',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/PajamasReviewList.png',
+    iconName: 'chat',
     orderNum: 0,
     tabType: 60,
     status: 1,
@@ -173,8 +156,7 @@ const landsOrderTagInfos = [{
   },
   {
     title: '退款/售后',
-    iconName: 'exchang',
-    iconUrl: 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/TDesign/MingcuteRefundCnyFill.png',
+    iconName: 'close',
     orderNum: 0,
     tabType: 0,
     status: 1,

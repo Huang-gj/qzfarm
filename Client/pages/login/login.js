@@ -103,7 +103,7 @@ Page({
 
           // 登录成功后获取openid
           this.getUserOpenid();
-          
+
           // 输出所有缓存信息
           this.logAllCachedData();
 
@@ -208,11 +208,11 @@ Page({
   // 获取用户openid
   getUserOpenid() {
     console.log('[getUserOpenid] 开始获取openid');
-    
+
     wx.login({
       success: (res) => {
         console.log('[getUserOpenid] 微信登录成功:', res);
-        
+
         if (res.code) {
           // 发起网络请求获取openid
           wx.request({
@@ -223,17 +223,17 @@ Page({
             },
             success: (openidRes) => {
               console.log('[getUserOpenid] 获取openid成功:', openidRes);
-              
+
               if (openidRes.data && openidRes.data.openid) {
                 // 保存openid到本地存储
                 wx.setStorageSync('openid', openidRes.data.openid);
                 console.log('[getUserOpenid] openid已保存到本地存储:', openidRes.data.openid);
-                
+
                 // 同时保存session_key（如果需要的话）
                 if (openidRes.data.session_key) {
                   wx.setStorageSync('session_key', openidRes.data.session_key);
                 }
-                
+
                 // openid获取成功后再次输出所有缓存信息
                 this.logAllCachedData();
               } else {
@@ -257,30 +257,30 @@ Page({
   // 输出所有缓存信息
   logAllCachedData() {
     console.log('=== 登录成功 - 所有缓存信息输出 ===');
-    
+
     // 获取token信息
     const token = wx.getStorageSync('token');
     console.log('[缓存] token信息:', token);
-    
+
     // 获取用户信息
     const userInfo = wx.getStorageSync('userInfo');
     console.log('[缓存] 用户信息:', userInfo);
-    
+
     // 获取openid
     const openid = wx.getStorageSync('openid');
     console.log('[缓存] openid:', openid);
-    
+
     // 获取session_key
     const sessionKey = wx.getStorageSync('session_key');
     console.log('[缓存] session_key:', sessionKey);
-    
+
     // 获取全局数据
     console.log('[缓存] 全局数据:', app.globalData);
-    
+
     // 获取其他可能的缓存数据
     const allKeys = wx.getStorageInfoSync();
     console.log('[缓存] 所有存储键:', allKeys);
-    
+
     // 输出每个键对应的值
     if (allKeys.keys && allKeys.keys.length > 0) {
       console.log('[缓存] 详细存储内容:');
@@ -289,7 +289,7 @@ Page({
         console.log(`  ${key}:`, value);
       });
     }
-    
+
     console.log('=== 缓存信息输出完成 ===');
   }
 })

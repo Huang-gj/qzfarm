@@ -7,16 +7,14 @@
 		bindtap="onChange"
 		data-value="{{index}}"
 	>
-		<view wx:if="{{!item.icon || !item.selectedIcon}}" class="debug-text">缺少图标</view>
+		<!-- 移除调试文本 -->
 		
 		<view class="icon-container">
-			<image 
-				src="{{active === index ? item.selectedIcon : item.icon}}" 
-				class="tab-bar-icon"
-				mode="widthFix"
-				binderror="onImageError"
-				data-index="{{index}}"
-				data-type="{{active === index ? 'selected' : 'normal'}}"
+			
+			<t-icon 
+				name="{{active === index ? item.selectedIcon : item.icon}}" 
+				size="48rpx"
+				color="{{active === index ? '#333' : '#999'}}"
 			/>
 			<!-- 购物车角标 -->
 			<view wx:if="{{item.text === '购物车' && cartCount > 0}}" class="cart-badge">

@@ -1,6 +1,3 @@
-import {
-  genPicURL
-} from '../utils/genURL';
 import TabMenu from './data';
 
 Component({
@@ -58,41 +55,11 @@ Component({
       }
     },
 
-    async initTabBar() {
+    initTabBar() {
       try {
-        // 先打印调试信息
-
-
-        // 转换所有图标URL
-        const list = await Promise.all(TabMenu.map(async (item) => {
-          // 打印每个项目的图标路径
-
-
-          try {
-            // 正确使用 Promise.all
-            const [icon, selectedIcon] = await Promise.all([
-              genPicURL(item.icon),
-              genPicURL(item.selectedIcon)
-            ]);
-
-
-
-            return {
-              ...item,
-              icon,
-              selectedIcon
-            };
-          } catch (err) {
-            console.error('图标URL转换失败:', err);
-            // 如果转换失败，返回原始路径
-            return item;
-          }
-        }));
-
-        // console.log('TabBar数据处理完成:', list);
-
+        // 直接使用TabMenu数据，无需转换
         this.setData({
-          list
+          list: TabMenu
         });
         // 初始化当前页面的激活状态
         this.init();
@@ -148,26 +115,6 @@ Component({
       }
     },
 
-    onImageError(e) {
-      const {
-        index,
-        type
-      } = e.currentTarget.dataset;
-      console.error(`TabBar图片加载失败: ${type}图标, 索引 ${index}`, e.detail);
-
-      // 可以尝试设置一个默认图标
-      const updatedList = [...this.data.list];
-      if (type === 'selected') {
-        // 更新为默认选中图标
-        updatedList[index].selectedIcon = '/images/default_selected.png';
-      } else {
-        // 更新为默认普通图标
-        updatedList[index].icon = '/images/default.png';
-      }
-
-      this.setData({
-        list: updatedList
-      });
-    },
+    // 移除onImageError方法，因为使用t-icon组件不会出现图片加载错误
   },
 });

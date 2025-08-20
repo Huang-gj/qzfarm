@@ -48,7 +48,6 @@
 <!-- 购物车空态 -->
 <cart-empty 
   wx:else 
-  cloud-img-url="{{emptyCartImage}}"
   tip="{{currentCartType === 'goods' ? '农产品购物车还是空的，快去选择喜欢的农产品吧~' : '土地购物车还是空的，快去选择喜欢的土地吧~'}}"
   bind:handleClick="onGotoHome" 
 />

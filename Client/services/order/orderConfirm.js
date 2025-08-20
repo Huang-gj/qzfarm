@@ -1,5 +1,6 @@
 import { config } from '../../config/index';
 import { mockIp, mockReqId } from '../../utils/mock';
+import { processGoodsImage } from '../../utils/imageUtils';
 
 /** 获取结算mock数据 */
 function mockFetchSettleDetail(params) {
@@ -104,7 +105,7 @@ export function fetchSettleDetail(params) {
               good_id: goods.good_id,
               skuId: goods.skuId || `sku_${goods.good_id}`,
               goodsName: goods.title,
-              image: goods.primaryImage || goods.thumb,
+              image: processGoodsImage(goods.primaryImage, goods.thumb),
               reminderStock: 999,
               quantity: goods.quantity || 1,
               payPrice: goods.price || 0,

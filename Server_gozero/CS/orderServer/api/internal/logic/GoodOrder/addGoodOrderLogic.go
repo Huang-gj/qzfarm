@@ -76,7 +76,7 @@ func (l *AddGoodOrderLogic) AddGoodOrder(req *types.AddGoodOrderRequest) (resp *
 	if newRep < 0 {
 		return &types.AddGoodOrderResponse{Code: 400, Msg: "库存不足"}, nil
 	}
-	OrderID, err := l.svcCtx.Ident.GetId(l.ctx, &ISender.GetIDReq{BizTag: "good_order"})
+	OrderID, err := l.svcCtx.Ident.GetId(l.ctx, &ISender.GetIDReq{BizTag: "order"})
 	if err != nil {
 		logx.Errorw("分布式唯一id获取错误！", logx.Field("err", err))
 		return &types.AddGoodOrderResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")

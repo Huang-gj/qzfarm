@@ -43,14 +43,14 @@ const menuData = [
 
 const orderTagInfos = [{
     title: '待付款',
-    iconName: 'add',
+    iconName: 'wallet',
     orderNum: 0,
     tabType: 5,
     status: 1,
   },
   {
     title: '待发货',
-    iconName: 'deliver',
+    iconName: 'forward',
     orderNum: 0,
     tabType: 10,
     status: 1,
@@ -71,7 +71,7 @@ const orderTagInfos = [{
   },
   {
     title: '退款/售后',
-    iconName: 'close',
+    iconName: 'refresh',
     orderNum: 0,
     tabType: 0,
     status: 1,
@@ -81,7 +81,7 @@ const orderTagInfos = [{
 // 商品订单数据
 const goodsOrderTagInfos = [{
     title: '待付款',
-    iconName: 'add',
+    iconName: 'wallet',
     orderNum: 0,
     tabType: 5,
     status: 1,
@@ -89,7 +89,7 @@ const goodsOrderTagInfos = [{
   },
   {
     title: '待发货',
-    iconName: 'deliver',
+    iconName: 'forward',
     orderNum: 0,
     tabType: 10,
     status: 1,
@@ -113,7 +113,7 @@ const goodsOrderTagInfos = [{
   },
   {
     title: '退款/售后',
-    iconName: 'close',
+    iconName: 'refresh',
     orderNum: 0,
     tabType: 0,
     status: 1,
@@ -124,7 +124,7 @@ const goodsOrderTagInfos = [{
 // 土地订单数据
 const landsOrderTagInfos = [{
     title: '待付款',
-    iconName: 'add',
+    iconName: 'wallet',
     orderNum: 0,
     tabType: 5,
     status: 1,
@@ -132,7 +132,7 @@ const landsOrderTagInfos = [{
   },
   {
     title: '待发货',
-    iconName: 'deliver',
+    iconName: 'forward',
     orderNum: 0,
     tabType: 10,
     status: 1,
@@ -156,7 +156,7 @@ const landsOrderTagInfos = [{
   },
   {
     title: '退款/售后',
-    iconName: 'close',
+    iconName: 'refresh',
     orderNum: 0,
     tabType: 0,
     status: 1,
@@ -230,95 +230,47 @@ Page({
           });
         });
 
-        // 为每个订单图标获取临时URL
-        const processOrderIcons = async () => {
-          const info = orderTagInfos.map((v, index) => {
-            const item = {
-              ...v,
-              ...orderInfo[index],
-            };
-            return item;
-          });
+        // 直接处理订单数据，使用TDesign图标
+        const processedInfo = orderTagInfos.map((v, index) => {
+          const item = {
+            ...v,
+            ...(orderInfo[index] || {}),
+          };
+          return item;
+        });
 
-          // 转换所有图标URL
-          const iconPromises = info.map(async (item) => {
-            if (item.iconUrl) {
-              try {
-                const tempUrl = await genPicURL(item.iconUrl);
-                item.customIconUrl = tempUrl;
-              } catch (error) {
-                console.error('获取图标URL失败:', error);
-              }
-            }
-            return item;
-          });
+        // 处理商品订单数据
+        const processedGoodsInfo = goodsOrderTagInfos.map((v, index) => {
+          const item = {
+            ...v,
+            ...(orderInfo[index] || {}),
+          };
+          return item;
+        });
 
-          const processedInfo = await Promise.all(iconPromises);
+        // 处理土地订单数据
+        const processedLandsInfo = landsOrderTagInfos.map((v, index) => {
+          const item = {
+            ...v,
+            ...(orderInfo[index] || {}),
+          };
+          return item;
+        });
 
-          // 处理商品订单数据
-          const goodsInfo = goodsOrderTagInfos.map((v, index) => {
-            const item = {
-              ...v,
-              ...orderInfo[index],
-            };
-            return item;
-          });
-
-          // 处理土地订单数据
-          const landsInfo = landsOrderTagInfos.map((v, index) => {
-            const item = {
-              ...v,
-              ...orderInfo[index],
-            };
-            return item;
-          });
-
-          // 转换商品和土地订单图标URL
-          const goodsIconPromises = goodsInfo.map(async (item) => {
-            if (item.iconUrl) {
-              try {
-                const tempUrl = await genPicURL(item.iconUrl);
-                item.customIconUrl = tempUrl;
-              } catch (error) {
-                console.error('获取商品订单图标URL失败:', error);
-              }
-            }
-            return item;
-          });
-
-          const landsIconPromises = landsInfo.map(async (item) => {
-            if (item.iconUrl) {
-              try {
-                const tempUrl = await genPicURL(item.iconUrl);
-                item.customIconUrl = tempUrl;
-              } catch (error) {
-                console.error('获取土地订单图标URL失败:', error);
-              }
-            }
-            return item;
-          });
-
-          const processedGoodsInfo = await Promise.all(goodsIconPromises);
-          const processedLandsInfo = await Promise.all(landsIconPromises);
-
-          // 修改用户头像和用户名
-          // userInfo.avatarUrl = 'cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/usercenter/微信图片_20250318105208.jpg';
-          // userInfo.nickName = 'QZFarm';
-
-          console.log('[fetUseriInfoHandle] 设置用户信息到页面:', userInfo);
-          this.setData({
-            userInfo,
-            menuData,
-            orderTagInfos: processedInfo,
-            goodsOrderTagInfos: processedGoodsInfo,
-            landsOrderTagInfos: processedLandsInfo,
-            customerServiceInfo,
-            currAuthStep: 2,
-          });
-          wx.stopPullDownRefresh();
-        };
-
-        processOrderIcons();
+        console.log('[fetUseriInfoHandle] 设置用户信息到页面:', userInfo);
+        console.log('[fetUseriInfoHandle] 处理后的订单图标数据:', processedInfo);
+        console.log('[fetUseriInfoHandle] 商品订单图标数据:', processedGoodsInfo);
+        console.log('[fetUseriInfoHandle] 土地订单图标数据:', processedLandsInfo);
+        this.setData({
+          userInfo,
+          menuData,
+          orderTagInfos: processedInfo,
+          goodsOrderTagInfos: processedGoodsInfo,
+          landsOrderTagInfos: processedLandsInfo,
+          customerServiceInfo,
+          currAuthStep: 2,
+        });
+        wx.stopPullDownRefresh();
       },
     );
   },

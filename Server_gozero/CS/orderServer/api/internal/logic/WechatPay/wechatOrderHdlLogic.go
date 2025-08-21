@@ -2,9 +2,7 @@ package WechatPay
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"github.com/wechatpay-apiv3/wechatpay-go/utils"
+	"github.com/wechatpay-apiv3/wechatpay-go/services/payments"
 	"strconv"
 
 	"Server_gozero/CS/orderServer/api/internal/svc"
@@ -27,25 +25,11 @@ func NewWechatOrderHdlLogic(ctx context.Context, svcCtx *svc.ServiceContext) *We
 	}
 }
 
-func (l *WechatOrderHdlLogic) WechatOrderHdl(req *types.WechatOrderHandlerRequest) (resp *types.WechatOrderHandlerResponse, err error) {
+func (l *WechatOrderHdlLogic) WechatOrderHdl(req payments.Transaction) (resp *types.WechatOrderHandlerResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	apiV3 := l.svcCtx.Config.WechatPay.ApiV3
-	plaintext, err := utils.DecryptAES256GCM(apiV3, req.Resource.Associated_data, req.Resource.Nonce, req.Resource.Ciphertext)
-	if err != nil {
-		logx.Error("回调解密失败: ", err)
-		return
-	}
-	var notify WechatPayNotify
-	if err := json.Unmarshal([]byte(plaintext), &notify); err != nil {
-		return &types.WechatOrderHandlerResponse{
-			Code:    "FAIL",
-			Message: "失败",
-		}, fmt.Errorf("解析失败: %v", err)
-	}
-
-	if notify.TradeState == "SUCCESS" {
-		orderID, _ := strconv.Atoi(notify.OutTradeNo)
+	if *req.TradeState == "SUCCESS" {
+		orderID, _ := strconv.Atoi(*req.OutTradeNo)
 		l.svcCtx.LandOrder.UpdateOrderStatus(l.ctx, int64(orderID))
 		l.svcCtx.GoodOrder.UpdateOrderStatus(l.ctx, int64(orderID))
 	}

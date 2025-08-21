@@ -63,23 +63,62 @@ type WechatOrderResponse  {
     PaySign   string `json:"pay_sign"`
 }
 
-type Resource {
-    algorithm string `json:"algorithm"`
-    ciphertext string `json:"ciphertext string"`
-    associated_data string `json:"associated_data"`
-    original_type string `json:"original_type"`
-    nonce string `json:"nonce"`
+
+type WechatOrderHandlerRequest {
+    Appid          string              `json:"appid"`
+    Mchid          string              `json:"mchid"`
+    OutTradeNo     string              `json:"out_trade_no"`
+    TransactionId  string              `json:"transaction_id"`
+    TradeType      string              `json:"trade_type"`
+    TradeState     string              `json:"trade_state"`
+    TradeStateDesc string              `json:"trade_state_desc"`
+    BankType       string              `json:"bank_type"`
+    Attach         string              `json:"attach,omitempty"`
+    SuccessTime    string              `json:"success_time"`
+    Payer          PayerOne               `json:"payer"`
+    Amount         AmountOne              `json:"amount"`
+    SceneInfo      SceneInfoOne           `json:"scene_info,omitempty"`
+    PromotionDetail []PromotionDetailOne  `json:"promotion_detail,omitempty"`
 }
-type WechatOrderHandlerRequest{
-    ID string `json:"id"`
-    create_time string `json:"create_time"`
-    event_type string `json:"event_type"`
-    resource_type string `json:"resource_type"`
-    resource Resource `json:"resource"`
+
+type PayerOne {
+    Openid string `json:"openid"`
+}
+
+type AmountOne {
+    Total         int    `json:"total"`
+    PayerTotal    int    `json:"payer_total"`
+    Currency      string `json:"currency"`
+    PayerCurrency string `json:"payer_currency"`
+}
+
+type SceneInfoOne {
+    DeviceId string `json:"device_id"`
+}
+
+type PromotionDetailOne {
+    CouponId            string         `json:"coupon_id"`
+    Name                string         `json:"name,omitempty"`
+    Scope               string         `json:"scope,omitempty"`
+    Type                string         `json:"type,omitempty"`
+    Amount              int            `json:"amount"`
+    StockId             string         `json:"stock_id,omitempty"`
+    WechatpayContribute int            `json:"wechatpay_contribute,omitempty"`
+    MerchantContribute  int            `json:"merchant_contribute,omitempty"`
+    OtherContribute     int            `json:"other_contribute,omitempty"`
+    Currency            string         `json:"currency,omitempty"`
+    GoodsDetail         []GoodsDetailOne  `json:"goods_detail,omitempty"`
+}
+
+type GoodsDetailOne {
+    GoodsId        string `json:"goods_id"`
+    Quantity       int    `json:"quantity"`
+    UnitPrice      int    `json:"unit_price"`
+    DiscountAmount int    `json:"discount_amount"`
+    GoodsRemark    string `json:"goods_remark,omitempty"`
 }
 
 type WechatOrderHandlerResponse{
     Code string `json:"code"`
     Message string `json:"message"`
 }
-

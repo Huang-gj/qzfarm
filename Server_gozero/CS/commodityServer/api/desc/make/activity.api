@@ -1,0 +1,39 @@
+
+type Activity{
+    ActivityID int `json:"activity_id"`
+    FarmID int `json:"farm_id"`
+    MainPic string  `json:"main_pic"`
+    ImageURLs []string `json:"image_urls"`
+    Text string  `json:"text"`
+    StartTime string `json:"start_time"`
+    EndTime string `json:"end_time"`
+}
+
+type AddActivityRequest {
+    Activity Activity `json:"activity"`
+}
+
+type AddActivityResponse {
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type GetMainPicRequest{
+
+}
+
+type GetMainPicResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+    MainPics []string `json:"main_pics"`
+}
+
+type GetActivityDetailRequest{
+
+}
+
+type GetActivityDetailResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+    Activities []*Activity `json:"activities"`
+}

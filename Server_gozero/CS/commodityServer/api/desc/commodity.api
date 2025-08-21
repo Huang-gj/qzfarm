@@ -14,6 +14,7 @@ import (
 	"make/land.api"
 	"make/search.api"
 	"make/comment.api"
+	"make/activity.api"
 )
 
 @server (
@@ -78,5 +79,21 @@ service commodity {
 
 	@handler GetCommentPreview
 	post /getCommentPreview (GetCommentRequest) returns (GetCommentResponse)
+}
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  activity
+)
+service commodity {
+	@handler AddActivity
+	post /AddActivity (AddActivityRequest) returns (AddActivityResponse)
+
+	@handler GetMainPic
+	post /GetMainPic (GetMainPicRequest) returns (GetMainPicResponse)
+
+	@handler GetActivityDetail
+	post /GetActivityDetail (GetActivityDetailRequest) returns (GetActivityDetailResponse)
 }
 

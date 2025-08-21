@@ -310,3 +310,23 @@ VALUES ('daily_sale_data_init', NOW(), 'INFO: Event finished successfully');
 END$$
 
 DELIMITER ;
+
+
+DROP TABLE IF EXISTS `activity`;
+CREATE TABLE `activity`
+(
+    id           INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    del_state    INT          NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
+    del_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    activity_id INT NOT NULL DEFAULT 0 COMMENT '活动的分布式唯一ID',
+    farm_id INT NOT NULL DEFAULT 0 COMMENT '关联农场id',
+    MainPic VARCHAR(128) NOT NULL DEFAULT '' COMMENT '活动主图',
+    image_urls  TEXT COMMENT '图片信息',
+    text TEXT COMMENT '活动详情',
+    start_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '活动开始时间',
+    end_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '活动结束时间'
+) ENGINE = InnoDB
+CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_general_ci
+ROW_FORMAT = Dynamic;

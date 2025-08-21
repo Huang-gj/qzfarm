@@ -6,6 +6,7 @@ package handler
 import (
 	"net/http"
 
+	activity "Server_gozero/CS/commodityServer/api/internal/handler/activity"
 	comment "Server_gozero/CS/commodityServer/api/internal/handler/comment"
 	good "Server_gozero/CS/commodityServer/api/internal/handler/good"
 	land "Server_gozero/CS/commodityServer/api/internal/handler/land"
@@ -16,6 +17,28 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/AddActivity",
+				Handler: activity.AddActivityHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetActivityDetail",
+				Handler: activity.GetActivityDetailHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetMainPic",
+				Handler: activity.GetMainPicHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/api"),
+	)
+
 	server.AddRoutes(
 		[]rest.Route{
 			{

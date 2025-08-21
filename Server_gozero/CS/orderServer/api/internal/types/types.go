@@ -52,6 +52,13 @@ type Amount struct {
 	Currency string `json:"currency,optional"`
 }
 
+type AmountOne struct {
+	Total         int    `json:"total"`
+	PayerTotal    int    `json:"payer_total"`
+	Currency      string `json:"currency"`
+	PayerCurrency string `json:"payer_currency"`
+}
+
 type Detail struct {
 	CostPrice   int           `json:"cost_price,optional"`
 	InvoiceID   string        `json:"invoice_id,optional"`
@@ -149,6 +156,14 @@ type GoodsDetail struct {
 	UnitPrice        int    `json:"unit_price"`
 }
 
+type GoodsDetailOne struct {
+	GoodsId        string `json:"goods_id"`
+	Quantity       int    `json:"quantity"`
+	UnitPrice      int    `json:"unit_price"`
+	DiscountAmount int    `json:"discount_amount"`
+	GoodsRemark    string `json:"goods_remark,omitempty"`
+}
+
 type LandOrder struct {
 	Id          int64   `json:"id"`            // 主键ID
 	DelState    int64   `json:"del_state"`     // 0-正常 1-删除
@@ -170,18 +185,32 @@ type Payer struct {
 	OpenID string `json:"openid"`
 }
 
-type Resource struct {
-	Algorithm       string `json:"algorithm"`
-	Ciphertext      string `json:"ciphertext string"`
-	Associated_data string `json:"associated_data"`
-	Original_type   string `json:"original_type"`
-	Nonce           string `json:"nonce"`
+type PayerOne struct {
+	Openid string `json:"openid"`
+}
+
+type PromotionDetailOne struct {
+	CouponId            string           `json:"coupon_id"`
+	Name                string           `json:"name,omitempty"`
+	Scope               string           `json:"scope,omitempty"`
+	Type                string           `json:"type,omitempty"`
+	Amount              int              `json:"amount"`
+	StockId             string           `json:"stock_id,omitempty"`
+	WechatpayContribute int              `json:"wechatpay_contribute,omitempty"`
+	MerchantContribute  int              `json:"merchant_contribute,omitempty"`
+	OtherContribute     int              `json:"other_contribute,omitempty"`
+	Currency            string           `json:"currency,omitempty"`
+	GoodsDetail         []GoodsDetailOne `json:"goods_detail,omitempty"`
 }
 
 type SceneInfo struct {
 	PayerClientIP string    `json:"payer_client_ip,optional"`
 	DeviceID      string    `json:"device_id,optional"`
 	StoreInfo     StoreInfo `json:"store_info,optional"`
+}
+
+type SceneInfoOne struct {
+	DeviceId string `json:"device_id"`
 }
 
 type SettleInfo struct {
@@ -218,11 +247,20 @@ type UpdateLandOrderCountResponse struct {
 }
 
 type WechatOrderHandlerRequest struct {
-	ID            string   `json:"id"`
-	Create_time   string   `json:"create_time"`
-	Event_type    string   `json:"event_type"`
-	Resource_type string   `json:"resource_type"`
-	Resource      Resource `json:"resource"`
+	Appid           string               `json:"appid"`
+	Mchid           string               `json:"mchid"`
+	OutTradeNo      string               `json:"out_trade_no"`
+	TransactionId   string               `json:"transaction_id"`
+	TradeType       string               `json:"trade_type"`
+	TradeState      string               `json:"trade_state"`
+	TradeStateDesc  string               `json:"trade_state_desc"`
+	BankType        string               `json:"bank_type"`
+	Attach          string               `json:"attach,omitempty"`
+	SuccessTime     string               `json:"success_time"`
+	Payer           PayerOne             `json:"payer"`
+	Amount          AmountOne            `json:"amount"`
+	SceneInfo       SceneInfoOne         `json:"scene_info,omitempty"`
+	PromotionDetail []PromotionDetailOne `json:"promotion_detail,omitempty"`
 }
 
 type WechatOrderHandlerResponse struct {

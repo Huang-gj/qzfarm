@@ -3,6 +3,24 @@
 
 package types
 
+type Activity struct {
+	FarmID    int      `json:"farm_id"`
+	MainPic   string   `json:"main_pic"`
+	ImageURLs []string `json:"image_urls"`
+	Text      string   `json:"text"`
+	StartTime string   `json:"start_time"`
+	EndTime   string   `json:"end_time"`
+}
+
+type AddActivityRequest struct {
+	Activity Activity `json:"activity"`
+}
+
+type AddActivityResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
 type AddCommentReplyRequest struct {
 	CommentReply CommentReply `json:"comment_reply"`
 }
@@ -44,6 +62,15 @@ type CommentReply struct {
 	UserID         int    `json:"user_id"`
 	Avatar         string `json:"avatar"`
 	Nickname       string `json:"nickname"`
+}
+
+type GetActivityDetailRequest struct {
+}
+
+type GetActivityDetailResponse struct {
+	Code       int         `json:"code"`
+	Msg        string      `json:"msg"`
+	Activities []*Activity `json:"activities"`
 }
 
 type GetCommentReplyRequest struct {
@@ -129,6 +156,15 @@ type GetLandsResponse struct {
 	Code  int     `json:"code"`       // 状态码
 	Msg   string  `json:"msg"`        // 响应信息
 	Lands []*Land `json:"lands_list"` // 商品列表
+}
+
+type GetMainPicRequest struct {
+}
+
+type GetMainPicResponse struct {
+	Code     int      `json:"code"`
+	Msg      string   `json:"msg"`
+	MainPics []string `json:"main_pics"`
 }
 
 type Good struct {

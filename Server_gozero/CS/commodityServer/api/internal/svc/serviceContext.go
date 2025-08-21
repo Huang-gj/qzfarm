@@ -2,6 +2,7 @@ package svc
 
 import (
 	"Server_gozero/CS/commodityServer/api/internal/config"
+	"Server_gozero/CS/commodityServer/model/activityModel"
 	"Server_gozero/CS/commodityServer/model/commentModel"
 	"Server_gozero/CS/commodityServer/model/commentReplyModel"
 	"Server_gozero/CS/commodityServer/model/goodModel/model"
@@ -21,6 +22,7 @@ type ServiceContext struct {
 	Ident             IDGenerator.Ident
 	CommentModel      commentModel.CommentModel
 	CommentReplyModel commentReplyModel.CommentReplyModel
+	ActivityModel     activityModel.ActivityModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -36,5 +38,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Ident:             *Ident,
 		CommentModel:      commentModel.NewCommentModel(sqlxConn),
 		CommentReplyModel: commentReplyModel.NewCommentReplyModel(sqlxConn),
+		ActivityModel:     activityModel.NewActivityModel(sqlxConn),
 	}
 }

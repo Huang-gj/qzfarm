@@ -3,9 +3,9 @@ package activity
 import (
 	"net/http"
 
-	"Server_gozero/CS/commodityServer/api/internal/logic/activity"
-	"Server_gozero/CS/commodityServer/api/internal/svc"
-	"Server_gozero/CS/commodityServer/api/internal/types"
+	"Server_gozero/BS/api/internal/logic/activity"
+	"Server_gozero/BS/api/internal/svc"
+	"Server_gozero/BS/api/internal/types"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 

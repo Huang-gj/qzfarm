@@ -35,6 +35,7 @@ Page({
     cartIconUrl: '',
     searchIconUrl: '',
     currentTabIndex: 0,
+    activities: null, // 活动数据
   },
 
   goodListPagination: {
@@ -55,6 +56,7 @@ Page({
   },
 
   onLoad() {
+    console.log('[onLoad] 首页开始加载');
     this.goodListPagination = {
       index: 0,
       num: 20
@@ -66,6 +68,7 @@ Page({
     this.privateData = {
       tabIndex: 0
     };
+    console.log('[onLoad] 准备调用init方法');
     this.init();
 
     this.loadCartIcon();
@@ -85,6 +88,7 @@ Page({
   },
 
   init() {
+    console.log('[init] 初始化首页，准备调用loadHomePage');
     this.loadHomePage();
   },
 
@@ -99,13 +103,17 @@ Page({
     
     fetchHome().then(({
       swiper,
-      tabList
+      activityMapping,
+      tabList,
+      activities
     }) => {
-      console.log('[loadHomePage] 获取到首页数据:', { swiper, tabList });
+      console.log('[loadHomePage] 获取到首页数据:', { swiper, activityMapping, tabList, activities });
       
       this.setData({
         tabList,
         imgSrcs: swiper,
+        activityMapping: activityMapping || [], // 保存活动映射关系
+        activities: activities || null, // 保存活动数据
         pageLoading: false,
         currentTabIndex: 0, // 初始化当前tab索引为0（农产品）
       });
@@ -369,11 +377,43 @@ Page({
   navToActivityDetail({
     detail
   }) {
-    const {
-      index: promotionID = 0
-    } = detail || {};
-    wx.navigateTo({
-      url: `/pages/promotion-detail/index?promotion_id=${promotionID}`,
-    });
+    console.log('[navToActivityDetail] 轮播图点击事件:', detail);
+    
+    const { index = 0 } = detail || {};
+    const { activityMapping } = this.data;
+    
+    // 使用活动映射关系获取对应的活动信息
+    if (activityMapping && activityMapping[index]) {
+      const activityInfo = activityMapping[index];
+      console.log('[navToActivityDetail] 点击的活动信息:', activityInfo);
+      
+      if (activityInfo.activityId) {
+        console.log('[navToActivityDetail] 跳转到活动详情页，activityId:', activityInfo.activityId);
+        wx.navigateTo({
+          url: `/pages/activity-detail/index?activity_id=${activityInfo.activityId}`,
+          fail: (err) => {
+            console.error('[navToActivityDetail] 跳转失败:', err);
+            wx.showToast({
+              title: '页面跳转失败',
+              icon: 'none',
+              duration: 2000
+            });
+          }
+        });
+      } else {
+        // 如果没有activityId，跳转到原来的促销详情页
+        console.log('[navToActivityDetail] 跳转到促销详情页，index:', index);
+        wx.navigateTo({
+          url: `/pages/promotion-detail/index?promotion_id=${index}`,
+        });
+      }
+    } else {
+      console.warn('[navToActivityDetail] 未找到对应的活动映射数据');
+      wx.showToast({
+        title: '数据异常',
+        icon: 'none',
+        duration: 2000
+      });
+    }
   },
 });

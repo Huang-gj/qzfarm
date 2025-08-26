@@ -409,7 +409,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
 					{
 						path: '/fun/countup',
 						name: 'funCountup',
-						component: () => import('/@/views/fun/countup/index.vue'),
+						component: () => import('/@/views/fun/activityManagement/index.vue'),
 						meta: {
 							title: 'message.router.funCountup',
 							isLink: '',

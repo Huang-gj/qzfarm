@@ -35,4 +35,32 @@ type GetActivityDetailResponse{
     Activities Activity `json:"activities"`
 }
 
+type AddActivityRequest {
+    Activity Activity `json:"activity"`
+}
 
+type AddActivityResponse {
+    ActivityID int `json:"activity_id"`
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type AddPicRequest{
+    FarmID int `form:"farm_id"`
+    ActivityID int `form:"activity_id"`
+}
+
+type AddPicResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type AddMainPicRequest{
+    FarmID int `form:"farm_id"`
+    ActivityID int `form:"activity_id"`
+}
+
+type AddMainPicResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}

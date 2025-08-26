@@ -1,0 +1,91 @@
+<!--pages/activity-detail/index.wxml-->
+<view class="activity-detail-container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <t-loading theme="circular" size="40rpx" text="加载中..." inherit-color />
+  </view>
+
+  <!-- 错误状态 -->
+  <view wx:elif="{{error}}" class="error-container">
+    <view class="error-content">
+      <text class="error-text">{{error}}</text>
+      <t-button theme="primary" size="medium" bind:tap="onRetry" class="retry-btn">
+        重试
+      </t-button>
+    </view>
+  </view>
+
+  <!-- 活动详情内容 -->
+  <view wx:else class="activity-content">
+    <!-- 主图 -->
+    <view wx:if="{{activity && activity.main_pic}}" class="main-image-container">
+      <t-image 
+        src="{{activity.main_pic}}" 
+        mode="widthFix" 
+        width="100%" 
+        bind:tap="onImageTap"
+        data-current="{{activity.main_pic}}"
+        class="main-image"
+        lazy
+      />
+    </view>
+
+    <!-- 活动信息 -->
+    <view class="activity-info">
+      <!-- 标题 -->
+      <view class="title-section">
+        <text class="activity-title">{{activity.title}}</text>
+      </view>
+
+      <!-- 时间信息 -->
+      <view wx:if="{{activity && (activity.start_time || activity.end_time)}}" class="time-section">
+        <view class="time-item" wx:if="{{activity.start_time}}">
+          <text class="time-label">开始时间：</text>
+          <text class="time-value">{{activity.start_time}}</text>
+        </view>
+        <view class="time-item" wx:if="{{activity.end_time}}">
+          <text class="time-label">结束时间：</text>
+          <text class="time-value">{{activity.end_time}}</text>
+        </view>
+      </view>
+
+      <t-divider />
+
+      <!-- 活动详情 -->
+      <view class="description-section">
+        <view class="section-title">活动详情</view>
+        <view class="description-content">
+          <text class="description-text">{{activity.text || '暂无详细描述'}}</text>
+        </view>
+      </view>
+
+      <!-- 详情图片 -->
+      <view wx:if="{{activity && activity.image_urls && activity.image_urls.length > 0}}" class="images-section">
+        <view class="section-title">活动图片</view>
+        <view class="images-grid">
+          <view 
+            wx:for="{{activity.image_urls}}" 
+            wx:key="index" 
+            class="image-item"
+            bind:tap="onImageTap"
+            data-current="{{item}}"
+          >
+            <t-image 
+              src="{{item}}" 
+              mode="aspectFill" 
+              width="220rpx" 
+              height="220rpx"
+              class="detail-image"
+              lazy
+            />
+          </view>
+        </view>
+      </view>
+    </view>
+
+
+  </view>
+
+  <!-- Toast组件 -->
+  <t-toast id="t-toast" />
+</view>

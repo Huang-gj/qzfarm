@@ -9,6 +9,7 @@ import (
 	"Server_gozero/BS/model/Product/Good"
 	"Server_gozero/BS/model/Product/Land"
 	"Server_gozero/BS/model/SaleData"
+	"Server_gozero/CS/commodityServer/model/activityModel"
 	"Server_gozero/common/ISender/IDGenerator"
 	"Server_gozero/common/ISender/id"
 	"context"
@@ -26,6 +27,7 @@ type ServiceContext struct {
 	GoodModel      Good.GoodModel
 	LandModel      Land.LandModel
 	SaleData       SaleData.SaleDataModel
+	ActivityModel  activityModel.ActivityModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -44,5 +46,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		GoodModel:      Good.NewGoodModel(sqlconn),
 		LandModel:      Land.NewLandModel(sqlconn),
 		SaleData:       SaleData.NewSaleDataModel(sqlconn, c.CacheRedis),
+		ActivityModel:  activityModel.NewActivityModel(sqlconn),
 	}
 }

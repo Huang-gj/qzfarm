@@ -15,6 +15,7 @@ import (
 	"make/Order.api"
 	"make/product.api"
 	"make/SaleData.api"
+	"make/Activity.api"
 )
 
 @server (
@@ -124,5 +125,27 @@ service intelligent_agriculture_sys {
 
 	@handler getLastOneYearSaleDataHandler
 	post /getLastOneYearSaleData (GetLastOneYearSaleDataRequest) returns (GetLastOneYearSaleDataResponse)
+}
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  activity
+)
+service intelligent_agriculture_sys {
+	@handler AddActivity
+	post /AddActivity (AddActivityRequest) returns (AddActivityResponse)
+
+	@handler GetMainPic
+	post /GetMainPic (GetMainPicRequest) returns (GetMainPicResponse)
+
+	@handler GetActivityDetail
+	post /GetActivityDetail (GetActivityDetailRequest) returns (GetActivityDetailResponse)
+
+	@handler AddPic
+	post /AddPic (AddPicRequest) returns (AddPicResponse)
+
+	@handler AddMainPic
+	post /AddMainPic (AddMainPicRequest) returns (AddMainPicResponse)
 }
 

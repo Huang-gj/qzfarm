@@ -27,6 +27,7 @@
     "pages/coupon/coupon-detail/index",
     "pages/coupon/coupon-activity-goods/index",
     "pages/promotion-detail/index",
+    "pages/activity-detail/index",
     "pages/order/fill-tracking-no/index",
     "pages/order/delivery-detail/index",
     "pages/order/invoice/index",

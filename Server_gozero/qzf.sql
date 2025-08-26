@@ -320,6 +320,7 @@ CREATE TABLE `activity`
     del_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
     create_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     activity_id INT NOT NULL DEFAULT 0 COMMENT '活动的分布式唯一ID',
+    title VARCHAR(64) NOT NULL DEFAULT '' COMMENT '活动标题',
     farm_id INT NOT NULL DEFAULT 0 COMMENT '关联农场id',
     MainPic VARCHAR(128) NOT NULL DEFAULT '' COMMENT '活动主图',
     image_urls  TEXT COMMENT '图片信息',

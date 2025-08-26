@@ -2,6 +2,52 @@ import { post } from '../_utils/request.js';
 import { getPaymentConfig } from '../../config/payment.js';
 
 /**
+ * 识别商品类型并获取对应的ID
+ * @param {Array} goodsList - 商品列表
+ * @returns {Object} { type: 'goods'|'land', id: string }
+ */
+function getProductTypeAndId(goodsList) {
+  if (!goodsList || goodsList.length === 0) {
+    return { type: 'goods', id: generateOrderNo() }; // 默认使用生成的订单号
+  }
+  
+  const firstItem = goodsList[0];
+  
+  // 优先判断 cartType 字段
+  if (firstItem.cartType === 'land') {
+    const baseId = firstItem.land_id || firstItem.good_id || generateOrderNo();
+    return { 
+      type: 'land', 
+      id: String(baseId) + 'QZFarm'
+    };
+  }
+  
+  // 判断是否有 land_id 字段
+  if (firstItem.land_id) {
+    return { 
+      type: 'land', 
+      id: String(firstItem.land_id) + 'QZFarm'
+    };
+  }
+  
+  // 判断标题是否包含"土地"
+  if (firstItem.title && firstItem.title.includes('土地')) {
+    const baseId = firstItem.good_id || firstItem.skuId || generateOrderNo();
+    return { 
+      type: 'land', 
+      id: String(baseId) + 'QZFarm'
+    };
+  }
+  
+  // 默认为农产品
+  const baseId = firstItem.good_id || firstItem.skuId || generateOrderNo();
+  return { 
+    type: 'goods', 
+    id: String(baseId) + 'QZFarm'
+  };
+}
+
+/**
  * 微信支付JSAPI下单
  * @param {Object} params - 下单参数
  * @param {number} params.totalAmount - 支付金额（分）
@@ -14,6 +60,14 @@ import { getPaymentConfig } from '../../config/payment.js';
  */
 export function createWechatOrder(params) {
   console.log('[createWechatOrder] 开始创建微信支付订单:', params);
+  
+  // 识别商品类型并获取对应ID
+  const productInfo = getProductTypeAndId(params.goodsList);
+  console.log('[createWechatOrder] 商品类型识别结果:', productInfo);
+  
+  // 使用商品ID作为订单号，如果没有则使用传入的订单号
+  const outTradeNo = productInfo.id;
+  console.log('[createWechatOrder] 使用的订单号:', outTradeNo);
   
   // 构建商品详情
   const goodsDetail = params.goodsList && params.goodsList.length > 0 ? params.goodsList.map(item => ({
@@ -33,10 +87,10 @@ export function createWechatOrder(params) {
     appid: config.wechat.appid,
     mchid: config.wechat.mchid,
     description: params.description || 'QZFarm商品购买',
-    out_trade_no: params.outTradeNo,
+    out_trade_no: outTradeNo, // 使用商品ID作为订单号
     time_expire: getExpireTime(), // 30分钟后过期
     attach: JSON.stringify({
-      orderType: 'goods',
+      orderType: productInfo.type, // 使用识别的商品类型
       userId: params.userId
     }),
     notify_url: params.notifyUrl || config.wechat.notifyUrl,
@@ -44,7 +98,7 @@ export function createWechatOrder(params) {
     support_fapiao: false,
     amount: {
       total: params.totalAmount,
-      currency: config.wechat.currency || 'CNY'
+      currency: 'CNY'
     },
     payer: {
       openid: params.openid
@@ -82,6 +136,7 @@ export function createWechatOrder(params) {
   console.log('  notify_url:', requestData.notify_url);
   console.log('  amount.total:', requestData.amount.total);
   console.log('  payer.openid:', requestData.payer.openid);
+  console.log('  orderType:', JSON.parse(requestData.attach).orderType);
 
   return post('/api/WechatOrder', requestData)
     .then(res => {

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"Server_gozero/CS/commodityServer/api/internal/svc"
-	"Server_gozero/CS/commodityServer/api/internal/types"
+	"Server_gozero/BS/api/internal/svc"
+	"Server_gozero/BS/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -38,7 +38,7 @@ func (l *GetActivityDetailLogic) GetActivityDetail(req *types.GetActivityDetailR
 		logx.Errorw("GetActivityDetail Unmarshal failed", logx.Field("err", err))
 		return &types.GetActivityDetailResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")
 	}
-	return &types.GetActivityDetailResponse{Code: 200, Msg: "查找成功", Activities: types.Activity{
+	return &types.GetActivityDetailResponse{Code: 200, Msg: "查看成功", Activities: types.Activity{
 		Title:      detail.Title,
 		ActivityID: int(detail.ActivityId),
 		FarmID:     int(detail.FarmId),
@@ -48,5 +48,4 @@ func (l *GetActivityDetailLogic) GetActivityDetail(req *types.GetActivityDetailR
 		StartTime:  detail.StartTime.Format("2006-01-02 15:04:05"),
 		EndTime:    detail.EndTime.Format("2006-01-02 15:04:05"),
 	}}, nil
-
 }

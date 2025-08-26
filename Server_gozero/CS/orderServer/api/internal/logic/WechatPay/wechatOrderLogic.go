@@ -33,14 +33,14 @@ func NewWechatOrderLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Wecha
 func (l *WechatOrderLogic) WechatOrder(request *types.WechatOrderRequest) (response *types.WechatOrderResponse, err error) {
 	// todo: add your logic here and delete this line
 	var (
-		mchID                      = "190000****"                               // 商户号
-		mchCertificateSerialNumber = "3775B6A45ACD588826D15E583A95F5DD********" // 商户证书序列号
-		mchAPIv3Key                = "2ab9****************************"         // 商户APIv3密钥
+		mchID                      = l.svcCtx.Config.WechatPay.MchID        // 商户号
+		mchCertificateSerialNumber = l.svcCtx.Config.WechatPay.SerialNumber // 商户证书序列号
+		mchAPIv3Key                = l.svcCtx.Config.WechatPay.APIv3Key     // 商户APIv3密钥
 
 	)
 
 	// 使用 utils 提供的函数从本地文件中加载商户私钥，商户私钥会用来生成请求的签名
-	mchPrivateKey, err := utils.LoadPrivateKeyWithPath("/common/key/apiclient_key.pem")
+	mchPrivateKey, err := utils.LoadPrivateKeyWithPath(l.svcCtx.Config.WechatPay.PrivateKeyPath)
 	if err != nil {
 		log.Fatal("load merchant private key error")
 	}
@@ -65,12 +65,12 @@ func (l *WechatOrderLogic) WechatOrder(request *types.WechatOrderRequest) (respo
 	// 得到prepay_id，以及调起支付所需的参数和签名
 	resp, _, err := JSAPIsvc.PrepayWithRequestPayment(ctx,
 		jsapi.PrepayRequest{
-			Appid:       core.String(request.AppID),
-			Mchid:       core.String(request.MchID),
+			Appid:       core.String(l.svcCtx.Config.WechatPay.Appid),
+			Mchid:       core.String(l.svcCtx.Config.WechatPay.MchID),
 			Description: core.String(request.Description),
 			OutTradeNo:  core.String(request.OutTradeNo),
 			Attach:      core.String(request.Attach),
-			NotifyUrl:   core.String(request.NotifyUrl),
+			NotifyUrl:   core.String(l.svcCtx.Config.WechatPay.NotifyUrl),
 			Amount: &jsapi.Amount{
 				Total: core.Int64(int64(request.Amount.Total)),
 			},
@@ -79,7 +79,7 @@ func (l *WechatOrderLogic) WechatOrder(request *types.WechatOrderRequest) (respo
 			},
 		},
 	)
-	
+
 	if err == nil {
 		log.Println(resp)
 	} else {

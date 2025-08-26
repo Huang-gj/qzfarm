@@ -87,9 +87,6 @@ service commodity {
 	group:  activity
 )
 service commodity {
-	@handler AddActivity
-	post /AddActivity (AddActivityRequest) returns (AddActivityResponse)
-
 	@handler GetMainPic
 	post /GetMainPic (GetMainPicRequest) returns (GetMainPicResponse)
 

@@ -26,6 +26,13 @@ type Config struct {
 	RedisLockConf redis.RedisConf // 用于分布式锁
 
 	WechatPay struct {
-		ApiV3 string
+		MchID                string
+		SerialNumber         string
+		APIv3Key             string
+		Appid                string
+		NotifyUrl            string
+		PrivateKeyPath       string
+		PubKeyPath           string
+		WechatpayPublicKeyID string
 	}
 }

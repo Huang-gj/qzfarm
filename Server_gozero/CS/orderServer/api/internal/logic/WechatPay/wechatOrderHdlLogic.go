@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments"
 	"strconv"
+	"strings"
 
 	"Server_gozero/CS/orderServer/api/internal/svc"
 	"Server_gozero/CS/orderServer/api/internal/types"
@@ -29,7 +30,8 @@ func (l *WechatOrderHdlLogic) WechatOrderHdl(req payments.Transaction) (resp *ty
 	// todo: add your logic here and delete this line
 
 	if *req.TradeState == "SUCCESS" {
-		orderID, _ := strconv.Atoi(*req.OutTradeNo)
+		replace := strings.Replace(*req.OutTradeNo, "QZFarm", "", -1)
+		orderID, _ := strconv.Atoi(replace)
 		l.svcCtx.LandOrder.UpdateOrderStatus(l.ctx, int64(orderID))
 		l.svcCtx.GoodOrder.UpdateOrderStatus(l.ctx, int64(orderID))
 	}

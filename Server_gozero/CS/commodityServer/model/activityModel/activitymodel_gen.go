@@ -26,11 +26,14 @@ var (
 type (
 	activityModel interface {
 		Insert(ctx context.Context, data *Activity) (sql.Result, error)
-		FindOne(ctx context.Context, id int64) (*Activity, error)
+		FindOne(ctx context.Context, activity_id int64) (*Activity, error)
 		Update(ctx context.Context, data *Activity) error
 		Delete(ctx context.Context, id int64) error
-		GetMainPic(ctx context.Context) ([]string, error)
 		GetDetail(ctx context.Context, id int64) (*Activity, error)
+		GetTitleAndMainPicByFarmID(ctx context.Context, farmId int64) ([]int, []string, []string, error)
+		UpdateImageURL(ctx context.Context, activityId int64, imageUrls []byte) error
+		UpdateMainPic(ctx context.Context, activityId int64, mainPic string) error
+		GetActiveActivities(ctx context.Context) ([]int, []string, []string, error)
 	}
 
 	defaultActivityModel struct {
@@ -43,10 +46,12 @@ type (
 		DelState   int64          `db:"del_state"`   // 0-正常 1-删除
 		DelTime    time.Time      `db:"del_time"`    // 删除时间
 		CreateTime time.Time      `db:"create_time"` // 创建时间
+		ActivityId int64          `db:"activity_id"` // 活动的分布式唯一ID
+		Title string `db:"title"`
 		FarmId     int64          `db:"farm_id"`     // 关联农场id
 		MainPic    string         `db:"MainPic"`     // 活动主图
-		ImageUrls  sql.NullString `db:"image_urls"`  // 图片信息
-		Text       sql.NullString `db:"text"`        // 活动详情
+		ImageUrls  []byte `db:"image_urls"`  // 图片信息
+		Text       string `db:"text"`        // 活动详情
 		StartTime  time.Time      `db:"start_time"`  // 活动开始时间
 		EndTime    time.Time      `db:"end_time"`    // 活动结束时间
 	}
@@ -65,10 +70,10 @@ func (m *defaultActivityModel) Delete(ctx context.Context, id int64) error {
 	return err
 }
 
-func (m *defaultActivityModel) FindOne(ctx context.Context, id int64) (*Activity, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", activityRows, m.table)
+func (m *defaultActivityModel) FindOne(ctx context.Context, activity_id int64) (*Activity, error) {
+	query := fmt.Sprintf("select %s from %s where `activity_id` = ? limit 1", activityRows, m.table)
 	var resp Activity
-	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
+	err := m.conn.QueryRowCtx(ctx, &resp, query, activity_id)
 	switch err {
 	case nil:
 		return &resp, nil
@@ -80,32 +85,70 @@ func (m *defaultActivityModel) FindOne(ctx context.Context, id int64) (*Activity
 }
 
 func (m *defaultActivityModel) Insert(ctx context.Context, data *Activity) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, activityRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.DelState, data.DelTime, data.FarmId, data.MainPic, data.ImageUrls, data.Text, data.StartTime, data.EndTime)
-	return ret, err
+	query := fmt.Sprintf(`
+        INSERT INTO %s (
+            del_state, del_time, activity_id, title, farm_id, text, start_time, end_time
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, m.table)
+
+	return m.conn.ExecCtx(ctx, query,
+		data.DelState,
+		data.DelTime,
+		data.ActivityId,
+		data.Title,
+		data.FarmId,
+		data.Text,
+		data.StartTime,
+		data.EndTime)
 }
+
 
 func (m *defaultActivityModel) Update(ctx context.Context, data *Activity) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, activityRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.DelState, data.DelTime, data.FarmId, data.MainPic, data.ImageUrls, data.Text, data.StartTime, data.EndTime, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.DelState, data.DelTime, data.ActivityId, data.FarmId, data.MainPic, data.ImageUrls, data.Text, data.StartTime, data.EndTime, data.Id)
 	return err
 }
 
-
-// getMainPic 查询所有正在进行中的活动的 MainPic
-func (m *defaultActivityModel) GetMainPic(ctx context.Context) ([]string, error) {
-	query := fmt.Sprintf("select `MainPic` from %s where `start_time` < ? and `end_time` > ?", m.table)
-	var pics []string
-	err := m.conn.QueryRowsCtx(ctx, &pics, query, time.Now(), time.Now())
-	if err != nil {
-		return nil, err
-	}
-	return pics, nil
+func (m *defaultActivityModel) tableName() string {
+	return m.table
 }
+
+
+func (m *defaultActivityModel) GetTitleAndMainPicByFarmID(ctx context.Context, farmId int64) ([]int, []string, []string, error) {
+	query := fmt.Sprintf(
+		"select `activity_id`, `title`, `MainPic` from %s where `farm_id` = ? and `start_time` <= ? and `end_time` >= ?",
+		m.table,
+	)
+
+	type result struct {
+		ActivityId int64  `db:"activity_id"`
+		Title      string `db:"title"`
+		MainPic    string `db:"MainPic"`
+	}
+
+	var rows []result
+	now := time.Now()
+	err := m.conn.QueryRowsCtx(ctx, &rows, query, farmId, now, now)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	ids := make([]int, 0, len(rows))
+	titles := make([]string, 0, len(rows))
+	pics := make([]string, 0, len(rows))
+
+	for _, r := range rows {
+		ids = append(ids, int(r.ActivityId)) // ✅ int64 → int
+		titles = append(titles, r.Title)
+		pics = append(pics, r.MainPic)
+	}
+
+	return ids, titles, pics, nil
+}
+
 
 // getDetail 根据 ActivityID 返回该行完整数据
 func (m *defaultActivityModel) GetDetail(ctx context.Context, id int64) (*Activity, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", activityRows, m.table)
+	query := fmt.Sprintf("select %s from %s where `activity_id` = ? limit 1", activityRows, m.table)
 	var resp Activity
 	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
 	switch err {
@@ -118,6 +161,48 @@ func (m *defaultActivityModel) GetDetail(ctx context.Context, id int64) (*Activi
 	}
 }
 
-func (m *defaultActivityModel) tableName() string {
-	return m.table
+// UpdateImageURL 根据 activity_id 更新 image_urls 字段
+func (m *defaultActivityModel) UpdateImageURL(ctx context.Context, activityId int64, imageUrls []byte) error {
+	query := fmt.Sprintf("update %s set `image_urls` = ? where `activity_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, imageUrls, activityId)
+	return err
+}
+
+// UpdateMainPic 根据 activity_id 更新 MainPic 字段
+func (m *defaultActivityModel) UpdateMainPic(ctx context.Context, activityId int64, mainPic string) error {
+	query := fmt.Sprintf("update %s set `MainPic` = ? where `activity_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, mainPic, activityId)
+	return err
+}
+
+func (m *defaultActivityModel) GetActiveActivities(ctx context.Context) ([]int, []string, []string, error) {
+	query := fmt.Sprintf(
+		"select `activity_id`, `title`, `MainPic` from %s where `start_time` <= ? and `end_time` >= ?",
+		m.table,
+	)
+
+	type result struct {
+		ActivityId int64  `db:"activity_id"`
+		Title      string `db:"title"`
+		MainPic    string `db:"MainPic"`
+	}
+
+	var rows []result
+	now := time.Now()
+	err := m.conn.QueryRowsCtx(ctx, &rows, query, now, now)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	ids := make([]int, 0, len(rows))
+	titles := make([]string, 0, len(rows))
+	pics := make([]string, 0, len(rows))
+
+	for _, r := range rows {
+		ids = append(ids, int(r.ActivityId)) // ✅ int64 → int
+		titles = append(titles, r.Title)
+		pics = append(pics, r.MainPic)
+	}
+
+	return ids, titles, pics, nil
 }

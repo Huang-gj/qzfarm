@@ -3,14 +3,15 @@ package common
 import (
 	"context"
 	"fmt"
-	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
-	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
 	"log"
 	"mime/multipart"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
+	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
 )
 
 /*
@@ -200,6 +201,8 @@ func OssUploadFromMultipart(fileHeader *multipart.FileHeader, folder string) (st
 	// 从环境变量获取凭证
 	accessKeyId := os.Getenv("OSS_ACCESS_KEY_ID")
 	accessKeySecret := os.Getenv("OSS_ACCESS_KEY_SECRET")
+	fmt.Println(accessKeyId)
+	fmt.Println(accessKeySecret)
 
 	// 验证文件大小（限制为10MB）
 	const maxFileSize = 10 * 1024 * 1024 // 10MB

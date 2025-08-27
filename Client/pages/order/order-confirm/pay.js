@@ -27,7 +27,7 @@ export const commitPay = (params) => {
 };
 
 export const paySuccess = (payOrderInfo) => {
-  const { payAmt, tradeNo, groupId, promotionId } = payOrderInfo;
+  const { payAmt, tradeNo, groupId, promotionId, goodsList } = payOrderInfo;
   // 支付成功
   Toast({
     context: this,
@@ -37,9 +37,21 @@ export const paySuccess = (payOrderInfo) => {
     icon: 'check-circle',
   });
 
+  // 确定商品类型
+  let productType = 'goods'; // 默认为农产品
+  if (goodsList && goodsList.length > 0) {
+    const firstItem = goodsList[0];
+    if (firstItem.cartType === 'land' || 
+        firstItem.land_id || 
+        (firstItem.title && firstItem.title.includes('土地'))) {
+      productType = 'land';
+    }
+  }
+
   const params = {
     totalPaid: payAmt,
     orderNo: tradeNo,
+    productType: productType, // 添加商品类型参数
   };
   if (groupId) {
     params.groupId = groupId;

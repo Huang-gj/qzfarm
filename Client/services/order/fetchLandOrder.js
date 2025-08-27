@@ -17,7 +17,7 @@ export function fetchLandOrder(params) {
   }
   
   return request({
-    url: 'http://localhost:8891/api/GetLandOrder', // 使用端口8892
+    url: 'http://localhost:8891/api/GetLandOrder', // 使用端口8891
     method: 'POST',
     header: {
       'Authorization': `Bearer ${token.accessToken}`,

@@ -11,6 +11,7 @@ Page({
     totalPaid: 0,
     orderNo: '',
     groupId: '',
+    productType: 'goods',
     groupon: null,
     spu: null,
     adUrl: '',
@@ -18,19 +19,20 @@ Page({
 
   onLoad(options) {
     const {
-      totalPaid = 0, orderNo = '', groupId = ''
+      totalPaid = 0, orderNo = '', groupId = '', productType = 'goods'
     } = options;
     this.setData({
       totalPaid,
       orderNo,
       groupId,
+      productType,
     });
   },
 
   onTapReturn(e) {
     const target = e.currentTarget.dataset.type;
     const {
-      orderNo
+      orderNo, productType
     } = this.data;
     if (target === 'home') {
 
@@ -39,11 +41,11 @@ Page({
       });
     } else if (target === 'orderList') {
       wx.navigateTo({
-        url: `/pages/order/order-list/index?orderNo=${orderNo}`,
+        url: `/pages/order/order-list/index?orderNo=${orderNo}&productType=${productType}`,
       });
     } else if (target === 'order') {
       wx.navigateTo({
-        url: `/pages/order/order-detail/index?orderNo=${orderNo}`,
+        url: `/pages/order/order-detail/index?orderNo=${orderNo}&productType=${productType}`,
       });
     }
   },

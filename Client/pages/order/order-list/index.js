@@ -3,6 +3,8 @@ import {
   fetchOrders,
   fetchOrdersCount,
 } from '../../../services/order/orderList';
+import { fetchGoodOrder } from '../../../services/order/fetchGoodOrder';
+import { fetchLandOrder } from '../../../services/order/fetchLandOrder';
 import { cosThumb } from '../../../utils/util';
 import { genPicURL, getFirstImageUrl } from '../../../utils/genURL';
 
@@ -32,10 +34,32 @@ Page({
     orderType: '', // 添加订单类型字段
     orderData: null, // 添加订单数据字段
     tabType: null, // 添加标签类型字段
+    productType: 'goods', // 添加商品类型字段
   },
 
   onLoad(query) {
     console.log('[order-list onLoad] 接收到的参数:', query);
+    
+    // 如果有orderNo参数，说明是从支付结果页面跳转过来，需要强制刷新数据
+    if (query.orderNo) {
+      console.log('[order-list onLoad] 从支付结果页面跳转，强制刷新数据');
+      console.log('[order-list onLoad] 商品类型:', query.productType);
+      
+      // 保存商品类型信息
+      this.setData({
+        productType: query.productType || 'goods'
+      });
+      
+      // 清除缓存数据，强制从服务器获取最新订单
+      const app = getApp();
+      if (app.globalData.currentOrderData) {
+        app.globalData.currentOrderData = null;
+      }
+      
+      // 根据商品类型调用相应的API获取最新订单数据
+      this.fetchOrdersByType(query.productType || 'goods');
+      return;
+    }
     
     // 获取从用户中心传递过来的订单数据
     const app = getApp();
@@ -608,5 +632,60 @@ Page({
     };
     
     this.processOrderData(processedOrderData);
+  },
+
+  /**
+   * 根据商品类型获取订单数据
+   * @param {string} productType - 商品类型 ('goods' 或 'land')
+   */
+  async fetchOrdersByType(productType) {
+    console.log('[fetchOrdersByType] 开始获取订单，商品类型:', productType);
+    
+    try {
+      // 获取用户信息
+      const userInfo = wx.getStorageSync('userInfo');
+      if (!userInfo || !userInfo.user_id) {
+        console.error('[fetchOrdersByType] 未找到用户信息');
+        wx.showToast({ title: '请先登录', icon: 'none' });
+        return;
+      }
+
+      const params = { user_id: userInfo.user_id };
+      let orderData;
+
+      if (productType === 'land') {
+        console.log('[fetchOrdersByType] 调用土地订单API');
+        orderData = await fetchLandOrder(params);
+      } else {
+        console.log('[fetchOrdersByType] 调用农产品订单API');
+        orderData = await fetchGoodOrder(params);
+      }
+
+      console.log('[fetchOrdersByType] API响应数据:', orderData);
+
+      // 处理订单数据并显示
+      if (orderData && orderData.code === 200) {
+        // 构造数据格式，与现有的 processOrderData 方法兼容
+        const processedData = {
+          good_order: productType === 'goods' ? (orderData.good_order || []) : [],
+          land_order: productType === 'land' ? (orderData.land_order || []) : []
+        };
+        
+        // 设置订单类型并处理数据
+        this.setData({
+          orderType: productType,
+          orderData: processedData
+        });
+        
+        await this.processOrderData(processedData);
+        console.log('[fetchOrdersByType] 订单数据加载完成');
+      } else {
+        console.error('[fetchOrdersByType] API返回错误:', orderData);
+        wx.showToast({ title: '获取订单失败', icon: 'none' });
+      }
+    } catch (error) {
+      console.error('[fetchOrdersByType] 获取订单失败:', error);
+      wx.showToast({ title: '获取订单失败', icon: 'none' });
+    }
   },
 });

@@ -11,13 +11,8 @@ import request from '/@/utils/request';
 export function testFileUpload(file: File, farmId: number, goodId: number, landId: number): Promise<any> {
 	const formData = new FormData();
 	formData.append('farm_id', farmId.toString());
-	
-	if (goodId > 0) {
-		formData.append('good_id', goodId.toString());
-	}
-	if (landId > 0) {
-		formData.append('land_id', landId.toString());
-	}
+	formData.append('good_id', goodId.toString()); // 总是添加 good_id，为-1时表示不相关
+	formData.append('land_id', landId.toString()); // 总是添加 land_id，为-1时表示不相关
 	
 	// 添加文件，后端期望字段名为"file"
 	formData.append('file', file);

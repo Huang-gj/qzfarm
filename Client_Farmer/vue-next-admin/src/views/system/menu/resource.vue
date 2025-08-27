@@ -312,6 +312,8 @@ const submitEdit = async () => {
   const payload: UpdateProductRequest = {
     farm_id: Number(farmId),
     product_type: 1,
+    good_id: editForm.good_id || 0, // 使用实际的农产品ID
+    land_id: 0, // 更新农产品时土地ID为0
     good: {
       id: editForm.id,
       good_id: editForm.good_id,

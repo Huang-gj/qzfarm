@@ -56,6 +56,8 @@ export type LandPayload = Partial<Land>;
 export interface AddProductRequest {
   product_type: number; // 1=Good, 2=Land
   farm_id: number;
+  good_id: number; // 农产品ID，添加农产品时为0，添加土地时为0
+  land_id: number; // 土地ID，添加土地时为0，添加农产品时为0
   good?: GoodPayload;
   land?: LandPayload;
 }
@@ -73,6 +75,8 @@ export interface AddProductResponse {
 export interface UpdateProductRequest {
   farm_id: number;
   product_type: number; // 1=Good, 2=Land
+  good_id: number; // 农产品ID，更新农产品时使用实际ID，更新土地时为0
+  land_id: number; // 土地ID，更新土地时使用实际ID，更新农产品时为0
   good?: GoodPayload;
   land?: LandPayload;
 }

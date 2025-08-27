@@ -152,6 +152,8 @@ const onSubmit = async () => {
 	const payload: AddProductRequest = {
 		product_type: 2,
 		farm_id: Number(farmId),
+		good_id: 0, // 添加土地时设置为0
+		land_id: 0, // 添加土地时设置为0
 		land: {
             id: 0,
             del_state: 0,

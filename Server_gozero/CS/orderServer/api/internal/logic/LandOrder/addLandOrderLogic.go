@@ -9,9 +9,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/stores/redis"
 	"strings"
 	"time"
+
+	"github.com/zeromicro/go-zero/core/stores/redis"
 
 	"Server_gozero/CS/orderServer/api/internal/svc"
 	"Server_gozero/CS/orderServer/api/internal/types"
@@ -132,8 +133,9 @@ func (l *AddLandOrderLogic) AddLandOrder(req *types.AddLandOrderRequest) (resp *
 		logx.Errorw("AddLandData failed", logx.Field("msg", msg))
 	}
 	resp = &types.AddLandOrderResponse{
-		Code: 200,
-		Msg:  "新增订单成功",
+		OrderID: int(OrderID),
+		Code:    200,
+		Msg:     "新增订单成功",
 	}
 	return resp, nil
 }

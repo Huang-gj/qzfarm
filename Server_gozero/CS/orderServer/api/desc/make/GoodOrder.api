@@ -57,6 +57,7 @@ type AddGoodOrderRequest {
 }
 
 type AddGoodOrderResponse {
+    OrderID int `json:"order_id"`
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
 }

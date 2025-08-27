@@ -53,6 +53,7 @@ type AddLandOrderRequest {
 }
 
 type AddLandOrderResponse {
+    OrderID int `json:"order_id"`
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
 }

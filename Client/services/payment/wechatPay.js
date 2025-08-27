@@ -64,13 +64,24 @@ function getProductTypeAndId(goodsList) {
 export function createWechatOrder(params) {
   console.log('[createWechatOrder] 开始创建微信支付订单:', params);
   
-  // 识别商品类型并获取对应ID
+  // 获取全局保存的订单ID
+  const app = getApp();
+  let outTradeNo = '';
+  const timestamp = Date.now();
+  
+  if (app.globalData.currentOrderId) {
+    // 使用创建订单时返回的 order_id 加上时间戳
+    outTradeNo = String(app.globalData.currentOrderId) + '*' + timestamp;
+    console.log('[createWechatOrder] 使用保存的订单ID加时间戳作为商户订单号:', outTradeNo);
+  } else {
+    // 如果没有保存的订单ID，使用传入的订单号或生成的订单号
+    outTradeNo = params.outTradeNo || generateOrderNo();
+    console.log('[createWechatOrder] 使用传入的或生成的订单号:', outTradeNo);
+  }
+  
+  // 识别商品类型（用于日志和其他用途）
   const productInfo = getProductTypeAndId(params.goodsList);
   console.log('[createWechatOrder] 商品类型识别结果:', productInfo);
-  
-  // 使用商品ID作为订单号，如果没有则使用传入的订单号
-  const outTradeNo = productInfo.id;
-  console.log('[createWechatOrder] 使用的订单号:', outTradeNo);
   
   // 构建商品详情
   const goodsDetail = params.goodsList && params.goodsList.length > 0 ? params.goodsList.map(item => ({

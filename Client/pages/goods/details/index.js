@@ -517,6 +517,12 @@ Page({
         console.log('[specsConfirm] API响应:', res);
         
         if (res.code === 200) {
+          // 保存订单ID到全局数据
+          const app = getApp();
+          app.globalData.currentOrderId = res.order_id;
+          app.globalData.currentOrderType = 'goods';
+          console.log('[specsConfirm] 保存订单ID:', res.order_id);
+          
           Toast({
             context: this,
             selector: '#t-toast',

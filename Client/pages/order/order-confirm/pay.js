@@ -37,9 +37,11 @@ export const paySuccess = (payOrderInfo) => {
     icon: 'check-circle',
   });
 
-  // 确定商品类型
-  let productType = 'goods'; // 默认为农产品
-  if (goodsList && goodsList.length > 0) {
+  // 获取商品类型（优先使用全局保存的，然后根据商品列表判断）
+  const app = getApp();
+  let productType = app.globalData.currentOrderType || 'goods';
+  
+  if (!app.globalData.currentOrderType && goodsList && goodsList.length > 0) {
     const firstItem = goodsList[0];
     if (firstItem.cartType === 'land' || 
         firstItem.land_id || 
@@ -53,6 +55,12 @@ export const paySuccess = (payOrderInfo) => {
     orderNo: tradeNo,
     productType: productType, // 添加商品类型参数
   };
+  
+  // 清除全局订单数据
+  if (app.globalData.currentOrderId) {
+    app.globalData.currentOrderId = null;
+    app.globalData.currentOrderType = null;
+  }
   if (groupId) {
     params.groupId = groupId;
   }

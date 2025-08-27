@@ -33,5 +33,5 @@ CacheRedis:
   - Host: 127.0.0.1:6379
 
 Wechat:
-  AppID : "wxef266d9ba288d9f1"
-  AppSecret: "1b1b3393a7674470bbecca8d29487d65"
+  AppID : "wx66857ea5c2af3c77"
+  AppSecret: "e82f9ad31620ecd08760099af951e670"

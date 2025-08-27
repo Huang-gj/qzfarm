@@ -149,11 +149,11 @@ export const wechatPayOrder = async (payOrderInfo) => {
     
     // 发起微信支付
     await requestWechatPayment({
-      timeStamp: wechatOrderRes.timeStamp,
-      nonceStr: wechatOrderRes.nonceStr,
+      timeStamp: wechatOrderRes.time_stamp,
+      nonceStr: wechatOrderRes.nonce_str,
       package: wechatOrderRes.package,
-      signType: wechatOrderRes.signType,
-      paySign: wechatOrderRes.paySign
+      signType: wechatOrderRes.sign_type,
+      paySign: wechatOrderRes.pay_sign
     });
     
     // 支付成功

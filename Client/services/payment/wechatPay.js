@@ -13,12 +13,15 @@ function getProductTypeAndId(goodsList) {
   
   const firstItem = goodsList[0];
   
+  // 生成时间戳后缀
+  const timestamp = Date.now();
+  
   // 优先判断 cartType 字段
   if (firstItem.cartType === 'land') {
     const baseId = firstItem.land_id || firstItem.good_id || generateOrderNo();
     return { 
       type: 'land', 
-      id: String(baseId) + 'QZFarm'
+      id: String(baseId) + '*' + timestamp
     };
   }
   
@@ -26,7 +29,7 @@ function getProductTypeAndId(goodsList) {
   if (firstItem.land_id) {
     return { 
       type: 'land', 
-      id: String(firstItem.land_id) + 'QZFarm'
+      id: String(firstItem.land_id) + '*' + timestamp
     };
   }
   
@@ -35,7 +38,7 @@ function getProductTypeAndId(goodsList) {
     const baseId = firstItem.good_id || firstItem.skuId || generateOrderNo();
     return { 
       type: 'land', 
-      id: String(baseId) + 'QZFarm'
+      id: String(baseId) + '*' + timestamp
     };
   }
   
@@ -43,7 +46,7 @@ function getProductTypeAndId(goodsList) {
   const baseId = firstItem.good_id || firstItem.skuId || generateOrderNo();
   return { 
     type: 'goods', 
-    id: String(baseId) + 'QZFarm'
+    id: String(baseId) + '*' + timestamp
   };
 }
 
@@ -125,7 +128,7 @@ export function createWechatOrder(params) {
 
   console.log('[createWechatOrder] 发送的请求数据:', JSON.stringify(requestData, null, 2));
   console.log('[createWechatOrder] 商品详情:', goodsDetail);
-  console.log('[createWechatOrder] 请求URL:', '/api/WechatOrder');
+  console.log('[createWechatOrder] 请求URL:', 'http://localhost:8891/api/WechatOrder');
   
   // 检查必填字段
   console.log('[createWechatOrder] 必填字段检查:');
@@ -138,7 +141,7 @@ export function createWechatOrder(params) {
   console.log('  payer.openid:', requestData.payer.openid);
   console.log('  orderType:', JSON.parse(requestData.attach).orderType);
 
-  return post('/api/WechatOrder', requestData)
+  return post('http://localhost:8891/api/WechatOrder', requestData)
     .then(res => {
       console.log('[createWechatOrder] 下单成功:', res);
       return res;

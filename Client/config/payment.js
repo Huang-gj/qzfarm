@@ -34,7 +34,7 @@ export const devConfig = {
   wechat: {
     appid: 'wx56a50ebd55771e08',
     mchid: 'test_merchant_id',
-    notifyUrl: 'https://1tb128695sc30.vicp.fun/api/WechatOrder'
+    notifyUrl: 'https://1tb128695sc30.vicp.fun/api/WechatOrderHandler'
   }
 };
 

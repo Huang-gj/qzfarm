@@ -11,8 +11,7 @@
       disabled
     >
       <view slot="left-icon" class="search-icon-container">
-        <image wx:if="{{searchIconUrl}}" src="{{searchIconUrl}}" class="search-icon" mode="aspectFit" />
-        <icon wx:else prefix="wr" name="search" size="40rpx" color="#bbb" />
+        <icon type="search" size="20" color="#bbb" />
       </view>
     </t-search>
   </view>

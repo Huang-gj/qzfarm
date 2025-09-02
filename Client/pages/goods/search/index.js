@@ -22,7 +22,7 @@ Page({
   deleteIndex: '',
 
   onLoad() {
-    this.loadSearchIcon();
+    // 移除搜索图标加载，直接使用 TDesign 内置图标
   },
 
   onShow() {
@@ -65,13 +65,7 @@ Page({
     }
   },
 
-  loadSearchIcon() {
-    // 使用占位图标
-    const searchIconUrl = 'https://via.placeholder.com/48x48?text=搜索';
-    this.setData({
-      searchIconUrl: searchIconUrl
-    });
-  },
+  // loadSearchIcon() 方法已移除，直接使用 TDesign 内置搜索图标
 
   onInputChange(e) {
     const { value } = e.detail;

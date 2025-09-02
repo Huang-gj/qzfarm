@@ -1,8 +1,7 @@
 <view class="search-page">
   <t-search t-class-input-container="t-class__input-container" t-class-input="t-search__input" value="{{searchValue}}" leftIcon="" placeholder="衢州学院" bind:submit="handleSubmit" bind:change="onInputChange" focus>
     <view slot="left-icon" class="search-icon-container" bindtap="onLeftIconTap">
-      <image wx:if="{{searchIconUrl}}" src="{{searchIconUrl}}" class="search-icon" mode="aspectFit" />
-      <t-icon wx:else prefix="wr" name="search" size="40rpx" color="#bbb" />
+      <icon type="search" size="20" color="#bbb" />
     </view>
   </t-search>
   <view class="search-wrap">

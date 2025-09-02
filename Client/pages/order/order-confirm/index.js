@@ -1,7 +1,7 @@
 import Toast from 'tdesign-miniprogram/toast/index';
 import { fetchSettleDetail } from '../../../services/order/orderConfirm';
 import { commitPay, wechatPayOrder } from './pay';
-import { getAddressPromise } from '../../usercenter/address/list/util';
+import { getAddressPromise, getDefaultAddress } from '../../usercenter/address/list/util';
 import { getFirstImageUrl } from '../../../utils/imageUtils';
 
 const stripeImg = `https://cdn-we-retail.ym.tencent.com/miniapp/order/stripe.png`;
@@ -96,6 +96,16 @@ Page({
       });
       wx.removeStorageSync('invoiceData');
     }
+    
+    // 检查是否需要更新默认地址
+    if (!this.data.userAddress) {
+      const defaultAddress = getDefaultAddress();
+      if (defaultAddress && !this.userAddressReq) {
+        this.userAddressReq = defaultAddress;
+        this.setData({ userAddress: defaultAddress });
+        console.log('[onShow] 设置默认地址:', defaultAddress);
+      }
+    }
   },
 
   init() {
@@ -122,6 +132,13 @@ Page({
     // 如果是从地址选择页面返回，则使用地址显选择页面新选择的地址去获取结算数据
     if (options.userAddressReq) {
       userAddressReq = options.userAddressReq;
+    } else if (!userAddressReq) {
+      // 如果没有传入地址且当前没有地址，尝试获取默认地址
+      const defaultAddress = getDefaultAddress();
+      if (defaultAddress) {
+        userAddressReq = defaultAddress;
+        console.log('[handleOptionsParams] 使用默认地址:', defaultAddress);
+      }
     }
     if (options.type === 'cart') {
       // 从购物车跳转过来时，获取传入的商品列表数据
@@ -214,10 +231,25 @@ Page({
     console.log('[initData] 商品总额 totalSalePrice:', resData.totalSalePrice);
     console.log('[initData] 总支付金额 totalPayAmount:', resData.totalPayAmount);
     
-    this.userAddressReq = resData.userAddress;
+    // 优先使用传入的地址，如果没有则使用默认地址
+    let addressToUse = resData.userAddress;
+    if (!addressToUse && this.userAddressReq) {
+      addressToUse = this.userAddressReq;
+      console.log('[initData] 使用已设置的地址:', addressToUse);
+    } else if (!addressToUse) {
+      // 如果都没有，尝试获取默认地址
+      const defaultAddress = getDefaultAddress();
+      if (defaultAddress) {
+        addressToUse = defaultAddress;
+        this.userAddressReq = defaultAddress;
+        console.log('[initData] 使用默认地址:', defaultAddress);
+      }
+    }
+    
+    this.userAddressReq = addressToUse;
 
-    if (resData.userAddress) {
-      this.setData({ userAddress: resData.userAddress });
+    if (addressToUse) {
+      this.setData({ userAddress: addressToUse });
     }
     this.setData({ settleDetailData: resData });
     this.isInvalidOrder(resData);

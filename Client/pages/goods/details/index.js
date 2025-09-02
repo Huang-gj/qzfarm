@@ -118,6 +118,7 @@ Page({
     skuArray: [],
     primaryImage: '',
     specImg: '',
+    productUnit: '个', // 商品单位，默认为"个"
     isSpuSelectPopupShow: false,
     isAllSelectedSku: false,
     buyType: 0,
@@ -708,6 +709,20 @@ Page({
       );
       console.log('[getDetail] 有效desc图片数组:', validDescImages);
       
+      // 从specList中提取单位信息
+      let productUnit = '个'; // 默认单位
+      if (specList && Array.isArray(specList)) {
+        const unitsSpec = specList.find(spec => spec.specId === 'units');
+        if (unitsSpec && unitsSpec.specValueList && unitsSpec.specValueList.length > 0) {
+          productUnit = unitsSpec.specValueList[0].specValue || '个';
+        }
+      }
+      // 如果没有从specList获取到单位，尝试从units字段获取
+      if (units && typeof units === 'string') {
+        productUnit = units;
+      }
+      console.log('[getDetail] 提取到的商品单位:', productUnit);
+      
       this.setData({
         details: {
           ...details,
@@ -737,7 +752,9 @@ Page({
         autoplay: false,
         duration: 300,
         interval: 3000,
-        navigation: { type: 'dots' }
+        navigation: { type: 'dots' },
+        // 商品单位
+        productUnit: productUnit
       });
     }).catch(error => {
       console.error('[getDetail] 获取商品详情失败:', error);

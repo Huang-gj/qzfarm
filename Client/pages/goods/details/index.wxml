@@ -21,7 +21,7 @@
             price="{{minSalePrice}}"
             type="lighter"
           />
-          <view class="goods-price-up">起</view>
+          <view class="goods-price-up">{{productUnit}}</view>
         </view>
         <view class="sold-num">已售{{soldNum}}</view>
       </view>

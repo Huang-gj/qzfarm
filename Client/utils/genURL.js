@@ -36,18 +36,43 @@ export function processImageUrls(imageUrls) {
     return imageUrls.length > 0 ? imageUrls : ['https://via.placeholder.com/300x300?text=暂无图片'];
   }
   
-  // 如果是字符串，尝试解析为JSON数组
+  // 如果是字符串，尝试多种解析方式
   if (typeof imageUrls === 'string') {
+    // 移除首尾空格
+    imageUrls = imageUrls.trim();
+    
+    // 如果是空字符串，返回默认图片
+    if (!imageUrls) {
+      return ['https://via.placeholder.com/300x300?text=暂无图片'];
+    }
+    
+    // 首先尝试解析为JSON数组
     try {
       const parsed = JSON.parse(imageUrls);
       if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed;
       }
     } catch (e) {
-      // 如果解析失败，当作单个URL处理
+      // JSON解析失败，继续尝试其他方式
+    }
+    
+    // 尝试按逗号分隔处理（支持逗号分隔的URL字符串）
+    if (imageUrls.includes(',')) {
+      const urlArray = imageUrls.split(',')
+        .map(url => url.trim())
+        .filter(url => url.length > 0);
+      
+      if (urlArray.length > 0) {
+        return urlArray;
+      }
+    }
+    
+    // 如果包含有效的URL内容（包含http或https），当作单个URL处理
+    if (imageUrls.includes('http')) {
       return [imageUrls];
     }
-    // 如果是空字符串或解析后为空数组
+    
+    // 其他情况返回默认图片
     return ['https://via.placeholder.com/300x300?text=暂无图片'];
   }
   

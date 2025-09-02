@@ -155,6 +155,7 @@ import { reactive, onMounted, computed, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { UploadUserFile, UploadFile } from 'element-plus';
 import { getProduct, updateProduct, delProduct, type Good, type GetProductRequest, type UpdateProductRequest } from '/@/api/product';
+import { testFileUpload } from '/@/api/test';
 import { useUserInfoStore } from '/@/stores/userInfo';
 import { Session } from '/@/utils/storage';
 import ImageCarousel from '/@/components/imageCarousel/index.vue';
@@ -212,6 +213,28 @@ const getFarmId = (): number | null => {
   if (cached) return cached.farm_id || cached.FarmID || cached.farmId || null;
   const user: any = userInfoStore.getUserInfo;
   return user?.farm_id || user?.FarmID || user?.farmId || null;
+};
+
+// 上传文件到后端的接口（参考新增页面的成功实现）
+const uploadFilesToBackend = async (farmId: number, goodId: number, fileList: UploadUserFile[]) => {
+	const uploadPromises: Promise<void>[] = [];
+	
+	for (const fileItem of fileList) {
+		if (fileItem.raw) {
+			const uploadPromise = testFileUpload(fileItem.raw, farmId, goodId, -1)
+				.then(response => {
+					console.log(`文件 ${fileItem.name} 上传成功:`, response);
+				})
+				.catch(error => {
+					console.error(`文件 ${fileItem.name} 上传失败:`, error);
+					throw new Error(`文件 ${fileItem.name} 上传失败`);
+				});
+			uploadPromises.push(uploadPromise);
+		}
+	}
+	
+	// 等待所有文件上传完成
+	await Promise.all(uploadPromises);
 };
 
 const fetchGoods = async () => {
@@ -309,49 +332,70 @@ const openEdit = (row: any) => {
 const submitEdit = async () => {
   const farmId = getFarmId();
   if (!farmId) { ElMessage.error('未找到农场信息，请先绑定农场'); return; }
-  const payload: UpdateProductRequest = {
-    farm_id: Number(farmId),
-    product_type: 1,
-    good_id: editForm.good_id || 0, // 使用实际的农产品ID
-    land_id: 0, // 更新农产品时土地ID为0
-    good: {
-      id: editForm.id,
-      good_id: editForm.good_id,
-      good_name: editForm.good_name,
-      good_tag: editForm.good_tag,
-      price: editForm.price,
-      units: editForm.units,
-      repertory: editForm.repertory,
-      detail: editForm.detail,
-      image_urls: JSON.stringify(editImages.value),
-      del_state: 0,
-      del_time: '',
-      create_time: '',
-      farm_id: Number(farmId),
-    } as any,
-    // 为兼容后端校验，传入带默认值的 Land 对象
-    land: {
-      id: 0,
-      del_state: 0,
-      del_time: '',
-      create_time: '',
-      land_id: 0,
-      farm_id: Number(farmId),
-      land_name: '',
-      land_tag: '',
-      area: '',
-      image_urls: '',
-      price: 0,
-      detail: '',
-      sale_status: 0,
-      sale_time: '',
-    } as any,
-  };
+  
   try {
     editSubmitting.value = true;
+    
+    // 第一步：调用更新农产品接口，image_urls传空数组
+    console.log('第一步：更新农产品信息...');
+    const payload: UpdateProductRequest = {
+      farm_id: Number(farmId),
+      product_type: 1,
+      good_id: editForm.good_id || 0, // 使用实际的农产品ID
+      land_id: 0, // 更新农产品时土地ID为0
+      good: {
+        id: editForm.id,
+        good_id: editForm.good_id,
+        good_name: editForm.good_name,
+        good_tag: editForm.good_tag,
+        price: editForm.price,
+        units: editForm.units,
+        repertory: editForm.repertory,
+        detail: editForm.detail,
+        image_urls: [], // 传空数组，图片将通过第二个接口上传
+        del_state: 0,
+        del_time: '',
+        create_time: '',
+        farm_id: Number(farmId),
+      } as any,
+      // 为兼容后端校验，传入带默认值的 Land 对象
+      land: {
+        id: 0,
+        del_state: 0,
+        del_time: '',
+        create_time: '',
+        land_id: 0,
+        farm_id: Number(farmId),
+        land_name: '',
+        land_tag: '',
+        area: '',
+        image_urls: [],
+        price: 0,
+        detail: '',
+        sale_status: 0,
+        sale_time: '',
+      } as any,
+    };
+    
     const resp: any = await updateProduct(payload);
     if (resp.code === 200 || resp.Code === 200) {
-      ElMessage.success(resp.msg || resp.Msg || '修改成功');
+      console.log('第一步成功，准备上传图片...');
+      
+      // 第二步：上传图片文件（参考新增页面的成功实现）
+      if (editFileList.value && editFileList.value.length > 0) {
+        console.log('第二步：上传农产品图片，good_id:', editForm.good_id);
+        
+        try {
+          await uploadFilesToBackend(Number(farmId), editForm.good_id || 0, editFileList.value);
+          ElMessage.success('农产品信息修改并上传图片成功！');
+        } catch (uploadError) {
+          console.error('图片上传失败:', uploadError);
+          ElMessage.warning('农产品信息修改成功，但部分图片上传失败');
+        }
+      } else {
+        ElMessage.success(resp.msg || resp.Msg || '修改成功');
+      }
+      
       editDialogVisible.value = false;
       fetchGoods();
     } else {

@@ -119,9 +119,11 @@
 						list-type="picture-card"
 						:on-change="handleMainPicChange"
 						:on-remove="handleMainPicRemove"
+						:before-upload="handleMainPicBeforeUpload"
 						accept="image/*"
+						:class="['main-pic-upload', { 'hide-upload': mainPicFileList.length > 0 }]"
 					>
-						<el-icon><ele-Plus /></el-icon>
+						<el-icon v-if="mainPicFileList.length === 0"><ele-Plus /></el-icon>
 						<template #tip>
 							<div class="el-upload__tip">只能上传一张主图片，jpg/png文件，且不超过10MB</div>
 						</template>
@@ -366,14 +368,32 @@ const resetAddForm = () => {
 };
 
 // 主图片上传处理
-const handleMainPicChange = (file: UploadFile) => {
-	if (file.raw) {
+const handleMainPicBeforeUpload = (file: File) => {
+	// 如果已经有图片，阻止上传并提示
+	if (mainPicFileList.value.length >= 1) {
+		ElMessage.error('主图只能上传一张');
+		return false;
+	}
+	return true;
+};
+
+const handleMainPicChange = (file: UploadFile, fileList: UploadFile[]) => {
+	// 确保只有一张图片
+	if (fileList.length > 1) {
+		fileList.splice(0, fileList.length - 1);
+		ElMessage.error('主图只能上传一张');
+	}
+	
+	mainPicFileList.value = fileList;
+	
+	if (file.raw && fileList.length === 1) {
 		mainPicFile.value = file.raw;
 		addForm.main_pic = file.name;
 	}
 };
 
-const handleMainPicRemove = () => {
+const handleMainPicRemove = (file: UploadFile, fileList: UploadFile[]) => {
+	mainPicFileList.value = fileList;
 	mainPicFile.value = null;
 	addForm.main_pic = '';
 };
@@ -396,6 +416,12 @@ const handleAddActivity = async () => {
 		
 		if (!mainPicFile.value) {
 			ElMessage.error('请上传主图片');
+			return;
+		}
+		
+		// 额外验证：确保主图只有一张
+		if (mainPicFileList.value.length > 1) {
+			ElMessage.error('主图只能有一张');
 			return;
 		}
 		
@@ -603,6 +629,13 @@ onMounted(() => {
 					object-fit: cover;
 				}
 			}
+		}
+	}
+	
+	// 主图上传组件样式优化
+	.main-pic-upload.hide-upload {
+		:deep(.el-upload--picture-card) {
+			display: none !important;
 		}
 	}
 	

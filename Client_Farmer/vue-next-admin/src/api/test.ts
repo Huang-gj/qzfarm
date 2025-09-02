@@ -1,7 +1,43 @@
 import request from '/@/utils/request';
 
+// 新增图片上传前的预处理接口类型定义
+export interface TestRequest {
+	farm_id: number;
+	good_id: number;
+	land_id: number;
+}
+
+export interface TestResponse {
+	code: number;
+	msg: string;
+}
+
 /**
- * 测试文件上传接口
+ * 修改农产品/土地信息前的图片上传预处理接口
+ * @param farmId 农场ID
+ * @param goodId 商品ID（修改农产品时传实际ID，修改土地时传-1）
+ * @param landId 土地ID（修改土地时传实际ID，修改农产品时传-1）
+ * @returns Promise<TestResponse>
+ */
+export function testImageUpload(farmId: number, goodId: number, landId: number): Promise<TestResponse> {
+	const formData = new FormData();
+	formData.append('farm_id', farmId.toString());
+	formData.append('good_id', goodId.toString());
+	formData.append('land_id', landId.toString());
+	
+	return request({
+		url: '/api/test',
+		method: 'post',
+		data: formData,
+		headers: {
+			'Content-Type': 'multipart/form-data',
+		},
+		timeout: 30000, // 30秒超时
+	}) as Promise<TestResponse>;
+}
+
+/**
+ * 测试文件上传接口（原有功能保持不变）
  * @param file 文件对象
  * @param farmId 农场ID
  * @param goodId 商品ID（当资源类型为商品时使用）

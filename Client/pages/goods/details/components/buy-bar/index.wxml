@@ -8,12 +8,7 @@
         <text wx:if="{{shopCartNum > 0 && item.showCartNum}}" class="cart-badge">
           {{shopCartNum > 99 ? '99+' : shopCartNum}}
         </text>
-        <block wx:if="{{item.customIcon && item.iconImage}}">
-          <image class="custom-icon" src="{{item.iconImage}}" mode="aspectFit" />
-        </block>
-        <block wx:else>
-          <t-icon prefix="wr" name="{{item.iconName}}" size="40rpx" />
-        </block>
+        <t-icon name="{{item.iconName}}" size="40rpx" color="#666" />
         <view class="operate-text">{{item.title}}</view>
       </view>
     </view>

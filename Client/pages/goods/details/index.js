@@ -58,9 +58,6 @@ console.log('[goods/details] addGoodsToCart函数:', typeof addGoodsToCart);
 console.log('[goods/details] addGoodsToCart函数内容:', addGoodsToCart);
 
 const imgPrefix = `${cdnBase}/`;
-
-const recLeftImg = `${imgPrefix}common/rec-left.png`;
-const recRightImg = `${imgPrefix}common/rec-right.png`;
 const obj2Params = (obj = {}, encode = false) => {
   const result = [];
   Object.keys(obj).forEach((key) =>
@@ -87,8 +84,6 @@ Page({
     showAllComments: false,
     isShowPromotionPop: false,
     activityList: [],
-    recLeftImg,
-    recRightImg,
     details: {},
     goodsTabArray: [{
         name: '商品',
@@ -104,17 +99,13 @@ Page({
     jumpArray: [{
         title: '首页',
         url: '/pages/home/home',
-        iconName: 'home',
-        customIcon: true,
-        iconImage: ''
+        iconName: 'home'
       },
       {
         title: '购物车',
         url: '/pages/cart/index',
         iconName: 'cart',
-        showCartNum: true,
-        customIcon: true,
-        iconImage: ''
+        showCartNum: true
       },
     ],
 
@@ -695,15 +686,34 @@ Page({
       const imageUrlsArray = processImageUrls(image_urls);
       const firstImageUrl = imageUrlsArray[0];
       
+      console.log('[getDetail] 商品标题:', title);
+      console.log('[getDetail] 商品详情:', detail);
       console.log('[getDetail] 原始图片数据:', image_urls);
       console.log('[getDetail] 处理后的图片数组:', imageUrlsArray);
+      console.log('[getDetail] 第一张图片:', firstImageUrl);
+      
+      // 验证图片数组的有效性
+      const validImages = imageUrlsArray.filter(img => 
+        img && typeof img === 'string' && 
+        (img.includes('http') || img.includes('placeholder'))
+      );
+      
+      console.log('[getDetail] 有效图片数组:', validImages);
+      console.log('[getDetail] 原始desc数组:', details.desc);
+      
+      // 过滤desc数组，确保只包含有效图片URL
+      const validDescImages = (details.desc || []).filter(item => 
+        item && typeof item === 'string' && 
+        (item.includes('http') || item.includes('placeholder'))
+      );
+      console.log('[getDetail] 有效desc图片数组:', validDescImages);
       
       this.setData({
         details: {
           ...details,
-          images: imageUrlsArray, // 用于轮播显示的图片数组
+          images: validImages.length > 0 ? validImages : ['https://via.placeholder.com/300x300?text=暂无图片'], // 用于轮播显示的图片数组
           image_urls: image_urls, // 保留原始数据
-          desc: details.desc || [] // 确保desc数组存在
+          desc: validDescImages // 确保desc数组只包含有效的图片URL
         },
         activityList: activityList || [], // 确保activityList不为undefined
         isStock: hasStock,
@@ -720,6 +730,8 @@ Page({
         // 添加库存数量信息
         stockQuantity: stockQuantity,
         maxPurchaseQuantity: stockQuantity,
+        // 添加商品介绍字段
+        intro: detail || title || '', // 使用detail字段作为商品介绍
         // 轮播相关配置
         current: 0,
         autoplay: false,
@@ -853,7 +865,7 @@ Page({
     });
 
     // 加载云存储图片链接
-    this.loadCustomIcons();
+    // 移除loadCustomIcons调用，直接使用内置图标
 
     // 等组件渲染完成后再获取购物车数量和设置监听
     wx.nextTick(() => {
@@ -889,25 +901,7 @@ Page({
     }
   },
 
-  async loadCustomIcons() {
-    try {
-      // 获取首页图标链接
-      const homeIconUrl = await genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/toBar/TdesignHome.png');
-      // 获取购物车图标链接
-      const cartIconUrl = await genPicURL('cloud://cloud1-2gorklioe3299acb.636c-cloud1-2gorklioe3299acb-1349055645/toBar/TdesignCart.png');
-
-      // 更新 jumpArray 中的图标链接
-      const jumpArray = this.data.jumpArray;
-      jumpArray[0].iconImage = homeIconUrl;
-      jumpArray[1].iconImage = cartIconUrl;
-
-      this.setData({
-        jumpArray
-      });
-    } catch (error) {
-      console.error('加载自定义图标失败:', error);
-    }
-  },
+  // loadCustomIcons() 方法已移除，直接使用 TDesign 内置图标
 
   updateCartBadge() {
     // 获取购物车数量并更新显示
@@ -966,7 +960,12 @@ Page({
       } else {
         wx.showToast({ title: '加载评论失败', icon: 'none' });
       }
-      this.setData({ comments: [], displayComments: [], showAllComments: false });
+      // 即使加载失败，也要确保评论模块显示，以便用户能够点击进入评论页面
+      this.setData({ 
+        comments: [], 
+        displayComments: [], 
+        showAllComments: false 
+      });
     }
   },
   // 展开/收起全部评论

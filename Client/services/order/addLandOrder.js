@@ -65,7 +65,7 @@ function addLandOrder(orderData) {
   /* keep */
   
   const requestConfig = {
-    url: 'http://localhost:8891/api/AddLandOrder',
+    url: 'http://8.133.19.244:8891/api/AddLandOrder',
     method: 'POST',
     header: {
       'Authorization': `Bearer ${token.accessToken}`,

@@ -22,7 +22,7 @@ function getCommentReply(params = {}) {
 		}
 
 		wx.request({
-			url: 'http://localhost:8889/api/getCommentReply',
+			    url: 'http://8.133.19.244:8889/api/getCommentReply',
 			method: 'POST',
 			data: data,
 			header: headers,

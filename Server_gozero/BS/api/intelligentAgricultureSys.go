@@ -13,7 +13,8 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "BS/api/etc/intelligentAgricultureSys.yaml", "the config file")
+// var configFile = flag.String("f", "BS/api/etc/intelligentAgricultureSys.yaml", "the config file")
+var configFile = flag.String("f", "/data/BS_api/etc/intelligentAgricultureSys.yaml", "the config file")
 
 func main() {
 	flag.Parse()

@@ -17,7 +17,7 @@ export function fetchGoodOrder(params) {
   }
   
   return request({
-    url: 'http://localhost:8891/api/GetGoodOrder', // 使用端口8891
+    url: 'http://8.133.19.244:8891/api/GetGoodOrder', // 使用端口8891
     method: 'POST',
     header: {
       'Authorization': `Bearer ${token.accessToken}`,

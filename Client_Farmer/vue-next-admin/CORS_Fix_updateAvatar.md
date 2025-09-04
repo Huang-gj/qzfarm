@@ -2,7 +2,7 @@
 
 ## 🚨 **问题描述**
 ```
-Access to XMLHttpRequest at 'http://localhost:7777/api/updateAvatar' from origin 'http://localhost:8888' 
+Access to XMLHttpRequest at 'http://8.133.19.244:7777/api/updateAvatar' from origin 'http://localhost:8888' 
 has been blocked by CORS policy: Response to preflight request doesn't pass access control check: 
 No 'Access-Control-Allow-Origin' header is present on the requested resource.
 ```
@@ -15,7 +15,7 @@ No 'Access-Control-Allow-Origin' header is present on the requested resource.
 ```javascript
 proxy: {
   '/api': {
-    target: 'http://localhost:7777',
+    target: 'http://8.133.19.244:7777',
     changeOrigin: true,
     secure: false,
     ws: true,
@@ -27,7 +27,7 @@ proxy: {
 ```javascript
 // ❌ 错误：绕过了Vite代理，直接访问后端
 const uploadApi = axios.create({
-  baseURL: 'http://localhost:7777/api', // 直接访问，导致CORS
+  baseURL: 'http://8.133.19.244:7777/api', // 直接访问，导致CORS
   timeout: 30000,
 });
 ```
@@ -45,8 +45,8 @@ const api = axios.create({
 
 | 类型 | 请求路径 | 实际访问 | CORS状态 |
 |------|----------|----------|----------|
-| **正常API** | `http://localhost:8888/api/login` → Vite代理 → `http://localhost:7777/api/login` | ✅ 通过代理 |
-| **问题API** | `http://localhost:8888` → 直接访问 → `http://localhost:7777/api/updateAvatar` | ❌ 绕过代理 |
+| **正常API** | `http://localhost:8888/api/login` → Vite代理 → `http://8.133.19.244:7777/api/login` | ✅ 通过代理 |
+| **问题API** | `http://localhost:8888` → 直接访问 → `http://8.133.19.244:7777/api/updateAvatar` | ❌ 绕过代理 |
 
 ## 🛠️ **修复方案**
 
@@ -56,7 +56,7 @@ const api = axios.create({
 ```javascript
 // 创建新的axios实例，直接访问后端
 const uploadApi = axios.create({
-  baseURL: 'http://localhost:7777/api', // 导致CORS
+  baseURL: 'http://8.133.19.244:7777/api', // 导致CORS
   timeout: 30000,
 });
 
@@ -99,7 +99,7 @@ api.interceptors.request.use((config) => {
 ```
 浏览器 (localhost:8888) 
   ↓ 直接请求
-❌ http://localhost:7777/api/updateAvatar (CORS阻止)
+❌ http://8.133.19.244:7777/api/updateAvatar (CORS阻止)
 ```
 
 ### **修复后的请求流程**:
@@ -108,7 +108,7 @@ api.interceptors.request.use((config) => {
   ↓ 相对路径请求
 ✅ /api/updateAvatar 
   ↓ Vite代理转发
-✅ http://localhost:7777/api/updateAvatar (成功)
+✅ http://8.133.19.244:7777/api/updateAvatar (成功)
 ```
 
 ## 🎯 **关键修复点**

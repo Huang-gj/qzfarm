@@ -123,7 +123,7 @@ export function createWechatOrder(params) {
       goods_detail: goodsDetail
     },
     scene_info: {
-      payer_client_ip: '127.0.0.1', // 实际使用时需要获取真实IP
+      payer_client_ip: '8.133.19.244', // 服务器IP地址
       device_id: 'miniprogram',
       store_info: {
         id: 'QZFarm',
@@ -139,7 +139,7 @@ export function createWechatOrder(params) {
 
   console.log('[createWechatOrder] 发送的请求数据:', JSON.stringify(requestData, null, 2));
   console.log('[createWechatOrder] 商品详情:', goodsDetail);
-  console.log('[createWechatOrder] 请求URL:', 'http://localhost:8891/api/WechatOrder');
+  console.log('[createWechatOrder] 请求URL:', 'http://8.133.19.244:8891/api/WechatOrder');
   
   // 检查必填字段
   console.log('[createWechatOrder] 必填字段检查:');
@@ -152,7 +152,7 @@ export function createWechatOrder(params) {
   console.log('  payer.openid:', requestData.payer.openid);
   console.log('  orderType:', JSON.parse(requestData.attach).orderType);
 
-  return post('http://localhost:8891/api/WechatOrder', requestData)
+  return post('http://8.133.19.244:8891/api/WechatOrder', requestData)
     .then(res => {
       console.log('[createWechatOrder] 下单成功:', res);
       return res;

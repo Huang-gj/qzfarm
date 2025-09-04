@@ -6,11 +6,13 @@ import (
 	"api/internal/svc"
 	"flag"
 	"fmt"
+
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/user-api.yaml", "the config file")
+// var configFile = flag.String("f", "etc/user-api.yaml", "the config file")
+var configFile = flag.String("f", "/data/userServer_api/etc/user-api.yaml", "the config file")
 
 func main() {
 

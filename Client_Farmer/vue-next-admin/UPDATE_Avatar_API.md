@@ -5,7 +5,7 @@
 ### 1. 端口号变更
 - **原端口**: 8893
 - **新端口**: 7777
-- **URL**: `http://localhost:7777/api/updateAvatar`
+- **URL**: `http://8.133.19.244:7777/api/updateAvatar`
 
 ### 2. API字段变更
 - **原字段**: `user_id`
@@ -52,7 +52,7 @@ type UpdateAvatarResponse{
 - ✅ 更新接口定义 `UpdateAvatarRequest.admin_id`
 - ✅ 更新函数参数 `adminId: number`
 - ✅ 更新FormData字段 `admin_id`
-- ✅ 更新端口号 `http://localhost:7777/api`
+- ✅ 更新端口号 `http://8.133.19.244:7777/api`
 
 ### 代理配置
 - ✅ vite.config.ts 中代理配置已正确设置为7777端口

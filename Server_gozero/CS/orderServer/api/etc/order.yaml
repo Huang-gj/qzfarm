@@ -53,8 +53,8 @@ WechatPay:
   SerialNumber:  7595A5A31EAED6E09763992B61B162525859C9E0 #商商户证书序列号
   APIv3Key: HaagH68erLfeoeH68erL2568H68erL68 # 商商户APIv3密钥
   Appid: wx66857ea5c2af3c77 # 商APPID是微信开放平台(移动应用)或微信公众平台(小程序、公众号)为开发者的应用程序提供的唯一标识
-  NotifyUrl: https://1tb128695sc30.vicp.fun/api/WechatOrderHandler #【商户回调地址】商户接收支付成功回调通知的地址，创单时传入，需按照notify_url填写注意事项规范填写。
-  PrivateKeyPath: C:\USE\Work_Materials\WXCertUtil\cert\1725100870_20250822_cert\apiclient_key.pem # 私域保存的路径
-  PubKeyPath: C:\USE\Work_Materials\WXCertUtil\cert\1725100870_20250822_cert\pub_key.pem # 微信支付公钥保存的路径
+  NotifyUrl: https://8.133.19.244:8891/api/WechatOrderHandler #【商户回调地址】商户接收支付成功回调通知的地址，创单时传入，需按照notify_url填写注意事项规范填写。
+  PrivateKeyPath: /data/cert/apiclient_key.pem # 私域保存的路径
+  PubKeyPath: /data/cert/pub_key.pem # 微信支付公钥保存的路径
   WechatpayPublicKeyID: PUB_KEY_ID_0117251008702025082000292262001002 # 微信支付公钥ID，注意微信支付公钥ID带有PUB_KEY_ID_前缀
 

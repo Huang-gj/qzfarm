@@ -63,7 +63,7 @@ export function getAllGoodsApi(params = {}) {
     }
 
     wx.request({
-      url: 'http://localhost:8889/api/getAllGoods',
+      url: 'http://8.133.19.244:8889/api/getAllGoods',
       method: 'POST',
       data: {
         user_id: params.user_id || 0
@@ -168,7 +168,7 @@ export function getGoodById(goodId, userId = 0) {
     });
 
     wx.request({
-      url: 'http://localhost:8889/api/getGood',
+      url: 'http://8.133.19.244:8889/api/getGood',
       method: 'POST',
       data: {
         user_id: numericUserId,
@@ -255,7 +255,7 @@ export function getGoodsByTag(goodTag, userId = 0) {
     }
 
     wx.request({
-      url: 'http://localhost:8889/api/getGoodsByTag',
+      url: 'http://8.133.19.244:8889/api/getGoodsByTag',
       method: 'POST',
       data: {
         user_id: userId,

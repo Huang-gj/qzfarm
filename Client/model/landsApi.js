@@ -90,7 +90,7 @@ export function getAllLandsApi(params = {}) {
       headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
     }
     wx.request({
-      url: 'http://127.0.0.1:8889/api/getAllLands',
+      url: 'http://8.133.19.244:8889/api/getAllLands',
       method: 'POST',
       data: {
         user_id: params.user_id || 0,
@@ -158,7 +158,7 @@ export function getLandById(landId, userId = 0) {
     });
     
     wx.request({
-      url: 'http://127.0.0.1:8889/api/getLand',
+      url: 'http://8.133.19.244:8889/api/getLand',
       method: 'POST',
       data: {
         user_id: numericUserId,
@@ -212,7 +212,7 @@ export function getLandsByTag(landTag, userId = 0) {
       headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
     }
     wx.request({
-      url: 'http://127.0.0.1:8889/api/getLandsByTag',
+      url: 'http://8.133.19.244:8889/api/getLandsByTag',
       method: 'POST',
       data: {
         user_id: userId,

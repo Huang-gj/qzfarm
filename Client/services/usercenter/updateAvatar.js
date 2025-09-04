@@ -20,7 +20,7 @@ export function updateAvatar(filePath, userId) {
     console.log('[updateAvatar] 请求头:', headers);
 
     wx.uploadFile({
-      url: 'http://localhost:8893/api/updateAvatar', // 使用8893端口的头像上传接口
+      url: 'http://8.133.19.244:8893/api/updateAvatar', // 使用8893端口的头像上传接口
       filePath: filePath,
       name: 'file', // 后端接收文件的字段名
       formData: {

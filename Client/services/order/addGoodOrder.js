@@ -69,7 +69,7 @@ function addGoodOrder(orderData) {
   /* keep */
   
   const requestConfig = {
-    url: 'http://localhost:8891/api/AddGoodOrder',
+    url: 'http://8.133.19.244:8891/api/AddGoodOrder',
     method: 'POST',
     header: {
       'Authorization': `Bearer ${token.accessToken}`,

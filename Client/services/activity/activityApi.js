@@ -5,7 +5,7 @@
  */
 function getMainPic(farmId) {
   console.log('[getMainPic] 请求参数:', { farmId });
-  console.log('[getMainPic] 即将发送POST请求到: http://localhost:8889/api/GetMainPic');
+  console.log('[getMainPic] 即将发送POST请求到: http://8.133.19.244:8889/api/GetMainPic');
   
   return new Promise((resolve, reject) => {
     // 获取存储的token
@@ -20,7 +20,7 @@ function getMainPic(farmId) {
     }
 
     wx.request({
-      url: 'http://localhost:8889/api/GetMainPic',
+      url: 'http://8.133.19.244:8889/api/GetMainPic',
       method: 'POST',
       data: {
         farm_id: farmId
@@ -66,7 +66,7 @@ function getMainPic(farmId) {
  */
 function getActivityDetail(activityId) {
   console.log('[getActivityDetail] 请求参数:', { activityId });
-  console.log('[getActivityDetail] 即将发送POST请求到: http://localhost:8889/api/GetActivityDetail');
+  console.log('[getActivityDetail] 即将发送POST请求到: http://8.133.19.244:8889/api/GetActivityDetail');
   
   return new Promise((resolve, reject) => {
     // 获取存储的token
@@ -81,7 +81,7 @@ function getActivityDetail(activityId) {
     }
 
     wx.request({
-      url: 'http://localhost:8889/api/GetActivityDetail',
+      url: 'http://8.133.19.244:8889/api/GetActivityDetail',
       method: 'POST',
       data: {
         activity_id: activityId

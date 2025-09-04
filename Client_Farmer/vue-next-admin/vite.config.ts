@@ -20,7 +20,7 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 		plugins: [vue(), vueSetupExtend(), viteCompression(), JSON.parse(env.VITE_OPEN_CDN) ? buildConfig.cdn() : null],
 		root: process.cwd(),
 		resolve: { alias },
-		base: mode.command === 'serve' ? './' : env.VITE_PUBLIC_PATH,
+		base:  './' ,
 		optimizeDeps: { exclude: ['vue-demi'] },
 		server: {
 			host: '0.0.0.0',
@@ -35,7 +35,7 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 					rewrite: (path) => path.replace(/^\/gitee/, ''),
 				},
 				'/api': {
-					target: 'http://localhost:7777',
+					target: 'http://8.133.19.244:7777',
 					changeOrigin: true,
 					secure: false,
 					ws: true,

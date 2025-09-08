@@ -28,12 +28,12 @@ const state = reactive({
 	newsList: [
 		{
 			label: '关于版本发布的通知',
-			value: '智云农庄，基于 vue3 + CompositionAPI + typescript + vite + element plus，智慧农业管理平台正式发布！',
+			value: '基于 vue3 + CompositionAPI + typescript + vite + element plus，智慧农业管理平台正式发布！',
 			time: '2024-12-08',
 		},
 		{
 			label: '关于学习交流的通知',
-			value: '智云农庄管理平台，欢迎用户使用智慧农业管理系统！',
+			value: '农业管理平台，欢迎用户使用智慧农业管理系统！',
 			time: '2024-12-08',
 		},
 	],

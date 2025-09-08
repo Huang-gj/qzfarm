@@ -26,7 +26,7 @@
 							</div>
 							<div class="personal-user-right">
 								<el-row>
-									<el-col :span="24" class="personal-title mb18">{{ currentTime }}，{{ userInfo.nickname || '智云农庄用户' }}，欢迎使用智慧农业管理系统！</el-col>
+									<el-col :span="24" class="personal-title mb18">{{ currentTime }}，{{ userInfo.nickname || '用户' }}，欢迎使用智慧管理系统！</el-col>
 									<el-col :span="24">
 										<el-row>
 											<el-col :xs="24" :sm="8" class="personal-item mb6">

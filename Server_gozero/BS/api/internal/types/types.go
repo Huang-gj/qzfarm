@@ -24,6 +24,24 @@ type AddActivityResponse struct {
 	Msg        string `json:"msg"`
 }
 
+type AddFarmMainPicRequest struct {
+	FarmID int `form:"farm_id"`
+}
+
+type AddFarmMainPicResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type AddFarmPicRequest struct {
+	FarmID int `form:"farm_id"`
+}
+
+type AddFarmPicResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
 type AddMainPicRequest struct {
 	FarmID     int `form:"farm_id"`
 	ActivityID int `form:"activity_id"`
@@ -69,12 +87,12 @@ type Admin struct {
 }
 
 type BindFarm struct {
-	FarmName     string `json:"farm_name"`
-	Description  string `json:"description"`
-	Address      string `json:"address"`
-	LogoURL      string `json:"logo_url"`
-	ImageURLs    []byte `json:"image_urls"`
-	ContactPhone string `json:"contact_phone"`
+	FarmName     string   `json:"farm_name"`
+	Description  string   `json:"description"`
+	Address      string   `json:"address"`
+	LogoURL      string   `json:"logo_url"`
+	ImageURLs    []string `json:"image_urls"`
+	ContactPhone string   `json:"contact_phone"`
 }
 
 type BindFarmRequest struct {
@@ -83,8 +101,9 @@ type BindFarmRequest struct {
 }
 
 type BindFarmResponse struct {
-	Code int    `json"code"`
-	Msg  string `json"msg"`
+	FarmID int    `json:farm_id`
+	Code   int    `json:"code"`
+	Msg    string `json:"msg"`
 }
 
 type DelProductRequest struct {
@@ -100,13 +119,13 @@ type DelProductResponse struct {
 }
 
 type Farm struct {
-	FarmID       int    `json:"farm_id"`
-	FarmName     string `json:"farm_name"`
-	Description  string `json:"description"`
-	Address      string `json:"address"`
-	LogoURL      string `json:"logo_url"`
-	ImageURLs    []byte `json:"image_urls"`
-	ContactPhone string `json:"contact_phone"`
+	FarmID       int      `json:"farm_id"`
+	FarmName     string   `json:"farm_name"`
+	Description  string   `json:"description"`
+	Address      string   `json:"address"`
+	LogoURL      string   `json:"logo_url"`
+	ImageURLs    []string `json:"image_urls"`
+	ContactPhone string   `json:"contact_phone"`
 }
 
 type GetActivityDetailRequest struct {

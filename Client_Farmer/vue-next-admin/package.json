@@ -1,7 +1,7 @@
 {
 	"name": "zhiyun-farm-admin",
 	"version": "2.4.33",
-	"description": "智云农庄智慧农业管理平台",
+	"description": "智慧管理工具",
 	"author": "lyt_20201208",
 	"license": "MIT",
 	"scripts": {

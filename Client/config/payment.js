@@ -9,7 +9,7 @@ export const paymentConfig = {
     mchid: 'your_merchant_id',
     
     // 支付回调地址 - 需要替换为实际的回调地址
-    notifyUrl: 'https://your-domain.com/api/payment/notify',
+    notifyUrl: 'https://your-domain.com/order/payment/notify',
     
     // 支付超时时间（分钟）
     timeout: 30,
@@ -32,9 +32,9 @@ export const paymentConfig = {
 export const devConfig = {
   // 开发环境下的支付配置
   wechat: {
-    appid: 'wx56a50ebd55771e08',
-    mchid: 'test_merchant_id',
-    notifyUrl: 'https://1tb128695sc30.vicp.fun/api/WechatOrderHandler'
+    appid: 'wx66857ea5c2af3c77',
+    mchid: '1725100870',
+    notifyUrl: 'http://8.133.19.244:8891/order/WechatOrderHandler'
   }
 };
 
@@ -42,9 +42,9 @@ export const devConfig = {
 export const prodConfig = {
   // 生产环境下的支付配置
   wechat: {
-    appid: 'wx56a50ebd55771e08',
-    mchid: 'prod_merchant_id',
-    notifyUrl: 'https://your-production-domain.com/api/WechatOrderHandler'
+    appid: 'wx66857ea5c2af3c77',
+    mchid: '1725100870',
+    notifyUrl: 'http://8.133.19.244:8891/order/WechatOrderHandler'
   }
 };
 

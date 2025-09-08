@@ -41,7 +41,7 @@ func (l *GetProductLogic) GetProduct(req *types.GetProductRequest) (resp *types.
 			err := json.Unmarshal(good.ImageUrls, &image)
 			if err != nil {
 				logx.Errorw("GetProduct failed", logx.Field("err", err))
-				return &types.GetProductResponse{Code: 400, Msg: "内部错误"}, errors.New("内部错误")
+				return &types.GetProductResponse{Code: 400, Msg: "反序列化失败"}, errors.New("反序列化失败")
 			}
 			goods[i] = &types.Good{
 				GoodTag:    good.GoodTag,

@@ -77,6 +77,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
+				Path:    "/addFarmMainPic",
+				Handler: farm.AddFarmMainPicHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/addFarmPicInfo",
+				Handler: farm.AddFarmPicHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/bindFarm",
 				Handler: farm.BindFarmHandler(serverCtx),
 			},

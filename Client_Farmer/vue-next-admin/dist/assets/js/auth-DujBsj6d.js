@@ -1,0 +1,1 @@
+import{l as t,s as u,p,ak as c,G as f}from"./.store-DdqHRk86.js";import{d as l}from"./index-uJp-ZfSa.js";const m=t({name:"auth"}),h=t({...m,props:{value:{type:String,default:()=>""}},setup(s){const o=s,r=l(),{userInfos:a}=u(r),n=p(()=>a.value.authBtnList.some(e=>e===o.value));return(e,d)=>n.value?c(e.$slots,"default",{key:0}):f("",!0)}});export{h as default};

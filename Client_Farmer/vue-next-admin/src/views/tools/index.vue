@@ -44,50 +44,47 @@
 					></el-input>
 				</el-form-item>
 
-				<!-- Logo URL -->
-				<el-form-item label="Logo URL：">
-					<el-input 
-						v-model="farmForm.logo_url" 
-						placeholder="请输入Logo图片地址" 
+				<!-- Logo上传 -->
+				<el-form-item label="农场Logo：">
+					<el-upload
+						ref="logoUploadRef"
+						:file-list="logoFileList"
+						:auto-upload="false"
+						:limit="1"
+						list-type="picture-card"
+						:on-change="handleLogoChange"
+						:on-remove="handleLogoRemove"
+						:before-upload="handleLogoBeforeUpload"
+						accept="image/*"
 						:disabled="isFormDisabled"
-						clearable
-					></el-input>
+						:class="['logo-upload', { 'hide-upload': logoFileList.length > 0 }]"
+					>
+						<el-icon v-if="logoFileList.length === 0"><ele-Plus /></el-icon>
+						<template #tip>
+							<div class="el-upload__tip">只能上传一张Logo图片，jpg/png文件，且不超过10MB</div>
+						</template>
+					</el-upload>
 				</el-form-item>
 
-				<!-- 农场图片URLs -->
+				<!-- 农场图片上传 -->
 				<el-form-item label="农场图片：">
-					<div class="image-urls-container">
-						<div 
-							v-for="(url, index) in imageUrlsArray" 
-							:key="index" 
-							class="image-url-item"
-						>
-							<el-input 
-								v-model="imageUrlsArray[index]" 
-								:placeholder="`农场图片${index + 1}地址`" 
-								:disabled="isFormDisabled"
-								clearable
-							>
-								<template #append v-if="!isFormDisabled">
-									<el-button 
-										@click="removeImageUrl(index)" 
-										type="danger" 
-										:icon="ElIconDelete"
-									>删除</el-button>
-								</template>
-						</el-input>
-					</div>
-						<el-button 
-							v-if="!isFormDisabled && imageUrlsArray.length < 5" 
-							@click="addImageUrl" 
-							type="primary" 
-							plain
-							class="mt10"
-						>
-							<el-icon><ele-Plus /></el-icon>
-							添加图片地址
-						</el-button>
-					</div>
+					<el-upload
+						ref="farmPicsUploadRef"
+						:file-list="farmPicsFileList"
+						:auto-upload="false"
+						:limit="5"
+						list-type="picture-card"
+						:on-change="handleFarmPicsChange"
+						:on-remove="handleFarmPicsRemove"
+						accept="image/*"
+						:disabled="isFormDisabled"
+						multiple
+					>
+						<el-icon><ele-Plus /></el-icon>
+						<template #tip>
+							<div class="el-upload__tip">可上传多张农场图片，最多5张，jpg/png文件，且不超过10MB</div>
+						</template>
+					</el-upload>
 				</el-form-item>
 
 				<!-- 操作按钮 -->
@@ -168,14 +165,87 @@
 				class="mt20"
 			/>
 		</el-card>
+
+		<!-- 当前农场图片展示区域 -->
+		<el-card v-if="isFarmBound" shadow="hover" header="当前农场图片" class="mt20">
+			<div class="current-images-section">
+				<!-- 当前Logo展示 -->
+				<div class="current-logo-section">
+					<h4 class="section-title">
+						<el-icon><ele-Picture /></el-icon>
+						当前Logo
+					</h4>
+					<div v-if="farmForm.logo_url" class="logo-display">
+						<el-image
+							:src="farmForm.logo_url"
+							fit="cover"
+							class="current-logo-image"
+							:preview-src-list="[farmForm.logo_url]"
+							:initial-index="0"
+						>
+							<template #error>
+								<div class="image-slot">
+									<el-icon><ele-Picture /></el-icon>
+									<p>Logo加载失败</p>
+								</div>
+							</template>
+						</el-image>
+						<div class="image-info">
+							<p class="image-url">{{ farmForm.logo_url }}</p>
+						</div>
+					</div>
+					<div v-else class="no-image">
+						<el-icon><ele-Picture /></el-icon>
+						<p>暂无Logo</p>
+					</div>
+				</div>
+
+				<!-- 当前农场图片展示 -->
+				<div class="current-farm-pics-section">
+					<h4 class="section-title">
+						<el-icon><ele-PictureRounded /></el-icon>
+						当前农场图片 ({{ validImageUrls.length }} 张)
+					</h4>
+					<div v-if="validImageUrls.length > 0" class="farm-pics-gallery">
+						<div 
+							v-for="(imageUrl, index) in validImageUrls" 
+							:key="index"
+							class="farm-pic-item"
+						>
+							<el-image
+								:src="imageUrl"
+								fit="cover"
+								class="current-farm-image"
+								:preview-src-list="validImageUrls"
+								:initial-index="index"
+							>
+								<template #error>
+									<div class="image-slot">
+										<el-icon><ele-Picture /></el-icon>
+										<p>图片加载失败</p>
+									</div>
+								</template>
+							</el-image>
+							<div class="image-info">
+								<p class="image-url">{{ imageUrl }}</p>
+							</div>
+						</div>
+					</div>
+					<div v-else class="no-image">
+						<el-icon><ele-PictureRounded /></el-icon>
+						<p>暂无农场图片</p>
+					</div>
+				</div>
+			</div>
+		</el-card>
 	</div>
 </template>
 
 <script setup lang="ts" name="tools">
 import { reactive, computed, onMounted, ref } from 'vue';
-import { ElMessage, ElIcon, ElMessageBox } from 'element-plus';
+import { ElMessage, ElIcon, ElMessageBox, type UploadFile, type FormInstance } from 'element-plus';
 import { Delete as ElIconDelete, Plus as ElIconPlus, Connection as ElIconConnection, SuccessFilled as ElIconSuccessFilled, Edit as ElIconEdit, Check as ElIconCheck, Close as ElIconClose, VideoPause as ElIconVideoPause, VideoPlay as ElIconVideoPlay } from '@element-plus/icons-vue';
-import { getFarm, bindFarm, updateFarmInfo, type Farm, type GetFarmRequest, type BindFarmRequest, type UpdateFarmInfoRequest } from '/@/api/farm';
+import { getFarm, bindFarm, updateFarmInfo, addFarmPic, addFarmMainPic, type Farm, type GetFarmRequest, type BindFarmRequest, type UpdateFarmInfoRequest, type BindFarmResponse } from '/@/api/farm';
 import { useUserInfoStore } from '/@/stores/userInfo';
 import { Session } from '/@/utils/storage';
 
@@ -205,7 +275,15 @@ const farmForm = reactive<Farm>({
 // 添加单独的status状态管理
 const farmStatus = ref(0); // 0: 正常运营, 1: 暂停运营
 
-// 用于前端显示的图片URL数组
+// 文件上传相关
+const logoUploadRef = ref();
+const farmPicsUploadRef = ref();
+const logoFileList = ref<UploadFile[]>([]);
+const farmPicsFileList = ref<UploadFile[]>([]);
+const logoFile = ref<File | null>(null);
+const farmPicFiles = ref<File[]>([]);
+
+// 用于前端显示的图片URL数组（保留用于兼容性）
 const imageUrlsArray = ref<string[]>(['']);
 
 // 计算表单是否禁用
@@ -222,18 +300,90 @@ const isFormValid = computed(() => {
 		   farmForm.description;
 });
 
-// 添加图片URL输入框
-const addImageUrl = () => {
-	if (imageUrlsArray.value.length < 5) {
-		imageUrlsArray.value.push('');
+// 计算有效的图片URL列表
+const validImageUrls = computed(() => {
+	console.log('36. validImageUrls计算 - imageUrlsArray.value:', imageUrlsArray.value);
+	// 先扁平化数组，处理可能的嵌套结构
+	const flatArray = imageUrlsArray.value.flat();
+	console.log('36.5. 扁平化后的数组:', flatArray);
+	const filtered = flatArray.filter(url => {
+		// 确保url是字符串类型且不为空
+		const isValid = url && typeof url === 'string' && url.trim() !== '';
+		console.log('37. 检查URL:', url, '类型:', typeof url, '有效:', isValid);
+		return isValid;
+	});
+	console.log('38. 过滤后的有效URL数组:', filtered);
+	return filtered;
+});
+
+// Logo上传处理
+const handleLogoChange = (file: UploadFile, fileList: UploadFile[]) => {
+	// 确保只有一张图片
+	if (fileList.length > 1) {
+		fileList.splice(0, fileList.length - 1);
+		ElMessage.error('Logo只能上传一张');
+	}
+	
+	logoFileList.value = fileList;
+	
+	if (file.raw && fileList.length === 1) {
+		logoFile.value = file.raw;
 	}
 };
 
-// 移除图片URL输入框
-const removeImageUrl = (index: number) => {
-	if (imageUrlsArray.value.length > 1) {
-		imageUrlsArray.value.splice(index, 1);
+const handleLogoRemove = (file: UploadFile, fileList: UploadFile[]) => {
+	logoFileList.value = fileList;
+	logoFile.value = null;
+};
+
+const handleLogoBeforeUpload = (file: any) => {
+	// 如果已经有图片，阻止上传并提示
+	if (logoFileList.value.length >= 1) {
+		ElMessage.error('Logo只能上传一张');
+		return false;
 	}
+	
+	const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png';
+	const isLt10M = file.size / 1024 / 1024 < 10;
+
+	if (!isJPGorPNG) {
+		ElMessage.error('Logo只能是 JPG/PNG 格式!');
+		return false;
+	}
+	if (!isLt10M) {
+		ElMessage.error('Logo大小不能超过 10MB!');
+		return false;
+	}
+	return true;
+};
+
+// 农场图片上传处理
+const handleFarmPicsChange = (file: UploadFile, fileList: UploadFile[]) => {
+	farmPicFiles.value = fileList.map(f => f.raw).filter(Boolean) as File[];
+};
+
+const handleFarmPicsRemove = (file: UploadFile, fileList: UploadFile[]) => {
+	farmPicFiles.value = fileList.map(f => f.raw).filter(Boolean) as File[];
+};
+
+// 重置表单和文件上传
+const resetFormAndFiles = () => {
+	// 重置文件上传相关状态
+	logoFileList.value = [];
+	farmPicsFileList.value = [];
+	logoFile.value = null;
+	farmPicFiles.value = [];
+	
+	// 重置表单数据
+	farmForm.farm_name = '';
+	farmForm.description = '';
+	farmForm.address = '';
+	farmForm.logo_url = '';
+	farmForm.image_urls = '';
+	farmForm.contact_phone = '';
+	
+	// 重置图片URL数组（兼容性）
+	imageUrlsArray.value = [''];
 };
 
 // 测试不同的image_urls值
@@ -355,27 +505,54 @@ const fetchFarmInfo = async () => {
 			console.log('28. 从后端设置后的farm_id:', farmForm.farm_id);
 			console.log('29. 从后端设置后的farmStatus:', farmStatus.value);
 			
-			// 处理图片URL：后端返回的是字符串，需要转换为数组供前端使用
+			// 处理图片URL：后端可能返回数组或字符串
 			if (farmData.image_urls || farmData.ImageURLs) {
 				const imageUrlsData = farmData.image_urls || farmData.ImageURLs;
-				try {
-					// 尝试解析JSON字符串
-					const parsedUrls = JSON.parse(imageUrlsData);
-					imageUrlsArray.value = Array.isArray(parsedUrls) ? parsedUrls : [imageUrlsData];
-				} catch {
-					// 如果不是JSON，按逗号分割或作为单个URL
-					imageUrlsArray.value = imageUrlsData.includes(',') 
-						? imageUrlsData.split(',').filter(url => url.trim())
-						: [imageUrlsData];
+				console.log('30. 原始图片URL数据:', imageUrlsData, '类型:', typeof imageUrlsData);
+				
+				// 如果已经是数组，直接使用
+				if (Array.isArray(imageUrlsData)) {
+					// 扁平化处理：如果数组中的元素也是数组，则展开
+					const flattenedUrls = imageUrlsData.flat().filter(url => url && typeof url === 'string' && url.trim());
+					imageUrlsArray.value = flattenedUrls;
+					console.log('31. 处理后的图片数组(直接数组):', imageUrlsArray.value);
+					// 同时更新farmForm.image_urls
+					farmForm.image_urls = JSON.stringify(imageUrlsArray.value);
+				} else if (typeof imageUrlsData === 'string') {
+					try {
+						// 尝试解析JSON字符串
+						const parsedUrls = JSON.parse(imageUrlsData);
+						imageUrlsArray.value = Array.isArray(parsedUrls) ? parsedUrls : [imageUrlsData];
+						console.log('32. 处理后的图片数组(JSON解析):', imageUrlsArray.value);
+						// 同时更新farmForm.image_urls
+						farmForm.image_urls = imageUrlsData;
+					} catch {
+						// 如果不是JSON，按逗号分割或作为单个URL
+						imageUrlsArray.value = imageUrlsData.includes(',') 
+							? imageUrlsData.split(',').filter(url => url.trim())
+							: [imageUrlsData];
+						console.log('33. 处理后的图片数组(字符串处理):', imageUrlsArray.value);
+						// 同时更新farmForm.image_urls
+						farmForm.image_urls = JSON.stringify(imageUrlsArray.value);
+					}
+				} else {
+					imageUrlsArray.value = [''];
+					console.log('34. 未知数据类型，设置为空数组');
+					farmForm.image_urls = '';
 				}
 			} else {
 				imageUrlsArray.value = [''];
+				console.log('35. 无图片数据，设置为空数组');
+				farmForm.image_urls = '';
 			}
 			
 			// 确保至少有一个空输入框
 			if (imageUrlsArray.value.length === 0) {
 				imageUrlsArray.value = [''];
 			}
+			
+			console.log('39. 最终的imageUrlsArray.value:', imageUrlsArray.value);
+			console.log('40. 最终的farmForm.image_urls:', farmForm.image_urls);
 			
 			isFarmBound.value = true;
 			isSuspended.value = farmStatus.value === 1; // 检查是否为暂停状态
@@ -433,31 +610,58 @@ const handleBindFarm = async () => {
 			return;
 		}
 
-		// 将图片URL数组转换为字符串（JSON格式）
-		const filteredImageUrls = imageUrlsArray.value.filter(url => url.trim() !== '');
-		const imageUrlsString = JSON.stringify(filteredImageUrls);
-
+		// 步骤1：先绑定农场基本信息（不包含图片）
 		const params: BindFarmRequest = {
 			admin_id: userInfo.admin_id,
 			bind_farm: {
 				farm_name: farmForm.farm_name,
 				description: farmForm.description,
 				address: farmForm.address,
-				logo_url: farmForm.logo_url,
-				image_urls: imageUrlsString, // 转换为字符串
+				logo_url: '', // 初始为空，待上传后更新
+				image_urls: JSON.stringify([]), // 初始为空数组
 				contact_phone: farmForm.contact_phone,
-				status: 0, // 绑定时设置为0
 			}
 		};
 
-		const response = await bindFarm(params);
-		console.log('绑定农场响应:', response.code, response.msg || response.Msg);
+		const response = await bindFarm(params) as BindFarmResponse;
+		console.log('绑定农场响应:', response);
 
 		const isSuccess = response.code === 200 || response.Code === 200 || 
 			(response.msg && response.msg.includes('成功')) || 
 			(response.Msg && response.Msg.includes('成功'));
 
 		if (isSuccess) {
+			// 获取返回的农场ID
+			const farmId = response.farm_id || response.FarmID;
+			console.log('获取到的农场ID:', farmId);
+
+			if (!farmId) {
+				throw new Error('农场绑定成功，但未获取到农场ID');
+			}
+
+			// 步骤2：上传图片
+			try {
+				// 上传Logo（如果有）
+				if (logoFile.value) {
+					console.log('开始上传Logo:', logoFile.value.name);
+					await addFarmMainPic(logoFile.value, farmId);
+					console.log('Logo上传成功');
+				}
+
+				// 上传农场图片（如果有）
+				if (farmPicFiles.value.length > 0) {
+					console.log('开始上传农场图片，共', farmPicFiles.value.length, '个文件');
+					for (const file of farmPicFiles.value) {
+						console.log(`上传农场图片: ${file.name}`);
+						await addFarmPic(file, farmId);
+						console.log(`农场图片 ${file.name} 上传成功`);
+					}
+				}
+			} catch (uploadError) {
+				console.error('图片上传失败:', uploadError);
+				ElMessage.warning('农场绑定成功，但部分图片上传失败');
+			}
+
 			ElMessage.success('农场绑定成功！');
 			statusMessage.value = '农场绑定成功！正在刷新数据...';
 			statusType.value = 'success';
@@ -553,6 +757,29 @@ const handleSaveFarmChanges = async () => {
 		console.log('修改农场响应:', response.code, response.msg);
 
 		if (response.code === 200) {
+			// 农场信息更新成功后，上传图片
+			try {
+				// 上传Logo（如果有）
+				if (logoFile.value) {
+					console.log('开始上传Logo:', logoFile.value.name);
+					await addFarmMainPic(logoFile.value, farmId);
+					console.log('Logo上传成功');
+				}
+
+				// 上传农场图片（如果有）
+				if (farmPicFiles.value.length > 0) {
+					console.log('开始上传农场图片，共', farmPicFiles.value.length, '个文件');
+					for (const file of farmPicFiles.value) {
+						console.log(`上传农场图片: ${file.name}`);
+						await addFarmPic(file, farmId);
+						console.log(`农场图片 ${file.name} 上传成功`);
+					}
+				}
+			} catch (uploadError) {
+				console.error('图片上传失败:', uploadError);
+				ElMessage.warning('农场信息修改成功，但部分图片上传失败');
+			}
+
 			ElMessage.success('农场信息修改成功！');
 			statusMessage.value = '农场信息修改成功！';
 			statusType.value = 'success';
@@ -986,5 +1213,159 @@ onMounted(() => {
 
 .mt20 {
 	margin-top: 20px;
+}
+
+/* 图片上传组件样式 */
+.logo-upload.hide-upload :deep(.el-upload--picture-card) {
+	display: none;
+}
+
+.logo-upload :deep(.el-upload-list__item) {
+	width: 100px;
+	height: 100px;
+}
+
+/* 当前农场图片展示区域样式 */
+.current-images-section {
+	.section-title {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 16px;
+		font-weight: 600;
+		color: #303133;
+		margin-bottom: 16px;
+		
+		.el-icon {
+			color: #409eff;
+		}
+	}
+	
+	.current-logo-section {
+		margin-bottom: 32px;
+		
+		.logo-display {
+			display: flex;
+			align-items: flex-start;
+			gap: 16px;
+			
+			.current-logo-image {
+				width: 120px;
+				height: 120px;
+				border-radius: 8px;
+				border: 2px solid #e4e7ed;
+				cursor: pointer;
+				transition: all 0.3s;
+				
+				&:hover {
+					border-color: #409eff;
+					transform: scale(1.02);
+				}
+			}
+			
+			.image-info {
+				flex: 1;
+				
+				.image-url {
+					margin: 0;
+					padding: 8px 12px;
+					background: #f5f7fa;
+					border-radius: 4px;
+					font-size: 12px;
+					color: #606266;
+					word-break: break-all;
+					line-height: 1.4;
+				}
+			}
+		}
+		
+		.no-image {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 24px;
+			background: #fafafa;
+			border-radius: 8px;
+			color: #909399;
+			
+			.el-icon {
+				font-size: 24px;
+			}
+		}
+	}
+	
+	.current-farm-pics-section {
+		.farm-pics-gallery {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+			gap: 16px;
+			
+			.farm-pic-item {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				
+				.current-farm-image {
+					width: 100%;
+					height: 150px;
+					border-radius: 8px;
+					border: 2px solid #e4e7ed;
+					cursor: pointer;
+					transition: all 0.3s;
+					
+					&:hover {
+						border-color: #409eff;
+						transform: scale(1.02);
+					}
+				}
+				
+				.image-info {
+					.image-url {
+						margin: 0;
+						padding: 6px 8px;
+						background: #f5f7fa;
+						border-radius: 4px;
+						font-size: 11px;
+						color: #606266;
+						word-break: break-all;
+						line-height: 1.3;
+					}
+				}
+			}
+		}
+		
+		.no-image {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 24px;
+			background: #fafafa;
+			border-radius: 8px;
+			color: #909399;
+			
+			.el-icon {
+				font-size: 24px;
+			}
+		}
+	}
+	
+	.image-slot {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		height: 100%;
+		color: #c0c4cc;
+		
+		.el-icon {
+			font-size: 28px;
+		}
+		
+		p {
+			margin: 0;
+			font-size: 12px;
+		}
+	}
 }
 </style>

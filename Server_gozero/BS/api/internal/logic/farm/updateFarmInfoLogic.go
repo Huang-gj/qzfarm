@@ -7,6 +7,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -53,8 +54,6 @@ func (l *UpdateFarmInfoLogic) UpdateFarmInfo(req *types.UpdateFarmInfoRequest) (
 		FarmName:     req.Farm.FarmName,
 		Description:  sql.NullString{req.Farm.Description, req.Farm.Description != ""},
 		Address:      sql.NullString{req.Farm.Address, req.Farm.Address != ""},
-		LogoUrl:      req.Farm.LogoURL,
-		ImageUrls:    req.Farm.ImageURLs,
 		ContactPhone: req.Farm.ContactPhone,
 	}
 

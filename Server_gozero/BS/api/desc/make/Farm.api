@@ -3,7 +3,7 @@ type BindFarm {
     Description string `json:"description"`
     Address string `json:"address"`
     LogoURL string `json:"logo_url"`
-    ImageURLs []byte `json:"image_urls"`
+    ImageURLs []string `json:"image_urls"`
     ContactPhone string  `json:"contact_phone"`
 
 }
@@ -14,8 +14,9 @@ type BindFarmRequest {
 }
 
 type BindFarmResponse{
-    Code int `json"code"`
-    Msg string `json"msg"`
+    FarmID int `json:farm_id`
+    Code int `json:"code"`
+    Msg string `json:"msg"`
 
 }
 
@@ -25,7 +26,7 @@ type Farm {
     Description string `json:"description"`
     Address string `json:"address"`
     LogoURL string `json:"logo_url"`
-    ImageURLs []byte `json:"image_urls"`
+    ImageURLs []string `json:"image_urls"`
     ContactPhone string  `json:"contact_phone"`
 
 }
@@ -48,6 +49,24 @@ type UpdateFarmInfoRequest{
 }
 
 type UpdateFarmInfoResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type AddFarmPicRequest{
+    FarmID int `form:"farm_id"`
+}
+
+type AddFarmPicResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type AddFarmMainPicRequest{
+    FarmID int `form:"farm_id"`
+}
+
+type AddFarmMainPicResponse{
     Code int `json:"code"`
     Msg string `json:"msg"`
 }

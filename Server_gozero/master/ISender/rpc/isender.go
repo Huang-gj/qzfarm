@@ -16,7 +16,8 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-// var configFile = flag.String("f", "master/ISender/rpc/etc/isender.yaml", "the config file")
+//var configFile = flag.String("f", "master/ISender/rpc/etc/isender.yaml", "the config file")
+
 var configFile = flag.String("f", "/data/master_rpc/etc/isender.yaml", "the config file")
 
 func main() {

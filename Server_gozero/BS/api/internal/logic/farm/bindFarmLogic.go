@@ -49,8 +49,9 @@ func (l *BindFarmLogic) BindFarm(req *types.BindFarmRequest) (resp *types.BindFa
 		return nil, errors.New("内部错误")
 	}
 	return &types.BindFarmResponse{
-		Code: 200,
-		Msg:  "绑定农场成功",
+		FarmID: int(FarmID),
+		Code:   200,
+		Msg:    "绑定农场成功",
 	}, nil
 
 }

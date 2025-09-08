@@ -18,7 +18,7 @@ import (
 )
 
 @server (
-	prefix: api
+	prefix: commodity
 	jwt:    Auth
 	group:  good
 )
@@ -34,7 +34,7 @@ service commodity {
 }
 
 @server (
-	prefix: api
+	prefix: commodity
 	jwt:    Auth
 	group:  land
 )
@@ -50,7 +50,7 @@ service commodity {
 }
 
 @server (
-	prefix: api
+	prefix: commodity
 	jwt:    Auth
 	group:  search
 )
@@ -60,7 +60,7 @@ service commodity {
 }
 
 @server (
-	prefix: api
+	prefix: commodity
 	jwt:    Auth
 	group:  comment
 )
@@ -82,7 +82,7 @@ service commodity {
 }
 
 @server (
-	prefix: api
+	prefix: commodity
 	jwt:    Auth
 	group:  activity
 )

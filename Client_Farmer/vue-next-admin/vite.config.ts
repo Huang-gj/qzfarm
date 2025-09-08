@@ -17,15 +17,15 @@ const alias: Record<string, string> = {
 const viteConfig = defineConfig((mode: ConfigEnv) => {
 	const env = loadEnv(mode.mode, process.cwd());
 	return {
-		plugins: [vue(), vueSetupExtend(), viteCompression(), JSON.parse(env.VITE_OPEN_CDN) ? buildConfig.cdn() : null],
+		plugins: [vue(), vueSetupExtend(), viteCompression(), JSON.parse(env.VITE_OPEN_CDN || 'false') ? buildConfig.cdn() : null],
 		root: process.cwd(),
 		resolve: { alias },
 		base:  './' ,
 		optimizeDeps: { exclude: ['vue-demi'] },
 		server: {
 			host: '0.0.0.0',
-			port: env.VITE_PORT as unknown as number,
-			open: JSON.parse(env.VITE_OPEN),
+			port: (env.VITE_PORT || '8888') as unknown as number,
+			open: JSON.parse(env.VITE_OPEN || 'true'),
 			hmr: true,
 			proxy: {
 				'/gitee': {
@@ -56,7 +56,7 @@ const viteConfig = defineConfig((mode: ConfigEnv) => {
 						}
 					},
 				},
-				...(JSON.parse(env.VITE_OPEN_CDN) ? { external: buildConfig.external } : {}),
+				...(JSON.parse(env.VITE_OPEN_CDN || 'false') ? { external: buildConfig.external } : {}),
 			},
 		},
 		css: { preprocessorOptions: { css: { charset: false } } },

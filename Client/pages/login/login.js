@@ -58,7 +58,7 @@ Page({
 
     // 调用后端登录接口
     wx.request({
-      url: 'http://8.133.19.244:8893/api/userLogin',
+      url: 'http://8.133.19.244:8893/user/userLogin',
       method: 'POST',
       data: {
         phone_number: phone_number,
@@ -216,7 +216,7 @@ Page({
         if (res.code) {
           // 发起网络请求获取openid
           wx.request({
-            url: 'http://8.133.19.244:8893/api/getOpenid',
+            url: 'http://8.133.19.244:8893/user/getOpenid',
             method: 'POST',
             data: {
               code: res.code

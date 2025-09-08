@@ -89,7 +89,7 @@ const getTableData = () => {
 			userName: i === 0 ? 'admin' : 'test',
 			userNickname: i === 0 ? '我是管理员' : '我是普通用户',
 			roleSign: i === 0 ? 'admin' : 'common',
-			department: i === 0 ? ['智云农庄', '农业管理部'] : ['智云农庄', '技术研发部'],
+			department: i === 0 ? ['', '农业管理部'] : ['', '技术研发部'],
 			phone: '12345678910',
 			email: 'admin@zhiyunfarm.com',
 			sex: '女',

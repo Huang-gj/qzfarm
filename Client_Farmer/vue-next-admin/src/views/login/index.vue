@@ -12,8 +12,8 @@
 				<img :src="loginMain" />
 			</div> -->
 			<div class="login-left-title">
-				<span>智云农庄智慧农业系统</span>
-				<div class="login-left-title-en">ZYNZ INTELLIGENT AGRICULTURE SYSTEM</div>
+				<span>智慧管理工具</span>
+				<div class="login-left-title-en">INTELLIGENT TOOL</div>
 			</div>
 			<img :src="loginBg" class="login-left-waves" />
 		</div>
@@ -22,7 +22,7 @@
 				<span class="login-right-warp-one"></span>
 				<span class="login-right-warp-two"></span>
 				<div class="login-right-warp-mian">
-					<div class="login-right-warp-main-title">智云农庄欢迎您！</div>
+					<div class="login-right-warp-main-title">智慧管理工具欢迎您！</div>
 					<div class="login-right-warp-main-form">
 						<div v-if="!state.isScan">
 							<el-tabs v-model="state.tabsActiveName">

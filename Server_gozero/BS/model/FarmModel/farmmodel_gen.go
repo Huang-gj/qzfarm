@@ -30,6 +30,9 @@ type (
 		UpdateByFarmId(ctx context.Context, FarmID int64,data *Farm) error
 		Delete(ctx context.Context, FarmID int64) error
 		UpdateStatus(ctx context.Context, farmId int64, status int64) error
+		UpdateLogoUrl(ctx context.Context, farmId int64, logoUrl string) error
+		UpdateImageUrls(ctx context.Context, farmId int64, imageUrls []byte) error
+		FindOneByFarmID(ctx context.Context, farmId int64) (*Farm, error)
 	}
 
 	defaultFarmModel struct {
@@ -121,4 +124,30 @@ func (m *defaultFarmModel) UpdateStatus(ctx context.Context, farmId int64, statu
 
 func (m *defaultFarmModel) tableName() string {
 	return m.table
+}
+
+func (m *defaultFarmModel) UpdateLogoUrl(ctx context.Context, farmId int64, logoUrl string) error {
+	query := fmt.Sprintf("update %s set `logo_url` = ? where `farm_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, logoUrl, farmId)
+	return err
+}
+
+func (m *defaultFarmModel) UpdateImageUrls(ctx context.Context, farmId int64, imageUrls []byte) error {
+	query := fmt.Sprintf("update %s set `image_urls` = ? where `farm_id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, imageUrls, farmId)
+	return err
+}
+
+func (m *defaultFarmModel) FindOneByFarmID(ctx context.Context, farmId int64) (*Farm, error) {
+	query := fmt.Sprintf("select %s from %s where `farm_id` = ? limit 1", farmRows, m.table)
+	var resp Farm
+	err := m.conn.QueryRowCtx(ctx, &resp, query, farmId)
+	switch err {
+	case nil:
+		return &resp, nil
+	case sqlx.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
 }

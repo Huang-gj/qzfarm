@@ -35,9 +35,11 @@ Go SDK V2 客户端初始化配置说明：
 // ossKey: 在OSS中的对象名称（可以包含路径，如 "images/logo.png"）
 // 返回: 上传成功后的访问URL和错误信息
 func OssUploadPicture(imagePath, ossKey string) (string, error) {
+	//accessKeyId := os.Getenv("OSS_ACCESS_KEY_ID")
+	//accessKeySecret := os.Getenv("OSS_ACCESS_KEY_SECRET")
 	// 从环境变量获取凭证
-	accessKeyId := os.Getenv("OSS_ACCESS_KEY_ID")
-	accessKeySecret := os.Getenv("OSS_ACCESS_KEY_SECRET")
+	accessKeyId := "LTAI5t82s6p6S86K5YJ8VWk5"
+	accessKeySecret := "akg5JOTLxBfsCb3UI3jQB8YtjIwb4T"
 	// 检查文件是否存在
 	fileInfo, err := os.Stat(imagePath)
 	if os.IsNotExist(err) {
@@ -199,8 +201,10 @@ func BatchUploadPictures(imagePaths []string, folder string) ([]string, error) {
 // 返回: 上传成功后的访问URL和错误信息
 func OssUploadFromMultipart(fileHeader *multipart.FileHeader, folder string) (string, error) {
 	// 从环境变量获取凭证
-	accessKeyId := os.Getenv("OSS_ACCESS_KEY_ID")
-	accessKeySecret := os.Getenv("OSS_ACCESS_KEY_SECRET")
+	//accessKeyId := os.Getenv("OSS_ACCESS_KEY_ID")
+	//accessKeySecret := os.Getenv("OSS_ACCESS_KEY_SECRET")
+	accessKeyId := "LTAI5t82s6p6S86K5YJ8VWk5"
+	accessKeySecret := "akg5JOTLxBfsCb3UI3jQB8YtjIwb4T"
 	fmt.Println(accessKeyId)
 	fmt.Println(accessKeySecret)
 

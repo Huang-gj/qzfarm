@@ -1,8 +1,8 @@
 <template>
 	<div class="layout-footer pb15">
 		<div class="layout-footer-warp">
-			<div>智云农庄，智慧农业管理平台</div>
-			<div class="mt5">智云农庄版权所有</div>
+			<div>智慧管理工具</div>
+			<div class="mt5">黄高俊版权所有</div>
 		</div>
 	</div>
 </template>

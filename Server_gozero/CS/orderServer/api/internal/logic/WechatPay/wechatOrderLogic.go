@@ -2,6 +2,7 @@ package WechatPay
 
 import (
 	"context"
+
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 
@@ -80,12 +81,9 @@ func (l *WechatOrderLogic) WechatOrder(request *types.WechatOrderRequest) (respo
 		},
 	)
 
-	if err == nil {
-		log.Println(resp)
-	} else {
-		log.Println(err)
+	if err != nil {
+		logx.Errorw("微信支付失败", logx.Field("err", resp))
 	}
-
 	return &types.WechatOrderResponse{
 		TimeStamp: *resp.TimeStamp,
 		NonceStr:  *resp.NonceStr,

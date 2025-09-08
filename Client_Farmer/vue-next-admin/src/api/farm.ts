@@ -46,8 +46,10 @@ export interface BindFarmRequest {
 export interface BindFarmResponse {
     code: number;        // 对应后端Code
     msg: string;         // 对应后端Msg
+    farm_id?: number;    // 新增：后端返回的农场ID
     Code?: number;       // 兼容大写
     Msg?: string;        // 兼容大写
+    FarmID?: number;     // 兼容大写
 }
 
 // 更新农场信息相关接口
@@ -157,4 +159,82 @@ export interface SaleSummaryResponse {
 
 export function getSaleSummary(params: SaleSummaryRequest): Promise<SaleSummaryResponse> {
     return request.post('/api/saleSummary', params);
+}
+
+// 添加农场图片请求/响应类型
+export interface AddFarmPicRequest {
+    farm_id: number;
+}
+
+export interface AddFarmPicResponse {
+    code: number;
+    msg: string;
+}
+
+// 添加农场主图片请求/响应类型
+export interface AddFarmMainPicRequest {
+    farm_id: number;
+}
+
+export interface AddFarmMainPicResponse {
+    code: number;
+    msg: string;
+}
+
+/**
+ * 为农场添加图片
+ * @param file 图片文件
+ * @param farmId 农场ID
+ * @returns Promise<AddFarmPicResponse>
+ */
+export function addFarmPic(file: File, farmId: number): Promise<AddFarmPicResponse> {
+    console.log('addFarmPic函数调用 - farmId:', farmId, 'file:', file.name);
+    
+    const formData = new FormData();
+    formData.append('farm_id', farmId.toString());
+    formData.append('file', file);
+    
+    console.log('AddFarmPic FormData内容:');
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
+    
+    return request({
+        url: '/api/AddFarmPicInfo',
+        method: 'post',
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+        timeout: 60000, // 60秒超时
+    });
+}
+
+/**
+ * 为农场添加主图片(Logo)
+ * @param file 图片文件
+ * @param farmId 农场ID
+ * @returns Promise<AddFarmMainPicResponse>
+ */
+export function addFarmMainPic(file: File, farmId: number): Promise<AddFarmMainPicResponse> {
+    console.log('addFarmMainPic函数调用 - farmId:', farmId, 'file:', file.name);
+    
+    const formData = new FormData();
+    formData.append('farm_id', farmId.toString());
+    formData.append('file', file); // 与活动上传保持一致的字段名
+    
+    console.log('AddFarmMainPic FormData内容:');
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
+    
+    return request({
+        url: '/api/AddFarmMainPic',
+        method: 'post',
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+        timeout: 60000, // 60秒超时
+    });
 } 

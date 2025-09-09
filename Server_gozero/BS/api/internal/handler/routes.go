@@ -8,6 +8,7 @@ import (
 
 	SaleData "Server_gozero/BS/api/internal/handler/SaleData"
 	activity "Server_gozero/BS/api/internal/handler/activity"
+	category "Server_gozero/BS/api/internal/handler/category"
 	farm "Server_gozero/BS/api/internal/handler/farm"
 	login "Server_gozero/BS/api/internal/handler/login"
 	order "Server_gozero/BS/api/internal/handler/order"
@@ -67,6 +68,28 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/GetMainPic",
 				Handler: activity.GetMainPicHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/api"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/AddCategory",
+				Handler: category.AddCategoryHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/AddCategoryPic",
+				Handler: category.AddCategoryPicHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetCategory",
+				Handler: category.GetCategoryHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

@@ -1,0 +1,36 @@
+type Category {
+    CategoryID int `json:"category_id"`
+    Name string `json:"name"`
+    CategoryType int `json:"category_type"`
+    Text string `json:"text"`
+    ImageUrl string `json:"image_url"`
+}
+
+type AddCategoryRequest{
+    Category Category `json:"category"`
+}
+
+type AddCategoryResponse{
+    CategoryID int `json:"category_id"`
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type GetCategoryRequest{
+    CategoryType int `json:"categoryType"`
+}
+
+type GetCategoryResponse{
+    Category []*Category `json:"category"`
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type AddCategoryPicRequest{
+    CategoryID int `form:"category_id"`
+}
+
+type AddCategoryPicResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}

@@ -32,6 +32,14 @@ type AddCommentResponse struct {
 	Msg  string `json:"msg"`
 }
 
+type Category struct {
+	CategoryID   int    `json:"category_id"`
+	Name         string `json:"name"`
+	CategoryType int    `json:"category_type"`
+	Text         string `json:"text"`
+	ImageUrl     string `json:"image_url"`
+}
+
 type Comment struct {
 	ID              int    `json:"id"`
 	CreateTime      string `json:"create_time"`
@@ -65,6 +73,16 @@ type GetActivityDetailResponse struct {
 	Code       int      `json:"code"`
 	Msg        string   `json:"msg"`
 	Activities Activity `json:"activities"`
+}
+
+type GetCategoryRequest struct {
+	CategoryType int `json:"categoryType"`
+}
+
+type GetCategoryResponse struct {
+	Category []*Category `json:"category"`
+	Code     int         `json:"code"`
+	Msg      string      `json:"msg"`
 }
 
 type GetCommentReplyRequest struct {

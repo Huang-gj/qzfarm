@@ -7,8 +7,27 @@
 					<el-form-item label="商品名称">
 						<el-input v-model="formData.good_name" placeholder="请输入" clearable />
 					</el-form-item>
-					<el-form-item label="标签">
-						<el-input v-model="formData.good_tag" placeholder="" clearable />
+					<el-form-item label="商品类目">
+						<el-select 
+							v-model="formData.good_tag" 
+							placeholder="请选择商品类目" 
+							clearable
+							filterable
+							style="width: 100%"
+						>
+							<el-option
+								v-for="category in categoryList"
+								:key="category.category_id"
+								:label="category.name"
+								:value="category.name"
+							/>
+						</el-select>
+						<div class="mt5">
+							<el-text size="small" type="info">
+								没有合适的类目？
+								<el-link type="primary" @click="goToCategoryAdd">点击新增类目</el-link>
+							</el-text>
+						</div>
 					</el-form-item>
 					<el-form-item label="价格">
 						<el-input-number v-model="formData.price" :min="0" :precision="2" :step="0.1" />
@@ -48,18 +67,22 @@
 </template>
 
 <script setup lang="ts" name="productResourceAdd">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { UploadUserFile, UploadFile } from 'element-plus';
 import { addProduct, type AddProductRequest, type AddProductResponse } from '/@/api/product';
+import { getCategory, type Category } from '/@/api/category';
 import { Session } from '/@/utils/storage';
 import { useUserInfoStore } from '/@/stores/userInfo';
+import { useRouter } from 'vue-router';
 import { testFileUpload } from '/@/api/test';
 
 const userInfoStore = useUserInfoStore();
+const router = useRouter();
 
 const formRef = ref();
 const submitting = ref(false);
+const categoryList = ref<Category[]>([]);
 
 // 单个商品表单数据
 const formData = reactive({
@@ -80,6 +103,26 @@ const resetForm = () => {
 	formData.repertory = 0;
 	formData.detail = '';
 	formData.fileList = [];
+};
+
+// 获取农产品类目列表
+const fetchCategoryList = async () => {
+	try {
+		const response = await getCategory({ categoryType: 1 }); // 1表示农产品类目
+		if (response.code === 200) {
+			categoryList.value = response.category || [];
+		} else {
+			ElMessage.warning(response.msg || '获取类目列表失败');
+		}
+	} catch (error: any) {
+		console.error('获取类目列表失败:', error);
+		ElMessage.error('获取类目列表失败');
+	}
+};
+
+// 跳转到新增类目页面
+const goToCategoryAdd = () => {
+	router.push('/make/category/add');
 };
 
 const getFarmId = (): number | null => {
@@ -226,10 +269,19 @@ const onSubmit = async () => {
 		submitting.value = false;
 	}
 };
+
+// 页面加载时获取类目列表
+onMounted(() => {
+	fetchCategoryList();
+});
 </script>
 
 <style scoped lang="scss">
 .product-add-container {
 	.el-card { max-width: 900px; }
+}
+
+.mt5 {
+	margin-top: 5px;
 }
 </style> 

@@ -121,12 +121,12 @@ function request(options = {}) {
     const baseUrl = 'http://8.133.19.244:8889'; // 生产环境服务器地址
     const url = options.url.startsWith('http') ? options.url : `${baseUrl}${options.url}`;
 
-    console.log('[request] 发送请求:', {
-      url: url,
-      method: options.method || 'GET',
-      data: options.data || {},
-      header: headers
-    });
+    console.log('[request] ===== 发送网络请求 =====');
+    console.log('[request] 完整URL:', url);
+    console.log('[request] 请求方法:', options.method || 'GET');
+    console.log('[request] 请求数据:', JSON.stringify(options.data || {}, null, 2));
+    console.log('[request] 请求头:', JSON.stringify(headers, null, 2));
+    console.log('[request] 超时时间:', options.timeout || 10000);
     
     wx.request({
       url: url,
@@ -135,10 +135,11 @@ function request(options = {}) {
       header: headers,
       timeout: options.timeout || 10000,
       success: (res) => {
-        console.log('[request] 响应结果:', {
-          statusCode: res.statusCode,
-          data: res.data
-        });
+        console.log('[request] ===== 网络请求成功 =====');
+        console.log('[request] HTTP状态码:', res.statusCode);
+        console.log('[request] 响应头:', res.header);
+        console.log('[request] 响应数据类型:', typeof res.data);
+        console.log('[request] 响应数据:', JSON.stringify(res.data, null, 2));
 
         // 首先检查token是否过期
         if (handleTokenExpiry(res.data, res.statusCode)) {
@@ -155,7 +156,11 @@ function request(options = {}) {
         }
       },
       fail: (err) => {
-        console.error('请求失败:', err);
+        console.error('[request] ===== 网络请求失败 =====');
+        console.error('[request] 错误类型:', typeof err);
+        console.error('[request] 错误码:', err.errno);
+        console.error('[request] 错误信息:', err.errMsg);
+        console.error('[request] 完整错误:', JSON.stringify(err, null, 2));
         reject(new Error(err.errMsg || '网络请求失败'));
       }
     });

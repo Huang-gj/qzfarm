@@ -1,215 +1,158 @@
+// 引入分类API服务
+console.log('[category.js] 开始导入分类API服务...');
+const categoryService = require('../services/category/category');
+console.log('[category.js] categoryService导入结果:', categoryService);
+console.log('[category.js] categoryService类型:', typeof categoryService);
+console.log('[category.js] categoryService的方法:', Object.keys(categoryService || {}));
+
+const { getGoodsCategory, getLandCategory } = categoryService;
+console.log('[category.js] getGoodsCategory提取结果:', typeof getGoodsCategory);
+console.log('[category.js] getLandCategory提取结果:', typeof getLandCategory);
+
 export async function getCategoryList() {
+  console.log('[getCategoryList] ========== 开始获取分类数据 ==========');
+  
   try {
-    // 直接使用阿里云OSS的图片URL，不需要异步转换
-    const urls = [
-      // 土地分类图片
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/lands_image_url/土地.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/lands_image_url/池塘.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/lands_image_url/果树.jpg',
-      
-      // 农产品分类图片
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/橘子.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/西瓜.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/梨.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/柚子.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/樱桃.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/香蕉.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/桃子.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/葡萄.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/苹果.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/芒果.jpg',
-      'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/火龙果.jpg'
-    ];
-    return [{
-      groupId: '1000', // 一级分类用千位
-      name: '土地',
-      thumbnail: 'https://via.placeholder.com/100x100?text=土地',
-      children: [{
-        groupId: '1100', // 二级分类用百位
-        name: '土地',
-        thumbnail: 'https://via.placeholder.com/100x100?text=土地',
-        children: [{
-            groupId: '1101',
-            name: '土地',
-            thumbnail: urls[0]
-          }, // 三级分类用个位
-          {
-            groupId: '1102',
-            name: '池塘',
-            thumbnail: urls[1]
-          },
-          {
-            groupId: '1103',
-            name: '果树',
-            thumbnail: urls[2]
-          }
-        ],
-      }],
-    },
-    {
-      groupId: '2000',
+    // 检查分类API服务是否正确导入
+    console.log('[getCategoryList] 检查API服务导入:');
+    console.log('[getCategoryList] getGoodsCategory类型:', typeof getGoodsCategory);
+    console.log('[getCategoryList] getLandCategory类型:', typeof getLandCategory);
+    
+    if (typeof getGoodsCategory !== 'function' || typeof getLandCategory !== 'function') {
+      throw new Error('分类API服务导入失败');
+    }
+    
+    console.log('[getCategoryList] 开始并行获取农产品和土地分类数据...');
+    
+    // 并行获取农产品和土地分类数据
+    const [goodsResult, landResult] = await Promise.all([
+      getGoodsCategory(),
+      getLandCategory()
+    ]);
+    
+    console.log('[getCategoryList] ===== 农产品分类结果 =====');
+    console.log('[getCategoryList] 农产品成功:', goodsResult?.success);
+    console.log('[getCategoryList] 农产品数据长度:', goodsResult?.data?.length);
+    console.log('[getCategoryList] 农产品完整结果:', JSON.stringify(goodsResult, null, 2));
+    
+    console.log('[getCategoryList] ===== 土地分类结果 =====');
+    console.log('[getCategoryList] 土地成功:', landResult?.success);
+    console.log('[getCategoryList] 土地数据长度:', landResult?.data?.length);
+    console.log('[getCategoryList] 土地完整结果:', JSON.stringify(landResult, null, 2));
+    
+    // 处理农产品分类数据（放在第一位，对应界面上的第一个标签）
+    let goodsCategories = [];
+    console.log('[getCategoryList] ===== 处理农产品分类数据 =====');
+    if (goodsResult.success && goodsResult.data && goodsResult.data.length > 0) {
+      console.log('[getCategoryList] 农产品分类原始数据:', goodsResult.data);
+      goodsCategories = goodsResult.data.map((item, index) => {
+        const processed = {
+          groupId: `110${index + 1}`, // 农产品分类groupId以110开头（第一个位置）
+          name: item.name,
+          thumbnail: item.image_url || 'https://via.placeholder.com/100x100?text=' + encodeURIComponent(item.name)
+        };
+        console.log(`[getCategoryList] 农产品分类${index + 1}处理结果:`, processed);
+        return processed;
+      });
+    } else {
+      console.log('[getCategoryList] 农产品分类数据为空或获取失败');
+    }
+    console.log('[getCategoryList] 最终农产品分类数组:', goodsCategories);
+    
+    // 处理土地分类数据（放在第二位，对应界面上的第二个标签）
+    let landCategories = [];
+    console.log('[getCategoryList] ===== 处理土地分类数据 =====');
+    if (landResult.success && landResult.data && landResult.data.length > 0) {
+      console.log('[getCategoryList] 土地分类原始数据:', landResult.data);
+      landCategories = landResult.data.map((item, index) => {
+        const processed = {
+          groupId: `210${index + 1}`, // 土地分类groupId以210开头（第二个位置）
+          name: item.name,
+          thumbnail: item.image_url || 'https://via.placeholder.com/100x100?text=' + encodeURIComponent(item.name)
+        };
+        console.log(`[getCategoryList] 土地分类${index + 1}处理结果:`, processed);
+        return processed;
+      });
+    } else {
+      console.log('[getCategoryList] 土地分类数据为空或获取失败');
+    }
+    console.log('[getCategoryList] 最终土地分类数组:', landCategories);
+    // 构建返回的分类数据结构（农产品在第一位，土地在第二位）
+    console.log('[getCategoryList] ===== 构建最终数据结构 =====');
+    const finalResult = [{
+      groupId: '1000', // 一级分类：农产品（第一个位置）
       name: '农产品',
       thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
       children: [{
-        groupId: '2100',
+        groupId: '1100', // 二级分类：农产品
         name: '农产品',
         thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
-        children: [{
-            groupId: '2101',
-            name: '橘子',
-            thumbnail: urls[3]
-          },
-          {
-            groupId: '2102',
-            name: '西瓜',
-            thumbnail: urls[4]
-          },
-          {
-            groupId: '2103',
-            name: '梨',
-            thumbnail: urls[5]
-          },
-          {
-            groupId: '2104',
-            name: '柚子',
-            thumbnail: urls[6]
-          },
-          {
-            groupId: '2105',
-            name: '樱桃',
-            thumbnail: urls[7]
-          },
-          {
-            groupId: '2106',
-            name: '香蕉',
-            thumbnail: urls[8]
-          },
-          {
-            groupId: '2107',
-            name: '桃子',
-            thumbnail: urls[9]
-          },
-          {
-            groupId: '2108',
-            name: '葡萄',
-            thumbnail: urls[10]
-          },
-          {
-            groupId: '2109',
-            name: '苹果',
-            thumbnail: urls[11]
-          },
-          {
-            groupId: '2110',
-            name: '芒果',
-            thumbnail: urls[12]
-          },
-          {
-            groupId: '2111',
-            name: '火龙果',
-            thumbnail: urls[13]
-          }
-        ],
+        children: goodsCategories, // 使用从API获取的农产品分类数据（groupId以110开头）
       }],
     },
-   
+    {
+      groupId: '2000', // 一级分类：土地（第二个位置）
+      name: '土地',
+      thumbnail: 'https://via.placeholder.com/100x100?text=土地',
+      children: [{
+        groupId: '2100', // 二级分类：土地
+        name: '土地',
+        thumbnail: 'https://via.placeholder.com/100x100?text=土地',
+        children: landCategories, // 使用从API获取的土地分类数据（groupId以210开头）
+      }],
+    }];
     
-  ];
+    console.log('[getCategoryList] 最终返回数据结构:');
+    console.log('[getCategoryList] 土地分类数量:', landCategories.length);
+    console.log('[getCategoryList] 农产品分类数量:', goodsCategories.length);
+    console.log('[getCategoryList] 完整数据结构:', JSON.stringify(finalResult, null, 2));
+    console.log('[getCategoryList] ========== 分类数据获取完成 ==========');
+    
+    return finalResult;
   } catch (error) {
     console.error('[getCategoryList] 获取分类列表失败:', error);
-    // 返回使用阿里云OSS URL的默认数据
+    // 返回默认的基础分类数据作为兜底（农产品在第一位，土地在第二位）
     return [{
-      groupId: '1000',
-      name: '土地',
-      thumbnail: 'https://via.placeholder.com/100x100?text=土地',
+      groupId: '1000', // 农产品（第一个位置）
+      name: '农产品',
+      thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
       children: [{
         groupId: '1100',
-        name: '土地',
-        thumbnail: 'https://via.placeholder.com/100x100?text=土地',
+        name: '农产品',
+        thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
         children: [{
-            groupId: '1101',
-            name: '土地',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/lands_image_url/土地.jpg'
+            groupId: '1101', // 农产品分类以110开头
+            name: '橘子',
+            thumbnail: 'https://via.placeholder.com/100x100?text=橘子'
           },
           {
             groupId: '1102',
-            name: '池塘',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/lands_image_url/池塘.jpg'
-          },
-          {
-            groupId: '1103',
-            name: '果树',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/lands_image_url/果树.jpg'
+            name: '西瓜',
+            thumbnail: 'https://via.placeholder.com/100x100?text=西瓜'
           }
         ],
       }],
     },
     {
-      groupId: '2000',
-      name: '农产品',
-      thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
+      groupId: '2000', // 土地（第二个位置）
+      name: '土地',
+      thumbnail: 'https://via.placeholder.com/100x100?text=土地',
       children: [{
         groupId: '2100',
-        name: '农产品',
-        thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
+        name: '土地',
+        thumbnail: 'https://via.placeholder.com/100x100?text=土地',
         children: [{
-            groupId: '2101',
-            name: '橘子',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/橘子.jpg'
+            groupId: '2101', // 土地分类以210开头
+            name: '池塘',
+            thumbnail: 'https://via.placeholder.com/100x100?text=池塘'
           },
           {
             groupId: '2102',
-            name: '西瓜',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/西瓜.jpg'
-          },
-          {
-            groupId: '2103',
-            name: '梨',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/梨.jpg'
-          },
-          {
-            groupId: '2104',
-            name: '柚子',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/柚子.jpg'
-          },
-          {
-            groupId: '2105',
-            name: '樱桃',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/樱桃.jpg'
-          },
-          {
-            groupId: '2106',
-            name: '香蕉',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/香蕉.jpg'
-          },
-          {
-            groupId: '2107',
-            name: '桃子',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/桃子.jpg'
-          },
-          {
-            groupId: '2108',
-            name: '葡萄',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/葡萄.jpg'
-          },
-          {
-            groupId: '2109',
-            name: '苹果',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/苹果.jpg'
-          },
-          {
-            groupId: '2110',
-            name: '芒果',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/芒果.jpg'
-          },
-          {
-            groupId: '2111',
-            name: '火龙果',
-            thumbnail: 'https://qzf-bucket.oss-cn-shanghai.aliyuncs.com/images/goods_image_url/火龙果.jpg'
+            name: '果树',
+            thumbnail: 'https://via.placeholder.com/100x100?text=果树'
           }
         ],
       }],
-    }
-  ];
+    }];
   }
 }

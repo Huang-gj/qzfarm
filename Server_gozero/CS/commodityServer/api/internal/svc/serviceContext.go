@@ -3,6 +3,7 @@ package svc
 import (
 	"Server_gozero/CS/commodityServer/api/internal/config"
 	"Server_gozero/CS/commodityServer/model/activityModel"
+	"Server_gozero/CS/commodityServer/model/categoryModel"
 	"Server_gozero/CS/commodityServer/model/commentModel"
 	"Server_gozero/CS/commodityServer/model/commentReplyModel"
 	"Server_gozero/CS/commodityServer/model/goodModel/model"
@@ -11,6 +12,7 @@ import (
 	"Server_gozero/common/ISender/id"
 	"context"
 	"fmt"
+
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/zrpc"
 )
@@ -23,6 +25,7 @@ type ServiceContext struct {
 	CommentModel      commentModel.CommentModel
 	CommentReplyModel commentReplyModel.CommentReplyModel
 	ActivityModel     activityModel.ActivityModel
+	CategoryModel     categoryModel.CategoryModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -39,5 +42,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		CommentModel:      commentModel.NewCommentModel(sqlxConn),
 		CommentReplyModel: commentReplyModel.NewCommentReplyModel(sqlxConn),
 		ActivityModel:     activityModel.NewActivityModel(sqlxConn),
+		CategoryModel:     categoryModel.NewCategoryModel(sqlxConn),
 	}
 }

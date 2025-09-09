@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	activity "Server_gozero/CS/commodityServer/api/internal/handler/activity"
+	category "Server_gozero/CS/commodityServer/api/internal/handler/category"
 	comment "Server_gozero/CS/commodityServer/api/internal/handler/comment"
 	good "Server_gozero/CS/commodityServer/api/internal/handler/good"
 	land "Server_gozero/CS/commodityServer/api/internal/handler/land"
@@ -28,6 +29,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/GetMainPic",
 				Handler: activity.GetMainPicHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/commodity"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetCategory",
+				Handler: category.GetCategoryHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

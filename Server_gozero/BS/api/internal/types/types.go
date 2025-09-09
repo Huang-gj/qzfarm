@@ -24,6 +24,25 @@ type AddActivityResponse struct {
 	Msg        string `json:"msg"`
 }
 
+type AddCategoryPicRequest struct {
+	CategoryID int `form:"category_id"`
+}
+
+type AddCategoryPicResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
+type AddCategoryRequest struct {
+	Category Category `json:"category"`
+}
+
+type AddCategoryResponse struct {
+	CategoryID int    `json:"category_id"`
+	Code       int    `json:"code"`
+	Msg        string `json:"msg"`
+}
+
 type AddFarmMainPicRequest struct {
 	FarmID int `form:"farm_id"`
 }
@@ -106,6 +125,14 @@ type BindFarmResponse struct {
 	Msg    string `json:"msg"`
 }
 
+type Category struct {
+	CategoryID   int    `json:"category_id"`
+	Name         string `json:"name"`
+	CategoryType int    `json:"category_type"`
+	Text         string `json:"text"`
+	ImageUrl     string `json:"image_url"`
+}
+
 type DelProductRequest struct {
 	FarmID      int `json:"farm_id"`
 	ProductType int `json:"product_type"`
@@ -146,6 +173,16 @@ type GetAdminInfoResponse struct {
 	Code  int    `json:"code"`
 	Msg   string `json:"msg"`
 	Admin Admin  `json:"admin"`
+}
+
+type GetCategoryRequest struct {
+	CategoryType int `json:"categoryType"`
+}
+
+type GetCategoryResponse struct {
+	Category []*Category `json:"category"`
+	Code     int         `json:"code"`
+	Msg      string      `json:"msg"`
 }
 
 type GetFarmRequest struct {

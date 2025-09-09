@@ -242,6 +242,13 @@ export function getGoodsByFarmId(farmId, userId = 0) {
  * @returns {Promise<Goods[]>} 商品列表
  */
 export function getGoodsByTag(goodTag, userId = 0) {
+  console.log('[getGoodsByTag] ========== API函数调用开始 ==========');
+  console.log('[getGoodsByTag] 接收到的参数:');
+  console.log('[getGoodsByTag] - goodTag:', goodTag);
+  console.log('[getGoodsByTag] - goodTag类型:', typeof goodTag);
+  console.log('[getGoodsByTag] - goodTag长度:', goodTag ? goodTag.length : 'null/undefined');
+  console.log('[getGoodsByTag] - userId:', userId);
+  
   return new Promise((resolve, reject) => {
     // 获取存储的token
     const tokenData = wx.getStorageSync('token');
@@ -252,38 +259,85 @@ export function getGoodsByTag(goodTag, userId = 0) {
     // 如果有token，添加到请求头
     if (tokenData && tokenData.accessToken) {
       headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
+      console.log('[getGoodsByTag] 已添加Authorization token');
+    } else {
+      console.warn('[getGoodsByTag] 未找到token，可能影响API调用');
     }
+
+    const requestData = {
+      user_id: userId,
+      good_tag: goodTag
+    };
+    
+    console.log('[getGoodsByTag] ===== 发送API请求 =====');
+    console.log('[getGoodsByTag] URL: http://8.133.19.244:8889/commodity/getGoodsByTag');
+    console.log('[getGoodsByTag] 方法: POST');
+    console.log('[getGoodsByTag] 请求数据:', JSON.stringify(requestData, null, 2));
+    console.log('[getGoodsByTag] 请求头:', headers);
 
     wx.request({
       url: 'http://8.133.19.244:8889/commodity/getGoodsByTag',
       method: 'POST',
-      data: {
-        user_id: userId,
-        good_tag: goodTag
-      },
+      data: requestData,
       header: headers,
       timeout: 10000,
       success: (res) => {
+        console.log('[getGoodsByTag] ===== 收到API响应 =====');
+        console.log('[getGoodsByTag] HTTP状态码:', res.statusCode);
+        console.log('[getGoodsByTag] 响应头:', res.header);
+        console.log('[getGoodsByTag] 原始响应数据:', JSON.stringify(res.data, null, 2));
 
         if (res.statusCode >= 200 && res.statusCode < 300) {
           const response = res.data;
+          console.log('[getGoodsByTag] ===== 响应数据解析 =====');
+          console.log('[getGoodsByTag] response.code:', response.code);
+          console.log('[getGoodsByTag] response.msg:', response.msg);
+          console.log('[getGoodsByTag] response.goods_list 类型:', typeof response.goods_list);
+          console.log('[getGoodsByTag] response.goods_list 长度:', response.goods_list ? response.goods_list.length : 'null/undefined');
+          
           if (response.code === 200) {
+            console.log('[getGoodsByTag] ===== 处理商品列表数据 =====');
+            if (response.goods_list && response.goods_list.length > 0) {
+              console.log('[getGoodsByTag] 找到商品数量:', response.goods_list.length);
+              console.log('[getGoodsByTag] 第一个商品的good_tag:', response.goods_list[0].good_tag);
+              console.log('[getGoodsByTag] 所有商品的good_tag列表:', response.goods_list.map(g => g.good_tag));
+              
+              // 检查是否有匹配的商品
+              const matchingGoods = response.goods_list.filter(g => g.good_tag === goodTag);
+              console.log('[getGoodsByTag] 精确匹配的商品数量:', matchingGoods.length);
+              if (matchingGoods.length > 0) {
+                console.log('[getGoodsByTag] 匹配的商品:', matchingGoods.map(g => g.title || g.good_name));
+              }
+            } else {
+              console.warn('[getGoodsByTag] goods_list为空或未定义');
+            }
+            
             // 如果 image_urls 是字符串，尝试解析为数组
             const goodsList = response.goods_list.map(good => ({
               ...good,
               image_urls: parseImageUrls(good.image_urls)
             }));
             
+            console.log('[getGoodsByTag] ===== 返回处理后的商品列表 =====');
+            console.log('[getGoodsByTag] 处理后商品数量:', goodsList.length);
             resolve(goodsList);
           } else {
+            console.error('[getGoodsByTag] API返回错误码:', response.code);
+            console.error('[getGoodsByTag] 错误信息:', response.msg);
             reject(new Error(response.msg || '根据标签获取商品列表失败'));
           }
         } else {
+          console.error('[getGoodsByTag] ===== HTTP请求失败 =====');
+          console.error('[getGoodsByTag] 状态码:', res.statusCode);
+          console.error('[getGoodsByTag] 响应数据:', res.data);
           reject(new Error(`HTTP ${res.statusCode}: ${res.data?.msg || '请求失败'}`));
         }
       },
       fail: (err) => {
-        console.error('根据标签获取商品列表失败:', err);
+        console.error('[getGoodsByTag] ===== 网络请求失败 =====');
+        console.error('[getGoodsByTag] 错误类型:', typeof err);
+        console.error('[getGoodsByTag] 错误信息:', err.errMsg);
+        console.error('[getGoodsByTag] 完整错误对象:', JSON.stringify(err, null, 2));
         reject(new Error(err.errMsg || '网络请求失败'));
       }
     });

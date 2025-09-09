@@ -1,0 +1,18 @@
+type Category {
+    CategoryID int `json:"category_id"`
+    Name string `json:"name"`
+    CategoryType int `json:"category_type"`
+    Text string `json:"text"`
+    ImageUrl string `json:"image_url"`
+}
+
+type GetCategoryRequest{
+    CategoryType int `json:"categoryType"`
+}
+
+type GetCategoryResponse{
+    Category []*Category `json:"category"`
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+

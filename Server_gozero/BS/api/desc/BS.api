@@ -16,6 +16,7 @@ import (
 	"make/product.api"
 	"make/SaleData.api"
 	"make/Activity.api"
+	"make/Category.api"
 )
 
 @server (
@@ -153,5 +154,21 @@ service intelligent_agriculture_sys {
 
 	@handler AddMainPic
 	post /AddMainPic (AddMainPicRequest) returns (AddMainPicResponse)
+}
+
+@server (
+	prefix: api
+	jwt:    Auth
+	group:  category
+)
+service intelligent_agriculture_sys {
+	@handler AddCategory
+	post /AddCategory (AddCategoryRequest) returns (AddCategoryResponse)
+
+	@handler GetCategory
+	post /GetCategory (GetCategoryRequest) returns (GetCategoryResponse)
+
+	@handler AddCategoryPic
+	post /AddCategoryPic (AddCategoryPicRequest) returns (AddCategoryPicResponse)
 }
 

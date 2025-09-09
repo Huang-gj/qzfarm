@@ -15,6 +15,7 @@ import (
 	"make/search.api"
 	"make/comment.api"
 	"make/activity.api"
+	"make/category.api"
 )
 
 @server (
@@ -92,5 +93,15 @@ service commodity {
 
 	@handler GetActivityDetail
 	post /GetActivityDetail (GetActivityDetailRequest) returns (GetActivityDetailResponse)
+}
+
+@server (
+	prefix: commodity
+	jwt:    Auth
+	group:  category
+)
+service commodity {
+	@handler GetCategory
+	post /GetCategory (GetCategoryRequest) returns (GetCategoryResponse)
 }
 

@@ -150,12 +150,26 @@ Page({
       this.setData({ loadMoreStatus: 1, loading: true });
       
       try {
-        /* keep */
+        console.log('[goods/list] ===== 开始API调用 =====');
+        console.log('[goods/list] 调用 getGoodsByTag 参数:');
+        console.log('[goods/list] - good_tag:', groupId);
+        console.log('[goods/list] - user_id:', 0);
+        console.log('[goods/list] - tag长度:', groupId.length);
+        console.log('[goods/list] - tag字符详情:', [...groupId].map(c => `${c}(${c.charCodeAt(0)})`).join(', '));
         
         // 使用分类名称作为标签来获取商品
         const goodsList = await getGoodsByTag(groupId, 0); // 使用默认用户ID 0
         
-        /* keep */
+        console.log('[goods/list] ===== API调用完成 =====');
+        console.log('[goods/list] 返回的goodsList类型:', typeof goodsList);
+        console.log('[goods/list] 返回的goodsList是否为数组:', Array.isArray(goodsList));
+        console.log('[goods/list] 返回的商品数量:', goodsList ? goodsList.length : 'null/undefined');
+        if (goodsList && goodsList.length > 0) {
+          console.log('[goods/list] 第一个商品详情:', JSON.stringify(goodsList[0], null, 2));
+          console.log('[goods/list] 所有商品的good_tag:', goodsList.map(item => item.good_tag));
+        } else {
+          console.warn('[goods/list] 未找到匹配的商品！');
+        }
         
         if (Array.isArray(goodsList)) {
           const totalCount = goodsList.length;
@@ -239,27 +253,47 @@ Page({
   },
 
   onLoad(options) {
+    console.log('[goods/list] ========== 商品列表页面加载 ==========');
+    console.log('[goods/list] 完整的options参数:', options);
+    
     const { groupId = '', tag = '' } = options;
     // 优先使用 tag 参数，如果没有则使用 groupId
     let goodTag = tag || groupId || '';
     
+    console.log('[goods/list] ===== 参数解析 =====');
+    console.log('[goods/list] 原始tag参数:', tag);
+    console.log('[goods/list] 原始groupId参数:', groupId);
+    console.log('[goods/list] 初始goodTag:', goodTag);
+    
     // 如果tag参数被URL编码了，需要解码
     if (tag) {
       try {
-        goodTag = decodeURIComponent(tag);
+        const decodedTag = decodeURIComponent(tag);
+        console.log('[goods/list] URL解码前:', tag);
+        console.log('[goods/list] URL解码后:', decodedTag);
+        goodTag = decodedTag;
       } catch (error) {
-        console.error('[onLoad] URL解码失败:', error);
+        console.error('[goods/list] URL解码失败:', error);
         goodTag = tag;
       }
     }
     
-    console.log('[onLoad] 加载商品列表页面:', {
+    console.log('[goods/list] ===== 最终tag信息 =====');
+    console.log('[goods/list] 最终goodTag:', goodTag);
+    console.log('[goods/list] goodTag类型:', typeof goodTag);
+    console.log('[goods/list] goodTag长度:', goodTag.length);
+    console.log('[goods/list] goodTag字符编码:', [...goodTag].map(c => c.charCodeAt(0)));
+    console.log('[goods/list] 即将调用 getGoodsByTag 进行精准匹配');
+    
+    console.log('[goods/list] 加载商品列表页面参数总结:', {
       originalTag: tag,
       originalGroupId: groupId,
-      decodedTag: goodTag
+      finalTag: goodTag,
+      willCallAPI: 'getGoodsByTag'
     });
     
     this.setData({ groupId: goodTag }, () => {
+      console.log('[goods/list] 页面数据已设置，开始调用init方法');
       this.init(true);
     });
 

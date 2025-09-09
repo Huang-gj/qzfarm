@@ -60,6 +60,13 @@ Page({
       return;
     }
     
+    // 检查是否为批量订单
+    this.isBatchOrder = options.isBatchOrder === 'true';
+    this.cartType = options.cartType || 'goods';
+    
+    console.log('[onLoad] 订单类型:', this.isBatchOrder ? '批量订单' : '单个订单');
+    console.log('[onLoad] 购物车类型:', this.cartType);
+    
     // 如果没有商品数据，使用测试数据
     if (!options.goodsRequestList) {
       console.log('[onLoad] 没有商品数据，使用测试数据');
@@ -147,13 +154,24 @@ Page({
       console.log('[handleOptionsParams] 从购物车获取的商品列表:', goodsRequestList);
     } else if (typeof options.goodsRequestList === 'string') {
       try {
-        goodsRequestList = JSON.parse(options.goodsRequestList);
+        // 先进行URL解码，再解析JSON
+        const decodedString = decodeURIComponent(options.goodsRequestList);
+        console.log('[handleOptionsParams] URL解码后的字符串:', decodedString);
+        goodsRequestList = JSON.parse(decodedString);
         console.log('[handleOptionsParams] 从参数获取的商品列表:', goodsRequestList);
       } catch (error) {
         console.error('[handleOptionsParams] 解析商品列表JSON失败:', error);
         console.log('[handleOptionsParams] 原始字符串:', options.goodsRequestList);
-        this.handleError();
-        return;
+        
+        // 尝试直接解析（兼容未编码的情况）
+        try {
+          goodsRequestList = JSON.parse(options.goodsRequestList);
+          console.log('[handleOptionsParams] 直接解析成功:', goodsRequestList);
+        } catch (secondError) {
+          console.error('[handleOptionsParams] 直接解析也失败:', secondError);
+          this.handleError();
+          return;
+        }
       }
     }
     
@@ -181,40 +199,142 @@ Page({
       if (!storeMap[goods.storeId]) {
         storeInfoList.push({
           storeId: goods.storeId,
-          storeName: goods.storeName,
+          storeName: goods.storeName || 'QZFarm商城',
         });
         storeMap[goods.storeId] = true;
       }
     });
     this.goodsRequestList = goodsRequestList;
     this.storeInfoList = storeInfoList;
-    const params = {
-      goodsRequestList,
-      storeInfoList,
-      userAddressReq,
-      couponList,
-    };
-    fetchSettleDetail(params).then(
-      (res) => {
-        this.setData({
-          loading: false,
-        });
-        console.log('[handleOptionsParams] fetchSettleDetail响应:', res);
-        
-        if (res && res.data) {
-          this.initData(res.data);
-        } else {
-          console.error('[handleOptionsParams] fetchSettleDetail返回数据异常:', res);
+    
+    // 如果是批量订单，直接构建本地数据，不调用后端接口
+    if (this.isBatchOrder) {
+      console.log('[handleOptionsParams] 批量订单，构建本地结算数据');
+      this.buildBatchOrderData(goodsRequestList, storeInfoList, userAddressReq);
+    } else {
+      // 单个订单，调用原有的后端接口
+      const params = {
+        goodsRequestList,
+        storeInfoList,
+        userAddressReq,
+        couponList,
+      };
+      fetchSettleDetail(params).then(
+        (res) => {
+          this.setData({
+            loading: false,
+          });
+          console.log('[handleOptionsParams] fetchSettleDetail响应:', res);
+          
+          if (res && res.data) {
+            this.initData(res.data);
+          } else {
+            console.error('[handleOptionsParams] fetchSettleDetail返回数据异常:', res);
+            this.handleError();
+          }
+        },
+        (error) => {
+          console.error('[handleOptionsParams] fetchSettleDetail请求失败:', error);
+          //接口异常处理
           this.handleError();
-        }
-      },
-      (error) => {
-        console.error('[handleOptionsParams] fetchSettleDetail请求失败:', error);
-        //接口异常处理
-        this.handleError();
-      },
-    );
+        },
+      );
+    }
   },
+
+  // 构建批量订单的本地结算数据
+  buildBatchOrderData(goodsRequestList, storeInfoList, userAddressReq) {
+    console.log('[buildBatchOrderData] 开始构建批量订单数据');
+    console.log('[buildBatchOrderData] 商品列表:', goodsRequestList);
+    
+    // 检查商品列表是否有效
+    if (!goodsRequestList || !Array.isArray(goodsRequestList) || goodsRequestList.length === 0) {
+      console.error('[buildBatchOrderData] 商品列表无效:', goodsRequestList);
+      this.handleError();
+      return;
+    }
+    
+    // 计算总价
+    let totalSalePrice = 0;
+    let totalPayAmount = 0;
+    let totalGoodsCount = 0;
+    
+    // 按店铺分组商品
+    const storeGoodsMap = {};
+    goodsRequestList.forEach(goods => {
+      const storeId = goods.storeId || '1000';
+      if (!storeGoodsMap[storeId]) {
+        storeGoodsMap[storeId] = {
+          storeId: storeId,
+          storeName: goods.storeName || 'QZFarm商城',
+          skuDetailVos: []
+        };
+      }
+      
+      // 计算单个商品的总价
+      const itemPrice = (goods.price || goods.settlePrice || 0) * (goods.quantity || 1);
+      totalSalePrice += itemPrice;
+      totalPayAmount += itemPrice;
+      totalGoodsCount += goods.quantity || 1;
+      
+      storeGoodsMap[storeId].skuDetailVos.push({
+        skuId: goods.skuId,
+        good_id: goods.good_id,
+        goodsName: goods.goodsName || goods.title,
+        title: goods.title || goods.goodsName,
+        quantity: goods.quantity || 1,
+        price: goods.price || goods.settlePrice || 0,
+        settlePrice: goods.settlePrice || goods.price || 0,
+        tagPrice: goods.tagPrice || goods.price || goods.settlePrice || 0,
+        image: goods.primaryImage || goods.thumb || '', // 添加image字段
+        primaryImage: goods.primaryImage || goods.thumb,
+        thumb: goods.thumb || goods.primaryImage,
+        specInfo: goods.specInfo || [],
+        skuSpecLst: goods.specInfo || [{ specValue: goods.units || '标准规格' }], // 添加skuSpecLst字段
+        available: goods.available !== false,
+        storeId: storeId, // 添加storeId字段
+        // 保留购物车相关字段用于支付
+        cartType: goods.cartType,
+        land_id: goods.land_id,
+        farm_id: goods.farm_id,
+        farm_address: goods.farm_address,
+        detail: goods.detail,
+        units: goods.units
+      });
+    });
+    
+    // 转换为数组格式
+    const storeGoodsList = Object.values(storeGoodsMap);
+    
+    // 构建结算数据
+    const settleDetailData = {
+      storeGoodsList: storeGoodsList,
+      outOfStockGoodsList: [],
+      abnormalDeliveryGoodsList: [],
+      inValidGoodsList: [],
+      limitGoodsList: [],
+      couponList: [],
+      totalSalePrice: totalSalePrice,
+      totalPayAmount: totalPayAmount,
+      totalGoodsCount: totalGoodsCount,
+      totalDeliveryFee: 0, // 免运费
+      totalPromotionAmount: 0, // 无活动优惠
+      totalCouponAmount: 0, // 无优惠券
+      settleType: 1, // 允许结算
+      invoiceSupport: false, // 暂不支持发票
+      userAddress: userAddressReq
+    };
+    
+    console.log('[buildBatchOrderData] 构建的结算数据:', settleDetailData);
+    
+    // 设置loading为false并初始化数据
+    this.setData({
+      loading: false,
+    });
+    
+    this.initData(settleDetailData);
+  },
+
   initData(resData) {
     console.log('[initData] 接收到的结算数据:', resData);
     
@@ -368,7 +488,7 @@ Page({
             id: index,
             thumb: getFirstImageUrl(item.image),
             title: item.goodsName,
-            specs: item.skuSpecLst.map((s) => s.specValue), // 规格列表 string[]
+            specs: (item.skuSpecLst || []).map((s) => s.specValue), // 规格列表 string[]
             price: item.tagPrice || item.settlePrice || '0', // 优先取限时活动价
             settlePrice: item.settlePrice,
             titlePrefixTags: item.tagText ? [{ text: item.tagText }] : [],
@@ -507,6 +627,7 @@ Page({
     console.log('[submitOrder] settleDetailData:', settleDetailData);
     console.log('[submitOrder] userAddressReq:', userAddressReq);
     console.log('[submitOrder] goodsRequestList:', goodsRequestList);
+    console.log('[submitOrder] 是否为批量订单:', this.isBatchOrder);
 
     // 检查settleDetailData是否存在
     if (!settleDetailData) {
@@ -540,10 +661,11 @@ Page({
       return;
     }
 
-    if (!settleDetailData.settleType || !settleDetailData.totalAmount) {
+    if (!settleDetailData.settleType || (!settleDetailData.totalAmount && !settleDetailData.totalPayAmount)) {
       console.error('[submitOrder] 订单数据不完整:', {
         settleType: settleDetailData.settleType,
-        totalAmount: settleDetailData.totalAmount
+        totalAmount: settleDetailData.totalAmount,
+        totalPayAmount: settleDetailData.totalPayAmount
       });
       Toast({
         context: this,
@@ -555,6 +677,13 @@ Page({
       return;
     }
     this.payLock = true;
+
+    // 如果是批量订单，直接进入支付流程
+    if (this.isBatchOrder) {
+      console.log('[submitOrder] 批量订单，直接进入支付流程');
+      this.handleBatchOrderPayment(settleDetailData);
+      return;
+    }
     const resSubmitCouponList = this.handleCouponList(submitCouponList);
     
     // 获取用户地址信息
@@ -662,6 +791,55 @@ Page({
     );
   },
 
+  // 处理批量订单支付
+  handleBatchOrderPayment(settleDetailData) {
+    console.log('[handleBatchOrderPayment] 开始处理批量订单支付');
+    console.log('[handleBatchOrderPayment] 结算数据:', settleDetailData);
+    
+    // 构建支付所需的商品列表
+    const goodsList = [];
+    if (settleDetailData.storeGoodsList && settleDetailData.storeGoodsList.length > 0) {
+      settleDetailData.storeGoodsList.forEach(store => {
+        if (store.skuDetailVos && store.skuDetailVos.length > 0) {
+          store.skuDetailVos.forEach(goods => {
+            goodsList.push({
+              skuId: goods.skuId,
+              good_id: goods.good_id,
+              goodsName: goods.goodsName,
+              title: goods.goodsName,
+              quantity: goods.quantity,
+              price: goods.price,
+              settlePrice: goods.settlePrice,
+              // 保留购物车相关字段
+              cartType: goods.cartType,
+              land_id: goods.land_id,
+              farm_id: goods.farm_id,
+              farm_address: goods.farm_address,
+              detail: goods.detail,
+              units: goods.units
+            });
+          });
+        }
+      });
+    }
+    
+    console.log('[handleBatchOrderPayment] 构建的商品列表:', goodsList);
+    
+    // 直接构建支付信息
+    const payOrderInfo = {
+      payAmt: settleDetailData.totalPayAmount, // 支付金额
+      goodsList: goodsList // 商品列表
+    };
+    
+    console.log('[handleBatchOrderPayment] 支付订单信息:', payOrderInfo);
+    
+    // 调用微信支付
+    wechatPayOrder(payOrderInfo);
+    
+    // 解除支付锁定
+    this.payLock = false;
+  },
+
   // 处理支付
   handlePay(data, settleDetailData) {
     console.log('[handlePay] 开始处理支付');
@@ -709,7 +887,14 @@ Page({
               title: goods.goodsName,
               quantity: goods.quantity,
               price: goods.tagPrice || goods.settlePrice,
-              settlePrice: goods.settlePrice
+              settlePrice: goods.settlePrice,
+              // 保留购物车相关字段用于支付时的商品类型识别
+              cartType: goods.cartType,
+              land_id: goods.land_id,
+              farm_id: goods.farm_id,
+              farm_address: goods.farm_address,
+              detail: goods.detail,
+              units: goods.units
             });
           });
         }

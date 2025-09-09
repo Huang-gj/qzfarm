@@ -3,6 +3,7 @@ import Toast from 'tdesign-miniprogram/toast/index';
 
 import { dispatchCommitPay } from '../../../services/order/orderConfirm';
 import { createWechatOrder, requestWechatPayment, getUserOpenid, generateOrderNo } from '../../../services/payment/wechatPay';
+import { updateCartNum } from '../../../services/cart/cart';
 
 // 真实的提交支付
 export const commitPay = (params) => {
@@ -50,6 +51,14 @@ export const paySuccess = (payOrderInfo) => {
     }
   }
 
+  // 检查是否为批量订单支付，如果是则清除购物车
+  const pages = getCurrentPages();
+  const currentPage = pages[pages.length - 1];
+  if (currentPage && currentPage.isBatchOrder && goodsList && goodsList.length > 0) {
+    console.log('[paySuccess] 批量订单支付成功，清除购物车中的已购买商品');
+    clearPaidGoodsFromCart(goodsList, currentPage.cartType || productType);
+  }
+
   const params = {
     totalPaid: payAmt,
     orderNo: tradeNo,
@@ -70,10 +79,6 @@ export const paySuccess = (payOrderInfo) => {
   const paramsStr = Object.keys(params)
     .map((k) => `${k}=${params[k]}`)
     .join('&');
-  
-  // 根据当前页面决定跳转行为
-  const pages = getCurrentPages();
-  const currentPage = pages[pages.length - 1];
   
   if (currentPage.route.includes('order-confirm')) {
     // 在订单确认页面，跳转到支付结果页面
@@ -96,6 +101,61 @@ export const paySuccess = (payOrderInfo) => {
     });
   }
 };
+
+// 清除购物车中已支付的商品
+function clearPaidGoodsFromCart(paidGoodsList, cartType) {
+  console.log('[clearPaidGoodsFromCart] 开始清除购物车商品');
+  console.log('[clearPaidGoodsFromCart] 已支付商品:', paidGoodsList);
+  console.log('[clearPaidGoodsFromCart] 购物车类型:', cartType);
+  
+  try {
+    // 获取对应类型的购物车数据
+    const storageKey = cartType === 'land' ? 'land_cart_data' : 'goods_cart_data';
+    let cartData = wx.getStorageSync(storageKey);
+    
+    if (!cartData || !cartData.goodsList || cartData.goodsList.length === 0) {
+      console.log('[clearPaidGoodsFromCart] 购物车为空，无需清除');
+      return;
+    }
+    
+    console.log('[clearPaidGoodsFromCart] 清除前购物车商品数量:', cartData.goodsList.length);
+    
+    // 删除已支付的商品
+    paidGoodsList.forEach(paidGoods => {
+      const index = cartData.goodsList.findIndex(cartItem => 
+        cartItem.good_id == paidGoods.good_id && cartItem.skuId == paidGoods.skuId
+      );
+      
+      if (index !== -1) {
+        console.log('[clearPaidGoodsFromCart] 删除商品:', cartData.goodsList[index]);
+        cartData.goodsList.splice(index, 1);
+      }
+    });
+    
+    console.log('[clearPaidGoodsFromCart] 清除后购物车商品数量:', cartData.goodsList.length);
+    
+    // 更新本地存储
+    wx.setStorageSync(storageKey, cartData);
+    
+    // 更新购物车角标
+    if (typeof updateCartNum === 'function') {
+      updateCartNum();
+    }
+    
+    // 触发购物车数据更新事件
+    if (wx.eventCenter && typeof wx.eventCenter.emit === 'function') {
+      wx.eventCenter.emit('cartDataUpdate', { 
+        type: cartType,
+        ts: Date.now(),
+        reason: 'payment_success'
+      });
+    }
+    
+    console.log('[clearPaidGoodsFromCart] 购物车清除完成');
+  } catch (error) {
+    console.error('[clearPaidGoodsFromCart] 清除购物车失败:', error);
+  }
+}
 
 export const payFail = (payOrderInfo, resultMsg) => {
   if (resultMsg === 'requestPayment:fail cancel') {

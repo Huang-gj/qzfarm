@@ -826,7 +826,8 @@ Page({
     this.updateLocalStorage();
   },
 
-  async onToSettle() {
+  // 去结算 - 跳转到批量订单确认页面
+  onToSettle() {
     const { currentCartType, cartGroupData } = this.data;
     
     // 获取选中的商品
@@ -858,114 +859,46 @@ Page({
       return;
     }
 
-    // 获取用户信息
-    const app = getApp();
-    const userInfo = app.globalData.userInfo;
-    if (!userInfo || !userInfo.user_id) {
-      Toast({
-        context: this,
-        selector: '#t-toast',
-        message: '请先登录',
-        icon: 'error',
-        duration: 2000,
-      });
-      return;
-    }
-
-    console.log('[onToSettle] 开始批量创建订单');
+    console.log('[onToSettle] 跳转到批量订单确认页面');
     console.log('[onToSettle] 购物车类型:', currentCartType);
     console.log('[onToSettle] 选中的商品数量:', selectedGoods.length);
     console.log('[onToSettle] 选中的商品:', selectedGoods);
 
-    // 导入订单API
-    const { addGoodOrder } = require('../../services/order/addGoodOrder');
-    const { addLandOrder } = require('../../services/order/addLandOrder');
+    // 构建商品请求列表，转换为订单确认页面需要的格式
+    const goodsRequestList = selectedGoods.map(goods => {
+      return {
+        storeId: '1000', // 默认店铺ID
+        quantity: goods.quantity || 1,
+        good_id: goods.good_id,
+        skuId: goods.skuId || goods.good_id,
+        goodsName: goods.title || goods.goodsName,
+        price: goods.price || goods.minSalePrice || 0,
+        settlePrice: goods.price || goods.minSalePrice || 0,
+        tagPrice: goods.price || goods.minSalePrice || 0,
+        available: true,
+        primaryImage: goods.primaryImage || goods.thumb,
+        thumb: goods.primaryImage || goods.thumb,
+        title: goods.title || goods.goodsName,
+        specInfo: [{
+          specTitle: '规格',
+          specValue: goods.units || '标准规格'
+        }],
+        // 添加购物车类型标识，用于支付时识别商品类型
+        cartType: currentCartType,
+        land_id: currentCartType === 'land' ? goods.good_id : undefined,
+        farm_id: goods.farm_id,
+        farm_address: goods.farm_address,
+        detail: goods.detail,
+        units: goods.units
+      };
+    });
 
-    try {
-      // 批量创建订单
-      const orderPromises = selectedGoods.map(async (goods) => {
-        console.log('[onToSettle] 处理商品:', goods);
-        console.log('[onToSettle] 商品farm_id:', goods.farm_id, '类型:', typeof goods.farm_id);
-        console.log('[onToSettle] 商品farm_address:', goods.farm_address);
-        console.log('[onToSettle] 商品units:', goods.units);
-        console.log('[onToSettle] 商品detail:', goods.detail);
-        
-        if (currentCartType === 'goods') {
-          // 创建商品订单
-          const orderData = {
-            good_id: goods.good_id,
-            farm_id: goods.farm_id !== undefined ? goods.farm_id : 1,
-            user_id: userInfo.user_id,
-            user_address: userInfo.address || '',
-            farm_address: goods.farm_address || '',
-            price: goods.price || goods.minSalePrice || 0,
-            units: goods.units || '个',
-            count: goods.quantity || 1,
-            detail: goods.detail || goods.title || '',
-            image_urls: goods.primaryImage || goods.thumb || ''
-          };
-          
-          console.log('[onToSettle] 商品订单数据:', orderData);
-          return await addGoodOrder(orderData);
-        } else {
-          // 创建土地订单
-          const orderData = {
-            land_id: goods.good_id, // 土地商品使用good_id作为land_id
-            farm_id: goods.farm_id !== undefined ? goods.farm_id : 1,
-            user_id: userInfo.user_id,
-            farm_address: goods.farm_address || '',
-            price: goods.price || goods.minSalePrice || 0,
-            count: goods.quantity || 1,
-            detail: goods.detail || goods.title || '',
-            image_urls: goods.primaryImage || goods.thumb || ''
-          };
-          
-          console.log('[onToSettle] 土地订单数据:', orderData);
-          return await addLandOrder(orderData);
-        }
-      });
+    console.log('[onToSettle] 转换后的商品请求列表:', goodsRequestList);
 
-      // 等待所有订单创建完成
-      const results = await Promise.all(orderPromises);
-      console.log('[onToSettle] 所有订单创建结果:', results);
-
-      // 检查是否所有订单都创建成功
-      const successCount = results.filter(res => res.code === 200).length;
-      const failCount = results.length - successCount;
-
-      if (successCount > 0) {
-        // 从购物车中删除已成功创建订单的商品
-        await this.removeOrderedGoodsFromCart(selectedGoods);
-        
-        Toast({
-          context: this,
-          selector: '#t-toast',
-          message: `成功创建${successCount}个订单${failCount > 0 ? `，${failCount}个失败` : ''}`,
-          icon: 'check-circle',
-          duration: 2000,
-        });
-
-        // 刷新购物车数据
-        this.refreshData();
-      } else {
-        Toast({
-          context: this,
-          selector: '#t-toast',
-          message: '订单创建失败',
-          icon: 'close-circle',
-          duration: 2000,
-        });
-      }
-    } catch (error) {
-      console.error('[onToSettle] 批量创建订单失败:', error);
-      Toast({
-        context: this,
-        selector: '#t-toast',
-        message: '订单创建失败',
-        icon: 'close-circle',
-        duration: 2000,
-      });
-    }
+    // 跳转到订单确认页面
+    wx.navigateTo({
+      url: `/pages/order/order-confirm/index?goodsRequestList=${encodeURIComponent(JSON.stringify(goodsRequestList))}&isBatchOrder=true&cartType=${currentCartType}`
+    });
   },
 
   // 从购物车中删除已创建订单的商品

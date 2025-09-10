@@ -1,0 +1,1 @@
+import{l,r as a,A as s,O as u,C as p,H as r}from"./.store-D3f7YvtR.js";const m={class:"layout-pd"},_=l({name:"menu122"}),f=l({..._,setup(c){const e=a("");return(d,o)=>{const n=s("el-input");return p(),u("div",m,[r(n,{modelValue:e.value,"onUpdate:modelValue":o[0]||(o[0]=t=>e.value=t),placeholder:"menu122：请输入内容测试路由缓存"},null,8,["modelValue"])])}}});export{f as default};

@@ -1,0 +1,157 @@
+<view class="farm-details {{isSuspended ? 'suspended' : ''}}">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <text>加载中...</text>
+  </view>
+  
+  <!-- 农场信息 -->
+  <view wx:else class="farm-container">
+    
+    <!-- 暂停营业提示 -->
+    <view wx:if="{{isSuspended}}" class="suspension-notice">
+      <text class="notice-text">该农场暂停营业</text>
+    </view>
+    
+    <!-- 农场基本信息 -->
+    <view class="farm-header">
+      <!-- 农场头部信息栏：Logo + 名称 + 关注按钮 -->
+      <view class="farm-info-bar">
+        <!-- 农场Logo（左侧，缩小） -->
+        <view wx:if="{{farmInfo.logoUrl}}" class="logo-container-small">
+          <image class="farm-logo-small" src="{{farmInfo.logoUrl}}" mode="aspectFill"/>
+        </view>
+        <view wx:else class="logo-placeholder">
+          <text class="logo-text">农场</text>
+        </view>
+        
+        <!-- 农场名称（中间） -->
+        <view class="farm-name-center">
+          <text class="farm-name">{{farmInfo.farmName}}</text>
+        </view>
+        
+        <!-- 关注按钮（右侧） -->
+        <view class="follow-button" bindtap="onFollowClick">
+          <text class="follow-text">+ 关注</text>
+        </view>
+      </view>
+      
+      <!-- 图片轮播区域 -->
+      <view wx:if="{{farmInfo.imageUrls && farmInfo.imageUrls.length > 0}}" class="swiper-container">
+        <swiper class="farm-swiper" indicator-dots="{{farmInfo.imageUrls.length > 1}}" autoplay="true" interval="3000" duration="500">
+          <swiper-item wx:for="{{farmInfo.imageUrls}}" wx:key="index">
+            <image 
+              class="swiper-image" 
+              src="{{item}}" 
+              mode="aspectFill"
+              bindtap="onPreviewImage"
+              data-current="{{item}}"
+              data-urls="{{farmInfo.imageUrls}}"
+            />
+          </swiper-item>
+        </swiper>
+      </view>
+    </view>
+    
+    <!-- 农场详细信息 -->
+    <view class="farm-info">
+      <view class="info-item">
+        <text class="label">农场地址:</text>
+        <text class="value">{{farmInfo.address || '暂无地址'}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="label">联系电话:</text>
+        <text class="value">{{farmInfo.contactPhone || '暂无电话'}}</text>
+      </view>
+    </view>
+    
+    <!-- 选项卡按钮 -->
+    <view class="tab-buttons">
+      <view 
+        class="tab-button {{currentTab === 'info' ? 'active' : ''}}"
+        bindtap="onTabChange"
+        data-tab="info"
+      >
+        <text>农场信息</text>
+      </view>
+      <view 
+        class="tab-button {{currentTab === 'goods' ? 'active' : ''}}"
+        bindtap="onTabChange"
+        data-tab="goods"
+      >
+        <text>农产品</text>
+      </view>
+      <view 
+        class="tab-button {{currentTab === 'land' ? 'active' : ''}}"
+        bindtap="onTabChange"
+        data-tab="land"
+      >
+        <text>土地租赁</text>
+      </view>
+    </view>
+    
+    <!-- 内容区域 -->
+    <view class="tab-content">
+      <!-- 农场信息 -->
+      <view wx:if="{{currentTab === 'info'}}" class="info-content">
+        <text class="info-desc">{{farmInfo.description || '该农场暂无详细介绍'}}</text>
+      </view>
+      
+      <!-- 农产品列表 -->
+      <view wx:if="{{currentTab === 'goods'}}" class="products-content">
+        <view wx:if="{{loadingProducts}}" class="loading-products">
+          <text>加载商品中...</text>
+        </view>
+        <view wx:else class="products-list">
+          <view 
+            wx:for="{{goodsList}}" 
+            wx:key="id" 
+            class="product-item"
+            bindtap="onClickProduct"
+            data-type="goods"
+            data-item="{{item}}"
+          >
+            <image class="product-image" src="{{item.image}}" mode="aspectFill"/>
+            <view class="product-info">
+              <text class="product-name">{{item.name}}</text>
+              <text class="product-desc">{{item.description}}</text>
+              <view class="product-price">
+                <text class="price-symbol">¥</text>
+                <text class="price-value">{{item.price}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 土地租赁列表 -->
+      <view wx:if="{{currentTab === 'land'}}" class="products-content">
+        <view wx:if="{{loadingProducts}}" class="loading-products">
+          <text>加载土地信息中...</text>
+        </view>
+        <view wx:else class="products-list">
+          <view 
+            wx:for="{{landList}}" 
+            wx:key="id" 
+            class="product-item"
+            bindtap="onClickProduct"
+            data-type="land"
+            data-item="{{item}}"
+          >
+            <image class="product-image" src="{{item.image}}" mode="aspectFill"/>
+            <view class="product-info">
+              <text class="product-name">{{item.name}}</text>
+              <text class="product-desc">{{item.description}}</text>
+              <view class="product-price">
+                <text class="price-symbol">¥</text>
+                <text class="price-value">{{item.price}}</text>
+                <text class="price-unit">/{{item.unit}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+  </view>
+</view>

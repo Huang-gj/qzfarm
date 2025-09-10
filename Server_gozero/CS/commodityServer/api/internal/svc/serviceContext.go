@@ -6,6 +6,7 @@ import (
 	"Server_gozero/CS/commodityServer/model/categoryModel"
 	"Server_gozero/CS/commodityServer/model/commentModel"
 	"Server_gozero/CS/commodityServer/model/commentReplyModel"
+	"Server_gozero/CS/commodityServer/model/farmModel"
 	"Server_gozero/CS/commodityServer/model/goodModel/model"
 	model2 "Server_gozero/CS/commodityServer/model/landModel/model"
 	"Server_gozero/common/ISender/IDGenerator"
@@ -26,6 +27,7 @@ type ServiceContext struct {
 	CommentReplyModel commentReplyModel.CommentReplyModel
 	ActivityModel     activityModel.ActivityModel
 	CategoryModel     categoryModel.CategoryModel
+	FarmModel         farmModel.FarmModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -43,5 +45,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		CommentReplyModel: commentReplyModel.NewCommentReplyModel(sqlxConn),
 		ActivityModel:     activityModel.NewActivityModel(sqlxConn),
 		CategoryModel:     categoryModel.NewCategoryModel(sqlxConn),
+		FarmModel:         farmModel.NewFarmModel(sqlxConn),
 	}
 }

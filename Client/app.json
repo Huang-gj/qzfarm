@@ -32,9 +32,10 @@
     "pages/order/delivery-detail/index",
     "pages/order/invoice/index",
     "pages/usercenter/name-edit/index",
-          "pages/land/details/index",
-      "pages/land/comments/index",
-      "pages/land/list/index"
+    "pages/land/details/index",
+    "pages/land/comments/index",
+    "pages/land/list/index",
+    "pages/farm/details/index"
   ],
   "tabBar": {
     "custom": true,

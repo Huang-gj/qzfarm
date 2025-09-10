@@ -32,6 +32,9 @@ service commodity {
 
 	@handler getGoodsByTag
 	post /getGoodsByTag (GetGoodsByTagRequest) returns (GetGoodsByTagResponse)
+
+	@handler getGoodsByFarmID
+	post /getGoodsByFarmID (GetGoodsByFarmIDRequest) returns (GetGoodsByFarmIDResponse)
 }
 
 @server (
@@ -48,6 +51,9 @@ service commodity {
 
 	@handler getLandsByTag
 	post /getLandsByTag (GetLandsByTagRequest) returns (GetLandsByTagResponse)
+
+	@handler getLandsByFarmID
+	post /getLandsByFarmID (GetLandsByFarmIDRequest) returns (GetLandsByFarmIDResponse)
 }
 
 @server (
@@ -103,5 +109,11 @@ service commodity {
 service commodity {
 	@handler GetCategory
 	post /GetCategory (GetCategoryRequest) returns (GetCategoryResponse)
+
+	@handler GetFarmCat
+	post /GetFarmCat (GetFarmCategoryRequest) returns (GetFarmCategoryResponse)
+
+	@handler GetFarm
+	post /GetFarm (GetFarmRequest) returns (GetFarmResponse)
 }
 

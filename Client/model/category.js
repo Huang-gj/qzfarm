@@ -5,9 +5,10 @@ console.log('[category.js] categoryService导入结果:', categoryService);
 console.log('[category.js] categoryService类型:', typeof categoryService);
 console.log('[category.js] categoryService的方法:', Object.keys(categoryService || {}));
 
-const { getGoodsCategory, getLandCategory } = categoryService;
+const { getGoodsCategory, getLandCategory, getFarmCategory } = categoryService;
 console.log('[category.js] getGoodsCategory提取结果:', typeof getGoodsCategory);
 console.log('[category.js] getLandCategory提取结果:', typeof getLandCategory);
+console.log('[category.js] getFarmCategory提取结果:', typeof getFarmCategory);
 
 export async function getCategoryList() {
   console.log('[getCategoryList] ========== 开始获取分类数据 ==========');
@@ -17,17 +18,19 @@ export async function getCategoryList() {
     console.log('[getCategoryList] 检查API服务导入:');
     console.log('[getCategoryList] getGoodsCategory类型:', typeof getGoodsCategory);
     console.log('[getCategoryList] getLandCategory类型:', typeof getLandCategory);
+    console.log('[getCategoryList] getFarmCategory类型:', typeof getFarmCategory);
     
-    if (typeof getGoodsCategory !== 'function' || typeof getLandCategory !== 'function') {
+    if (typeof getGoodsCategory !== 'function' || typeof getLandCategory !== 'function' || typeof getFarmCategory !== 'function') {
       throw new Error('分类API服务导入失败');
     }
     
-    console.log('[getCategoryList] 开始并行获取农产品和土地分类数据...');
+    console.log('[getCategoryList] 开始并行获取农产品、土地和农场分类数据...');
     
-    // 并行获取农产品和土地分类数据
-    const [goodsResult, landResult] = await Promise.all([
+    // 并行获取农产品、土地和农场分类数据
+    const [goodsResult, landResult, farmResult] = await Promise.all([
       getGoodsCategory(),
-      getLandCategory()
+      getLandCategory(),
+      getFarmCategory()
     ]);
     
     console.log('[getCategoryList] ===== 农产品分类结果 =====');
@@ -39,6 +42,11 @@ export async function getCategoryList() {
     console.log('[getCategoryList] 土地成功:', landResult?.success);
     console.log('[getCategoryList] 土地数据长度:', landResult?.data?.length);
     console.log('[getCategoryList] 土地完整结果:', JSON.stringify(landResult, null, 2));
+    
+    console.log('[getCategoryList] ===== 农场分类结果 =====');
+    console.log('[getCategoryList] 农场成功:', farmResult?.success);
+    console.log('[getCategoryList] 农场数据长度:', farmResult?.data?.length);
+    console.log('[getCategoryList] 农场完整结果:', JSON.stringify(farmResult, null, 2));
     
     // 处理农产品分类数据（放在第一位，对应界面上的第一个标签）
     let goodsCategories = [];
@@ -77,47 +85,80 @@ export async function getCategoryList() {
       console.log('[getCategoryList] 土地分类数据为空或获取失败');
     }
     console.log('[getCategoryList] 最终土地分类数组:', landCategories);
-    // 构建返回的分类数据结构（农产品在第一位，土地在第二位）
+    
+    // 处理农场分类数据（放在第三位，对应界面上的第三个标签）
+    let farmCategories = [];
+    console.log('[getCategoryList] ===== 处理农场分类数据 =====');
+    if (farmResult.success && farmResult.data && farmResult.data.length > 0) {
+      console.log('[getCategoryList] 农场分类原始数据:', farmResult.data);
+      farmCategories = farmResult.data.map((item, index) => {
+        const processed = {
+          groupId: `310${index + 1}`, // 农场分类groupId以310开头（第三个位置）
+          name: item.farm_name,
+          thumbnail: item.logo_url || 'https://via.placeholder.com/100x100?text=' + encodeURIComponent(item.farm_name),
+          farmId: item.farm_id // 保存农场ID，用于后续跳转
+        };
+        console.log(`[getCategoryList] 农场分类${index + 1}处理结果:`, processed);
+        return processed;
+      });
+    } else {
+      console.log('[getCategoryList] 农场分类数据为空或获取失败');
+    }
+    console.log('[getCategoryList] 最终农场分类数组:', farmCategories);
+    
+    // 构建返回的分类数据结构（农产品在第一位，土地在第二位，农场在第三位）
     console.log('[getCategoryList] ===== 构建最终数据结构 =====');
     const finalResult = [{
-      groupId: '1000', // 一级分类：农产品（第一个位置）
+      groupId: '2000', // 一级分类：农产品（第一个位置）
       name: '农产品',
       thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
       children: [{
-        groupId: '1100', // 二级分类：农产品
+        groupId: '2100', // 二级分类：农产品
         name: '农产品',
         thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
         children: goodsCategories, // 使用从API获取的农产品分类数据（groupId以110开头）
       }],
     },
     {
-      groupId: '2000', // 一级分类：土地（第二个位置）
+      groupId: '1000', // 一级分类：土地（第二个位置）
       name: '土地',
       thumbnail: 'https://via.placeholder.com/100x100?text=土地',
       children: [{
-        groupId: '2100', // 二级分类：土地
+        groupId: '1100', // 二级分类：土地
         name: '土地',
         thumbnail: 'https://via.placeholder.com/100x100?text=土地',
         children: landCategories, // 使用从API获取的土地分类数据（groupId以210开头）
       }],
+    },
+    {
+      groupId: '3000', // 一级分类：农场（第三个位置）
+      name: '农场',
+      thumbnail: 'https://via.placeholder.com/100x100?text=农场',
+      children: [{
+        groupId: '3100', // 二级分类：农场
+        name: '农场',
+        thumbnail: 'https://via.placeholder.com/100x100?text=农场',
+        children: farmCategories, // 使用从API获取的农场分类数据（groupId以310开头）
+      }],
     }];
     
     console.log('[getCategoryList] 最终返回数据结构:');
-    console.log('[getCategoryList] 土地分类数量:', landCategories.length);
     console.log('[getCategoryList] 农产品分类数量:', goodsCategories.length);
+    console.log('[getCategoryList] 土地分类数量:', landCategories.length);
+    console.log('[getCategoryList] 农场分类数量:', farmCategories.length);
     console.log('[getCategoryList] 完整数据结构:', JSON.stringify(finalResult, null, 2));
     console.log('[getCategoryList] ========== 分类数据获取完成 ==========');
     
     return finalResult;
   } catch (error) {
     console.error('[getCategoryList] 获取分类列表失败:', error);
-    // 返回默认的基础分类数据作为兜底（农产品在第一位，土地在第二位）
+    // 返回默认的基础分类数据作为兜底（农产品、土地、农场）
     return [{
-      groupId: '1000', // 农产品（第一个位置）
+      groupId: '2000', // 农产品（第一个位置）
       name: '农产品',
       thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
       children: [{
-        groupId: '1100',
+        groupId: '2100',
         name: '农产品',
         thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
         children: [{
@@ -134,11 +175,11 @@ export async function getCategoryList() {
       }],
     },
     {
-      groupId: '2000', // 土地（第二个位置）
+      groupId: '1000', // 土地（第二个位置）
       name: '土地',
       thumbnail: 'https://via.placeholder.com/100x100?text=土地',
       children: [{
-        groupId: '2100',
+        groupId: '1100',
         name: '土地',
         thumbnail: 'https://via.placeholder.com/100x100?text=土地',
         children: [{
@@ -150,6 +191,29 @@ export async function getCategoryList() {
             groupId: '2102',
             name: '果树',
             thumbnail: 'https://via.placeholder.com/100x100?text=果树'
+          }
+        ],
+      }],
+    },
+    {
+      groupId: '3000', // 农场（第三个位置）
+      name: '农场',
+      thumbnail: 'https://via.placeholder.com/100x100?text=农场',
+      children: [{
+        groupId: '3100',
+        name: '农场',
+        thumbnail: 'https://via.placeholder.com/100x100?text=农场',
+        children: [{
+            groupId: '3101', // 农场分类以310开头
+            name: '示例农场',
+            thumbnail: 'https://via.placeholder.com/100x100?text=示例农场',
+            farmId: 1
+          },
+          {
+            groupId: '3102',
+            name: '生态农场',
+            thumbnail: 'https://via.placeholder.com/100x100?text=生态农场',
+            farmId: 2
           }
         ],
       }],

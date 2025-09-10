@@ -33,6 +33,7 @@ type (
 		GetLandByTag(ctx context.Context, landTag string) ([]*Land, error)
 		UpdateStatus(ctx context.Context, landId int64, status int64) error
 		GetLandByKeyword(ctx context.Context, keyword string) ([]*Land, error)
+		FindAllByFarmID(ctx context.Context, farmId int64) ([]*Land, error)
 
 	}
 
@@ -136,6 +137,17 @@ func (m *defaultLandModel) GetLandByKeyword(ctx context.Context, keyword string)
 
 	var lands []*Land
 	err := m.conn.QueryRowsCtx(ctx, &lands, query, likePattern, likePattern)
+	if err != nil {
+		return nil, err
+	}
+	return lands, nil
+}
+
+func (m *defaultLandModel) FindAllByFarmID(ctx context.Context, farmId int64) ([]*Land, error) {
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE farm_id = ?", landRows, m.table)
+
+	var lands []*Land
+	err := m.conn.QueryRowsCtx(ctx, &lands, query, farmId)
 	if err != nil {
 		return nil, err
 	}

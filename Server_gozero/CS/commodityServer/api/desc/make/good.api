@@ -45,3 +45,13 @@ type GetGoodsByTagResponse {
 	Msg   string  `json:"msg"` // 响应信息
 	Goods []*Good `json:"goods_list"` // 商品列表
 }
+
+type GetGoodsByFarmIDRequest{
+    FarmID int `json:"farm_id"`
+}
+
+type GetGoodsByFarmIDResponse{
+    Code  int     `json:"code"` // 状态码
+    Msg   string  `json:"msg"` // 响应信息
+    Goods []*Good `json:"goods_list"` // 商品列表
+}

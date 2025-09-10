@@ -1,0 +1,1 @@
+import{l as e,s as u,p as l,ak as m,G as p}from"./.store-D3f7YvtR.js";import{d as c,j as f}from"./index-Bt6IFO1h.js";const d=e({name:"authAll"}),v=e({...d,props:{value:{type:Array,default:()=>[]}},setup(t){const s=t,r=c(),{userInfos:a}=u(r),o=l(()=>f(s.value,a.value.authBtnList));return(n,_)=>o.value?m(n.$slots,"default",{key:0}):p("",!0)}});export{v as default};

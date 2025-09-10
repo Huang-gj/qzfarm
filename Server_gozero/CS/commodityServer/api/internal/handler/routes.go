@@ -42,6 +42,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/GetCategory",
 				Handler: category.GetCategoryHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetFarm",
+				Handler: category.GetFarmHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetFarmCat",
+				Handler: category.GetFarmCatHandler(serverCtx),
+			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/commodity"),
@@ -93,6 +103,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPost,
+				Path:    "/getGoodsByFarmID",
+				Handler: good.GetGoodsByFarmIDHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/getGoodsByTag",
 				Handler: good.GetGoodsByTagHandler(serverCtx),
 			},
@@ -112,6 +127,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/getLand",
 				Handler: land.GetLandHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/getLandsByFarmID",
+				Handler: land.GetLandsByFarmIDHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,

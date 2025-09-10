@@ -1,8 +1,19 @@
-const { getGoodsCategory, getLandCategory } = require('../../../services/category/category');
+const { getGoodsCategory, getLandCategory, getFarmCategory } = require('../../../services/category/category');
 
 Page({
   data: {
     list: [
+      {
+        groupId: '2000',
+        name: '农产品',
+        thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
+        children: [{
+          groupId: '2100',
+          name: '农产品',
+          thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
+          children: [], // 初始为空，点击时加载
+        }],
+      },
       {
         groupId: '1000',
         name: '土地',
@@ -15,13 +26,13 @@ Page({
         }],
       },
       {
-        groupId: '2000',
-        name: '农产品',
-        thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
+        groupId: '3000',
+        name: '农场',
+        thumbnail: 'https://via.placeholder.com/100x100?text=农场',
         children: [{
-          groupId: '2100',
-          name: '农产品',
-          thumbnail: 'https://via.placeholder.com/100x100?text=农产品',
+          groupId: '3100',
+          name: '农场',
+          thumbnail: 'https://via.placeholder.com/100x100?text=农场',
           children: [], // 初始为空，点击时加载
         }],
       }
@@ -30,12 +41,105 @@ Page({
   },
 
   /**
-   * 页面初始化 - 不再预加载分类数据
+   * 页面初始化 - 自动加载第一个分类（农产品）的数据
    */
   async init() {
     console.log('[land/category] ========== 页面初始化开始 ==========');
-    console.log('[land/category] 使用静态分类结构，按需加载子分类数据');
+    console.log('[land/category] 使用静态分类结构，自动加载第一个分类数据');
+    
+    // 自动加载第一个分类（农产品）的数据
+    await this.loadCategoryData(0, 1, '农产品');
+    
     console.log('[land/category] ========== 页面初始化完成 ==========');
+  },
+
+  /**
+   * 加载分类数据的通用方法
+   */
+  async loadCategoryData(validIndex, categoryType, categoryTypeName) {
+    console.log(`[land/category] ===== 开始加载${categoryTypeName}分类数据 =====`);
+    
+    // 检查是否已经加载过该分类的数据
+    if (this.data.currentCategoryType === categoryType) {
+      console.log('[land/category] 该分类数据已加载，跳过重复请求');
+      return;
+    }
+    
+    // 显示加载提示
+    wx.showLoading({
+      title: `加载${categoryTypeName}分类...`,
+    });
+    
+    try {
+      let result;
+      if (categoryType === 1) {
+        result = await getGoodsCategory();
+        console.log('[land/category] 农产品分类结果:', result);
+      } else if (categoryType === 2) {
+        result = await getLandCategory();
+        console.log('[land/category] 土地分类结果:', result);
+      } else if (categoryType === 3) {
+        result = await getFarmCategory();
+        console.log('[land/category] 农场分类结果:', result);
+      }
+      
+      if (result.success && result.data && result.data.length > 0) {
+        // 处理分类数据
+        let categories;
+        if (categoryType === 3) {
+          // 农场分类数据处理
+          categories = result.data.map((item, itemIndex) => ({
+            groupId: `${categoryType}10${itemIndex + 1}`, // 3101, 3102...
+            name: item.farm_name,
+            thumbnail: item.logo_url || `https://via.placeholder.com/100x100?text=${encodeURIComponent(item.farm_name)}`,
+            farmId: item.farm_id // 保存农场ID
+          }));
+        } else {
+          // 农产品和土地分类数据处理
+          categories = result.data.map((item, itemIndex) => ({
+            groupId: `${categoryType}10${itemIndex + 1}`, // 1101, 1102... 或 2101, 2102...
+            name: item.name,
+            thumbnail: item.image_url || `https://via.placeholder.com/100x100?text=${encodeURIComponent(item.name)}`
+          }));
+        }
+        
+        console.log('[land/category] 处理后的分类数据:', categories);
+        
+        // 更新对应分类的children数据
+        const newList = [...this.data.list];
+        newList[validIndex].children[0].children = categories;
+        
+        this.setData({
+          list: newList,
+          currentCategoryType: categoryType
+        });
+        
+        console.log('[land/category] 分类数据更新完成，数量:', categories.length);
+        
+      } else {
+        console.warn('[land/category] 分类数据为空或请求失败:', result.message);
+        if (validIndex !== 0) { // 只有非初始加载时才显示错误提示
+          wx.showToast({
+            title: result.message || '获取分类失败',
+            icon: 'none'
+          });
+        }
+      }
+      
+    } catch (error) {
+      console.error('[land/category] ===== 加载分类数据失败 =====');
+      console.error('[land/category] 错误信息:', error.message);
+      console.error('[land/category] 错误详情:', error);
+      
+      if (validIndex !== 0) { // 只有非初始加载时才显示错误提示
+        wx.showToast({
+          title: '加载分类失败',
+          icon: 'none'
+        });
+      }
+    } finally {
+      wx.hideLoading();
+    }
   },
 
   /**
@@ -77,11 +181,14 @@ Page({
     // 判断点击的是哪个分类类型
     let categoryType, categoryTypeName;
     if (validIndex === 0) {
-      categoryType = 2; // 土地分类
-      categoryTypeName = '土地';
-    } else if (validIndex === 1) {
-      categoryType = 1; // 农产品分类  
+      categoryType = 1; // 农产品分类（现在在第一位）
       categoryTypeName = '农产品';
+    } else if (validIndex === 1) {
+      categoryType = 2; // 土地分类（现在在第二位）
+      categoryTypeName = '土地';
+    } else if (validIndex === 2) {
+      categoryType = 3; // 农场分类
+      categoryTypeName = '农场';
     } else {
       console.error('[land/category] 未知的分类索引:', validIndex);
       return;
@@ -89,70 +196,8 @@ Page({
     
     console.log('[land/category] 分类类型:', categoryTypeName, 'categoryType:', categoryType);
     
-    // 检查是否已经加载过该分类的数据
-    if (this.data.currentCategoryType === categoryType) {
-      console.log('[land/category] 该分类数据已加载，跳过重复请求');
-      return;
-    }
-    
-    // 显示加载提示
-    wx.showLoading({
-      title: `加载${categoryTypeName}分类...`,
-    });
-    
-    try {
-      console.log('[land/category] ===== 开始加载分类数据 =====');
-      
-      let result;
-      if (categoryType === 1) {
-        result = await getGoodsCategory();
-        console.log('[land/category] 农产品分类结果:', result);
-      } else {
-        result = await getLandCategory();
-        console.log('[land/category] 土地分类结果:', result);
-      }
-      
-      if (result.success && result.data && result.data.length > 0) {
-        // 处理分类数据
-        const categories = result.data.map((item, itemIndex) => ({
-          groupId: `${categoryType}10${itemIndex + 1}`, // 1101, 1102... 或 2101, 2102...
-          name: item.name,
-          thumbnail: item.image_url || `https://via.placeholder.com/100x100?text=${encodeURIComponent(item.name)}`
-        }));
-        
-        console.log('[land/category] 处理后的分类数据:', categories);
-        
-        // 更新对应分类的children数据
-        const newList = [...this.data.list];
-        newList[validIndex].children[0].children = categories;
-        
-        this.setData({
-          list: newList,
-          currentCategoryType: categoryType
-        });
-        
-        console.log('[land/category] 分类数据更新完成，数量:', categories.length);
-        
-      } else {
-        console.warn('[land/category] 分类数据为空或请求失败:', result.message);
-        wx.showToast({
-          title: result.message || '获取分类失败',
-          icon: 'none'
-        });
-      }
-      
-    } catch (error) {
-      console.error('[land/category] ===== 加载分类数据失败 =====');
-      console.error('[land/category] 错误信息:', error.message);
-      console.error('[land/category] 错误详情:', error);
-      
-      wx.showToast({
-        title: '加载分类失败',
-        icon: 'none'
-      });
-    } finally {
-      wx.hideLoading();
-    }
+    // 使用通用的加载方法
+    await this.loadCategoryData(validIndex, categoryType, categoryTypeName);
   },
 
   onShow() {
@@ -190,17 +235,48 @@ Page({
     });
     
     // 根据分类的groupId判断模块类型
-    // 现在：groupId以11开头的是农产品模块，以21开头的是土地模块
+    // 现在：groupId以11开头的是农产品模块，以21开头的是土地模块，以31开头的是农场模块
     const groupIdPrefix = item.groupId ? item.groupId.substring(0, 2) : '21';
-    const moduleType = groupIdPrefix === '11' ? 'goods' : 'land';
+    let moduleType;
+    if (groupIdPrefix === '11') {
+      moduleType = 'goods';
+    } else if (groupIdPrefix === '21') {
+      moduleType = 'land';
+    } else if (groupIdPrefix === '31') {
+      moduleType = 'farm';
+    } else {
+      moduleType = 'land'; // 默认
+    }
     
     console.log('[land/category] ===== 判断跳转类型 =====');
     console.log('[land/category] groupId:', item.groupId);
     console.log('[land/category] groupId前两位:', groupIdPrefix);
     console.log('[land/category] 模块类型:', moduleType);
-    console.log('[land/category] 判断逻辑: 11开头=农产品, 21开头=土地');
+    console.log('[land/category] 判断逻辑: 11开头=农产品, 21开头=土地, 31开头=农场');
     
-    if (moduleType === 'land') {
+    if (moduleType === 'farm') {
+      // 农场模块：跳转到农场详情页面
+      const farmId = item.farmId || 1;
+      const url = `/pages/farm/details/index?farmId=${farmId}`;
+      console.log('[land/category] ===== 跳转到农场详情 =====');
+      console.log('[land/category] 农场名称:', categoryName);
+      console.log('[land/category] 农场ID:', farmId);
+      console.log('[land/category] 完整URL:', url);
+      
+      wx.navigateTo({
+        url: url,
+        success: (result) => {
+          console.log('[land/category] 农场详情跳转成功:', result);
+        },
+        fail: (error) => {
+          console.error('[land/category] 农场详情跳转失败:', error);
+          wx.showToast({
+            title: '页面跳转失败',
+            icon: 'none'
+          });
+        }
+      });
+    } else if (moduleType === 'land') {
       // 土地模块：跳转到土地列表页面
       const url = `/pages/land/list/index?tag=${encodeURIComponent(categoryName)}`;
       console.log('[land/category] ===== 跳转到土地列表 =====');

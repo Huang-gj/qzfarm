@@ -46,3 +46,13 @@ type GetLandsByTagResponse {
 	Msg   string  `json:"msg"` // 响应信息
 	Lands []*Land `json:"lands_list"` // 商品列表
 }
+
+type GetLandsByFarmIDRequest{
+    FarmID int `json:"farm_id"`
+}
+
+type GetLandsByFarmIDResponse{
+    Code  int     `json:"code"` // 状态码
+    Msg   string  `json:"msg"` // 响应信息
+    Lands []*Land `json:"lands_list"` // 商品列表
+}

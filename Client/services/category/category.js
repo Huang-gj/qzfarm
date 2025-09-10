@@ -84,8 +84,69 @@ async function getLandCategory() {
   return await getCategory(2);
 }
 
+/**
+ * 获取农场分类
+ * @returns {Promise<Object>} 农场分类数据
+ */
+async function getFarmCategory() {
+  console.log('[getFarmCategory] ===== 开始获取农场分类数据 =====');
+  
+  try {
+    console.log('[getFarmCategory] 准备发送POST请求到: /commodity/GetFarmCat');
+    
+    const response = await post('/commodity/GetFarmCat', {});
+    
+    console.log('[getFarmCategory] ===== API响应详情 =====');
+    console.log('[getFarmCategory] 响应状态码:', response?.code);
+    console.log('[getFarmCategory] 响应消息:', response?.msg);
+    console.log('[getFarmCategory] 响应数据类型:', typeof response?.farm_cat);
+    console.log('[getFarmCategory] 响应数据长度:', response?.farm_cat?.length);
+    console.log('[getFarmCategory] 完整响应:', JSON.stringify(response, null, 2));
+    
+    // 检查响应状态
+    if (response && response.code === 200) {
+      const farmData = response.farm_cat || [];
+      console.log('[getFarmCategory] ===== 成功获取农场分类数据 =====');
+      console.log('[getFarmCategory] 农场数量:', farmData.length);
+      farmData.forEach((item, index) => {
+        console.log(`[getFarmCategory] 农场${index + 1}:`, {
+          id: item.farm_id,
+          name: item.farm_name,
+          logo: item.logo_url
+        });
+      });
+      
+      return {
+        success: true,
+        data: farmData,
+        message: response.msg || '获取成功'
+      };
+    } else {
+      console.error('[getFarmCategory] ===== 服务器返回错误 =====');
+      console.error('[getFarmCategory] 错误码:', response?.code);
+      console.error('[getFarmCategory] 错误信息:', response?.msg);
+      return {
+        success: false,
+        data: [],
+        message: response?.msg || '获取农场分类失败'
+      };
+    }
+  } catch (error) {
+    console.error('[getFarmCategory] ===== 网络请求异常 =====');
+    console.error('[getFarmCategory] 错误类型:', error.constructor.name);
+    console.error('[getFarmCategory] 错误信息:', error.message);
+    console.error('[getFarmCategory] 错误详情:', error);
+    return {
+      success: false,
+      data: [],
+      message: error.message || '网络请求失败'
+    };
+  }
+}
+
 module.exports = {
   getCategory,
   getGoodsCategory,
-  getLandCategory
+  getLandCategory,
+  getFarmCategory
 };

@@ -107,6 +107,11 @@ Page({
         iconName: 'cart',
         showCartNum: true
       },
+      {
+        title: '农场',
+        url: '', // 动态设置，根据farm_id
+        iconName: 'location'
+      },
     ],
 
     isStock: true,
@@ -166,9 +171,23 @@ Page({
     const {
       url
     } = e.detail;
-    wx.switchTab({
-      url: url,
-    });
+    
+    // 判断是否为tabBar页面
+    const tabBarPages = ['/pages/home/home', '/pages/cart/index'];
+    const isTabBarPage = tabBarPages.some(tabPage => url.includes(tabPage));
+    
+    if (isTabBarPage) {
+      // 对于tabBar页面，使用switchTab且不能带参数
+      const baseUrl = url.split('?')[0]; // 移除参数
+      wx.switchTab({
+        url: baseUrl,
+      });
+    } else {
+      // 对于普通页面，使用navigateTo
+      wx.navigateTo({
+        url: url,
+      });
+    }
   },
 
   showCurImg(e) {
@@ -723,6 +742,13 @@ Page({
       }
       console.log('[getDetail] 提取到的商品单位:', productUnit);
       
+      // 动态设置农场按钮URL
+      const updatedJumpArray = [...this.data.jumpArray];
+      const farmButtonIndex = updatedJumpArray.findIndex(item => item.title === '农场');
+      if (farmButtonIndex !== -1 && details.farm_id) {
+        updatedJumpArray[farmButtonIndex].url = `/pages/farm/details/index?farmId=${details.farm_id}`;
+      }
+
       this.setData({
         details: {
           ...details,
@@ -754,7 +780,9 @@ Page({
         interval: 3000,
         navigation: { type: 'dots' },
         // 商品单位
-        productUnit: productUnit
+        productUnit: productUnit,
+        // 更新跳转数组
+        jumpArray: updatedJumpArray
       });
     }).catch(error => {
       console.error('[getDetail] 获取商品详情失败:', error);

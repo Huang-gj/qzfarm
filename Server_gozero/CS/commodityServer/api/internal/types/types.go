@@ -65,6 +65,23 @@ type CommentReply struct {
 	Nickname       string `json:"nickname"`
 }
 
+type Farm struct {
+	FarmID       int      `json:"farm_id"`
+	FarmName     string   `json:"farm_name"`
+	Description  string   `json:"description"`
+	Address      string   `json:"address"`
+	LogoURL      string   `json:"logo_url"`
+	ImageURLs    []string `json:"image_urls"`
+	ContactPhone string   `json:"contact_phone"`
+	Status       int      `json:"status"`
+}
+
+type FarmCat struct {
+	FarmID   int    `json:"farm_id"`
+	FarmName string `json:"farm_name"`
+	LogoURL  string `json:"logo_url"`
+}
+
 type GetActivityDetailRequest struct {
 	ActivityID int `json:"activity_id"`
 }
@@ -106,6 +123,25 @@ type GetCommentResponse struct {
 	Comments []*Comment `json:"comments"`
 }
 
+type GetFarmCategoryRequest struct {
+}
+
+type GetFarmCategoryResponse struct {
+	FarmCat []*FarmCat `json:"farm_cat"`
+	Code    int        `json:"code"`
+	Msg     string     `json:"msg"`
+}
+
+type GetFarmRequest struct {
+	FarmID int `json:"farm_id"`
+}
+
+type GetFarmResponse struct {
+	Farm Farm   `json:"farm"`
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
 type GetGoodRequest struct {
 	UserID int `json:"user_id"`
 	GoodID int `json:"good_id"`
@@ -115,6 +151,16 @@ type GetGoodResponse struct {
 	Code int    `json:"code"` // 状态码
 	Msg  string `json:"msg"`  // 响应信息
 	Good Good   `json:"good"` // 商品列表
+}
+
+type GetGoodsByFarmIDRequest struct {
+	FarmID int `json:"farm_id"`
+}
+
+type GetGoodsByFarmIDResponse struct {
+	Code  int     `json:"code"`       // 状态码
+	Msg   string  `json:"msg"`        // 响应信息
+	Goods []*Good `json:"goods_list"` // 商品列表
 }
 
 type GetGoodsByTagRequest struct {
@@ -147,6 +193,16 @@ type GetLandResponse struct {
 	Code int    `json:"code"` // 状态码
 	Msg  string `json:"msg"`  // 响应信息
 	Land Land   `json:"land"` // 商品列表
+}
+
+type GetLandsByFarmIDRequest struct {
+	FarmID int `json:"farm_id"`
+}
+
+type GetLandsByFarmIDResponse struct {
+	Code  int     `json:"code"`       // 状态码
+	Msg   string  `json:"msg"`        // 响应信息
+	Lands []*Land `json:"lands_list"` // 商品列表
 }
 
 type GetLandsByTagRequest struct {

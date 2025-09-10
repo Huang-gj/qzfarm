@@ -16,3 +16,40 @@ type GetCategoryResponse{
     Msg string `json:"msg"`
 }
 
+
+type FarmCat {
+    FarmID int `json:"farm_id"`
+    FarmName string `json:"farm_name"`
+    LogoURL string `json:"logo_url"`
+}
+
+type Farm {
+    FarmID int `json:"farm_id"`
+    FarmName string `json:"farm_name"`
+    Description string `json:"description"`
+    Address string `json:"address"`
+    LogoURL string `json:"logo_url"`
+    ImageURLs []string `json:"image_urls"`
+    ContactPhone string  `json:"contact_phone"`
+    status int `json:"status"`
+}
+type GetFarmCategoryRequest{
+    
+}
+
+type GetFarmCategoryResponse{
+    FarmCat []*FarmCat `json:"farm_cat"`
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type GetFarmRequest{
+    FarmID int `json:"farm_id"`
+}
+
+type GetFarmResponse{
+    Farm Farm `json:"farm"`
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+

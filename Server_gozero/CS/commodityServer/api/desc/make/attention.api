@@ -1,0 +1,21 @@
+type AddAttentionRequest{
+    UserID int `json:"user_id"`
+    FarmID int `json:"farm_id"`
+}
+
+type AddAttentionResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+type DelAttentionRequest{
+    UserID int `json:"user_id"`
+    FarmID int `json:"farm_id"`
+}
+
+type DelAttentionResponse{
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}
+
+

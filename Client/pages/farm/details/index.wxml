@@ -30,8 +30,8 @@
         </view>
         
         <!-- 关注按钮（右侧） -->
-        <view class="follow-button" bindtap="onFollowClick">
-          <text class="follow-text">+ 关注</text>
+        <view class="follow-button {{isFollowed ? 'followed' : ''}} {{followLoading ? 'loading' : ''}}" bindtap="onFollowClick">
+          <text class="follow-text">{{followLoading ? '处理中...' : (isFollowed ? '取消关注' : '+ 关注')}}</text>
         </view>
       </view>
       

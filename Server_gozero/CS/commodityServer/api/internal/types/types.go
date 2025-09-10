@@ -14,6 +14,16 @@ type Activity struct {
 	EndTime    string   `json:"end_time"`
 }
 
+type AddAttentionRequest struct {
+	UserID int `json:"user_id"`
+	FarmID int `json:"farm_id"`
+}
+
+type AddAttentionResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+}
+
 type AddCommentReplyRequest struct {
 	CommentReply CommentReply `json:"comment_reply"`
 }
@@ -63,6 +73,16 @@ type CommentReply struct {
 	UserID         int    `json:"user_id"`
 	Avatar         string `json:"avatar"`
 	Nickname       string `json:"nickname"`
+}
+
+type DelAttentionRequest struct {
+	UserID int `json:"user_id"`
+	FarmID int `json:"farm_id"`
+}
+
+type DelAttentionResponse struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
 }
 
 type Farm struct {
@@ -121,6 +141,16 @@ type GetCommentResponse struct {
 	Code     int        `json:code"`
 	Msg      string     `json:"msg"`
 	Comments []*Comment `json:"comments"`
+}
+
+type GetFarmAttentionRequest struct {
+	UserID int `json:"user_id"`
+}
+
+type GetFarmAttentionResponse struct {
+	FarmCat []*FarmCat `json:"farm_cat"`
+	Code    int        `json:"code"`
+	Msg     string     `json:"msg"`
 }
 
 type GetFarmCategoryRequest struct {

@@ -16,6 +16,7 @@ import (
 	"make/comment.api"
 	"make/activity.api"
 	"make/category.api"
+	"make/attention.api"
 )
 
 @server (
@@ -115,5 +116,21 @@ service commodity {
 
 	@handler GetFarm
 	post /GetFarm (GetFarmRequest) returns (GetFarmResponse)
+
+	@handler GetFarmAttention
+	post /GetFarmAttention (GetFarmAttentionRequest) returns (GetFarmAttentionResponse)
+}
+
+@server (
+	prefix: commodity
+	jwt:    Auth
+	group:  attention
+)
+service commodity {
+	@handler AddAttention
+	post /AddAttention (AddAttentionRequest) returns (AddAttentionResponse)
+
+	@handler DelAttention
+	post /DelAttention (DelAttentionRequest) returns (DelAttentionResponse)
 }
 

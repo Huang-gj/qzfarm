@@ -1,0 +1,51 @@
+<view class="my-attention-container">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <t-loading theme="circular" size="40rpx" text="加载中..." />
+  </view>
+  
+  <!-- 空状态 -->
+  <view wx:elif="{{farmList.length === 0}}" class="empty-container">
+    <t-empty 
+      icon="heart"
+      description="暂无关注的农场"
+    />
+    <view class="empty-tip">
+      <text>快去发现喜欢的农场吧~</text>
+    </view>
+  </view>
+  
+  <!-- 农场列表 -->
+  <view wx:else class="farm-list">
+    <view 
+      wx:for="{{farmList}}" 
+      wx:key="farm_id" 
+      class="farm-item"
+      bindtap="onClickFarm"
+      data-farm="{{item}}"
+    >
+      <!-- 农场图片 -->
+      <view class="farm-image-container">
+        <image 
+          wx:if="{{item.logo_url}}"
+          class="farm-image" 
+          src="{{item.logo_url}}" 
+          mode="aspectFill"
+        />
+        <view wx:else class="farm-image-placeholder">
+          <text class="placeholder-text">农场</text>
+        </view>
+      </view>
+      
+      <!-- 农场信息 -->
+      <view class="farm-info">
+        <view class="farm-name">{{item.farm_name}}</view>
+      </view>
+      
+      <!-- 箭头图标 -->
+      <view class="arrow-icon">
+        <text class="arrow">></text>
+      </view>
+    </view>
+  </view>
+</view>

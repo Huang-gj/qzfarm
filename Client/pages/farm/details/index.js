@@ -1,6 +1,7 @@
 const { getFarmDetail } = require('../../../services/farm/farmDetail');
 const { getFarmGoods } = require('../../../services/farm/farmGoods');
 const { getFarmLands } = require('../../../services/farm/farmLands');
+const { addFarmAttention, delFarmAttention, checkFarmAttention, saveAttentionStatus } = require('../../../services/farm/farmAttention');
 
 Page({
   data: {
@@ -10,7 +11,9 @@ Page({
     currentTab: 'info', // 当前选项卡: info, goods, land
     goodsList: [], // 农产品列表
     landList: [], // 土地租赁列表
-    loadingProducts: false // 商品加载状态
+    loadingProducts: false, // 商品加载状态
+    isFollowed: false, // 是否已关注
+    followLoading: false // 关注按钮加载状态
   },
 
   onLoad(options) {
@@ -72,6 +75,9 @@ Page({
             duration: 2000
           });
         }
+
+        // 加载关注状态
+        this.loadAttentionStatus();
         
       } else {
         console.error('[farm/details] 获取农场详情失败:', result.message);
@@ -102,6 +108,9 @@ Page({
           icon: 'none',
           duration: 2000
         });
+
+        // 加载关注状态
+        this.loadAttentionStatus();
       }
     } catch (error) {
       console.error('[farm/details] 加载农场详情异常:', error);
@@ -132,6 +141,9 @@ Page({
         icon: 'none',
         duration: 2000
       });
+
+      // 加载关注状态
+      this.loadAttentionStatus();
     } finally {
       wx.hideLoading();
     }
@@ -391,14 +403,119 @@ Page({
     });
   },
 
+  // 加载关注状态
+  async loadAttentionStatus() {
+    try {
+      const userInfo = wx.getStorageSync('userInfo');
+      if (!userInfo || !userInfo.user_id) {
+        console.log('[farm/details] 未登录，无法获取关注状态');
+        return;
+      }
+
+      const userId = userInfo.user_id;
+      const farmId = this.data.farmId;
+      
+      console.log('[farm/details] 检查关注状态，用户ID:', userId, '农场ID:', farmId);
+      
+      const result = await checkFarmAttention(userId, farmId);
+      if (result.success) {
+        this.setData({
+          isFollowed: result.data.isFollowed
+        });
+        console.log('[farm/details] 关注状态加载成功:', result.data.isFollowed);
+      }
+    } catch (error) {
+      console.error('[farm/details] 加载关注状态失败:', error);
+    }
+  },
+
   // 关注按钮点击
-  onFollowClick() {
+  async onFollowClick() {
     console.log('[farm/details] 关注按钮被点击');
-    wx.showToast({
-      title: '该功能正在开发中',
-      icon: 'none',
-      duration: 2000
+    
+    // 检查登录状态
+    const userInfo = wx.getStorageSync('userInfo');
+    if (!userInfo || !userInfo.user_id) {
+      wx.showToast({
+        title: '请先登录',
+        icon: 'none',
+        duration: 2000
+      });
+      
+      // 跳转到登录页
+      setTimeout(() => {
+        wx.navigateTo({
+          url: '/pages/login/login'
+        });
+      }, 1500);
+      return;
+    }
+
+    // 防止重复点击
+    if (this.data.followLoading) {
+      return;
+    }
+
+    const userId = userInfo.user_id;
+    const farmId = this.data.farmId;
+    const isFollowed = this.data.isFollowed;
+    
+    console.log('[farm/details] 执行关注操作，当前状态:', isFollowed ? '已关注' : '未关注');
+    
+    this.setData({
+      followLoading: true
     });
+
+    try {
+      let result;
+      if (isFollowed) {
+        // 取消关注
+        result = await delFarmAttention(userId, farmId);
+      } else {
+        // 添加关注
+        result = await addFarmAttention(userId, farmId);
+      }
+
+      if (result.success) {
+        const newFollowStatus = !isFollowed;
+        
+        // 更新UI状态
+        this.setData({
+          isFollowed: newFollowStatus
+        });
+        
+        // 保存到本地存储
+        saveAttentionStatus(userId, farmId, newFollowStatus);
+        
+        // 显示成功提示
+        wx.showToast({
+          title: result.message || (newFollowStatus ? '关注成功' : '取消关注成功'),
+          icon: 'success',
+          duration: 1500
+        });
+        
+        console.log('[farm/details] 关注操作成功，新状态:', newFollowStatus);
+      } else {
+        // 显示错误提示
+        wx.showToast({
+          title: result.message || '操作失败，请稍后重试',
+          icon: 'none',
+          duration: 2000
+        });
+        console.error('[farm/details] 关注操作失败:', result.message);
+      }
+    } catch (error) {
+      console.error('[farm/details] 关注操作异常:', error);
+      wx.showToast({
+        title: '网络错误，请稍后重试',
+        icon: 'none',
+        duration: 2000
+      });
+    } finally {
+      this.setData({
+        followLoading: false
+      });
+    }
   },
 
   onShow() {

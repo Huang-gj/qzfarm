@@ -111,6 +111,8 @@
   flex-shrink: 0;
   box-shadow: 0 2rpx 8rpx rgba(255, 107, 53, 0.3);
   transition: all 0.3s ease;
+  min-width: 120rpx;
+  text-align: center;
 }
 
 .follow-button:active {
@@ -118,10 +120,28 @@
   box-shadow: 0 1rpx 4rpx rgba(255, 107, 53, 0.5);
 }
 
+/* 已关注状态的按钮样式 */
+.follow-button.followed {
+  background-color: #f0f0f0;
+  color: #666;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border: 1rpx solid #ddd;
+}
+
+.follow-button.followed:active {
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.2);
+}
+
+/* 加载状态的按钮样式 */
+.follow-button.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
 .follow-text {
   font-size: 28rpx;
   font-weight: bold;
-  color: white;
+  color: inherit;
 }
 
 /* 轮播图容器 */

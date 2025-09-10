@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	activity "Server_gozero/CS/commodityServer/api/internal/handler/activity"
+	attention "Server_gozero/CS/commodityServer/api/internal/handler/attention"
 	category "Server_gozero/CS/commodityServer/api/internal/handler/category"
 	comment "Server_gozero/CS/commodityServer/api/internal/handler/comment"
 	good "Server_gozero/CS/commodityServer/api/internal/handler/good"
@@ -39,6 +40,23 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
+				Path:    "/AddAttention",
+				Handler: attention.AddAttentionHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/DelAttention",
+				Handler: attention.DelAttentionHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/commodity"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
 				Path:    "/GetCategory",
 				Handler: category.GetCategoryHandler(serverCtx),
 			},
@@ -46,6 +64,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/GetFarm",
 				Handler: category.GetFarmHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetFarmAttention",
+				Handler: category.GetFarmAttentionHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodPost,

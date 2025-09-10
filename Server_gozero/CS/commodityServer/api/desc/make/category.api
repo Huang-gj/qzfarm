@@ -53,3 +53,12 @@ type GetFarmResponse{
     Msg string `json:"msg"`
 }
 
+type GetFarmAttentionRequest{
+    UserID int `json:"user_id"`
+}
+
+type GetFarmAttentionResponse{
+    FarmCat []*FarmCat `json:"farm_cat"`
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+}

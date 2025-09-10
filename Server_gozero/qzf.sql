@@ -355,3 +355,17 @@ CREATE TABLE `category`
 CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci
 ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `attention`;
+CREATE TABLE `attention`
+(
+    id          INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    del_state   INT          NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
+    del_time    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    create_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    user_id INT NOT NULL DEFAULT 0 COMMENT '用户分布式唯一ID',
+    farm_id INT NOT NULL DEFAULT 0 COMMENT '被关注农场唯一ID'
+) ENGINE = InnoDB
+CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_general_ci
+ROW_FORMAT = Dynamic;

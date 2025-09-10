@@ -24,6 +24,12 @@ const menuData = [
       url: '',
       type: 'point',
     },
+    {
+      title: '我的关注',
+      tit: '',
+      url: '',
+      type: 'my-attention',
+    },
   ],
   [{
       title: '帮助中心',
@@ -310,6 +316,12 @@ Page({
           message: '你点击了积分菜单',
           icon: '',
           duration: 1000,
+        });
+        break;
+      }
+      case 'my-attention': {
+        wx.navigateTo({
+          url: '/pages/usercenter/my-attention/index'
         });
         break;
       }

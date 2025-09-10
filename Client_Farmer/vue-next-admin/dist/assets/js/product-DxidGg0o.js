@@ -1,1 +1,0 @@
-import{s as r}from"./index-Bt6IFO1h.js";function u(t){return r({url:"/api/getProduct",method:"post",data:t})}function d(t){return r({url:"/api/addProduct",method:"post",data:t})}function e(t){return r({url:"/api/updateProduct",method:"post",data:t})}function a(t){return r({url:"/api/delProduct",method:"post",data:t})}export{d as a,a as d,u as g,e as u};

@@ -97,8 +97,21 @@
 					<el-form-item label="商品名称">
 						<el-input v-model="editForm.good_name" />
 					</el-form-item>
-					<el-form-item label="标签">
-						<el-input v-model="editForm.good_tag" />
+					<el-form-item label="商品类目">
+						<el-select 
+							v-model="editForm.good_tag" 
+							placeholder="请选择商品类目" 
+							clearable
+							filterable
+							style="width: 100%"
+						>
+							<el-option
+								v-for="category in categoryList"
+								:key="category.category_id"
+								:label="category.name"
+								:value="category.name"
+							/>
+						</el-select>
 					</el-form-item>
 					<el-form-item label="价格">
 						<el-input-number v-model="editForm.price" :min="0" :precision="2" :step="0.1" />
@@ -155,6 +168,7 @@ import { reactive, onMounted, computed, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { UploadUserFile, UploadFile } from 'element-plus';
 import { getProduct, updateProduct, delProduct, type Good, type GetProductRequest, type UpdateProductRequest } from '/@/api/product';
+import { getCategory, type Category } from '/@/api/category';
 import { testFileUpload } from '/@/api/test';
 import { useUserInfoStore } from '/@/stores/userInfo';
 import { Session } from '/@/utils/storage';
@@ -165,6 +179,7 @@ const userInfoStore = useUserInfoStore();
 const loading = ref(false);
 const editDialogVisible = ref(false);
 const editSubmitting = ref(false);
+const categoryList = ref<Category[]>([]);
 
 const editForm = reactive<any>({
   id: 0,
@@ -235,6 +250,21 @@ const uploadFilesToBackend = async (farmId: number, goodId: number, fileList: Up
 	
 	// 等待所有文件上传完成
 	await Promise.all(uploadPromises);
+};
+
+// 获取农产品类目列表
+const fetchCategoryList = async () => {
+	try {
+		const response = await getCategory({ categoryType: 1 }); // 1表示农产品类目
+		if (response.code === 200) {
+			categoryList.value = response.category || [];
+		} else {
+			ElMessage.warning(response.msg || '获取类目列表失败');
+		}
+	} catch (error: any) {
+		console.error('获取类目列表失败:', error);
+		ElMessage.error('获取类目列表失败');
+	}
 };
 
 const fetchGoods = async () => {
@@ -326,6 +356,8 @@ const openEdit = (row: any) => {
     editFileList.value = [];
     editImages.value = [];
   }
+  // 获取类目列表
+  fetchCategoryList();
   editDialogVisible.value = true;
 };
 
@@ -439,7 +471,10 @@ const handleDelete = async (row: any) => {
   }
 };
 
-onMounted(() => { fetchGoods(); });
+onMounted(() => { 
+	fetchGoods(); 
+	fetchCategoryList();
+});
 </script>
 
 <style scoped lang="scss">

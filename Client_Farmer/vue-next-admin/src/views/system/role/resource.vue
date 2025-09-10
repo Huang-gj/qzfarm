@@ -98,7 +98,22 @@
 			<el-dialog v-model="editDialogVisible" title="修改土地资源" width="640px" destroy-on-close>
 				<el-form :model="editForm" label-width="100px">
 					<el-form-item label="土地名称"><el-input v-model="editForm.land_name" /></el-form-item>
-					<el-form-item label="标签"><el-input v-model="editForm.land_tag" /></el-form-item>
+					<el-form-item label="土地类目">
+						<el-select 
+							v-model="editForm.land_tag" 
+							placeholder="请选择土地类目" 
+							clearable
+							filterable
+							style="width: 100%"
+						>
+							<el-option
+								v-for="category in categoryList"
+								:key="category.category_id"
+								:label="category.name"
+								:value="category.name"
+							/>
+						</el-select>
+					</el-form-item>
 					<el-form-item label="面积"><el-input v-model="editForm.area" /></el-form-item>
 					<el-form-item label="价格"><el-input-number v-model="editForm.price" :min="0" :precision="2" :step="0.1" /></el-form-item>
 					<el-form-item label="上架状态"><el-switch v-model="editForm.sale_status" :active-value="0" :inactive-value="1" /></el-form-item>
@@ -147,6 +162,7 @@ import { reactive, onMounted, computed, ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { UploadUserFile, UploadFile } from 'element-plus';
 import { getProduct, updateProduct, delProduct, type Land, type GetProductRequest, type UpdateProductRequest } from '/@/api/product';
+import { getCategory, type Category } from '/@/api/category';
 import { testFileUpload } from '/@/api/test';
 import { useUserInfoStore } from '/@/stores/userInfo';
 import { Session } from '/@/utils/storage';
@@ -157,6 +173,7 @@ const userInfoStore = useUserInfoStore();
 const loading = ref(false);
 const editDialogVisible = ref(false);
 const editSubmitting = ref(false);
+const categoryList = ref<Category[]>([]);
 
 const editForm = reactive<any>({
   id: 0,
@@ -227,6 +244,21 @@ const uploadFilesToBackend = async (farmId: number, landId: number, fileList: Up
 	
 	// 等待所有文件上传完成
 	await Promise.all(uploadPromises);
+};
+
+// 获取土地类目列表
+const fetchCategoryList = async () => {
+	try {
+		const response = await getCategory({ categoryType: 2 }); // 2表示土地类目
+		if (response.code === 200) {
+			categoryList.value = response.category || [];
+		} else {
+			ElMessage.warning(response.msg || '获取类目列表失败');
+		}
+	} catch (error: any) {
+		console.error('获取类目列表失败:', error);
+		ElMessage.error('获取类目列表失败');
+	}
 };
 
 const fetchLands = async () => {
@@ -354,6 +386,8 @@ const openEdit = (row: any) => {
     editFileList.value = [];
     editImages.value = [];
   }
+  // 获取类目列表
+  fetchCategoryList();
   editDialogVisible.value = true;
 };
 
@@ -467,7 +501,10 @@ const handleDelete = async (row: any) => {
   }
 };
 
-onMounted(() => { fetchLands(); });
+onMounted(() => { 
+	fetchLands(); 
+	fetchCategoryList();
+});
 </script>
 
 <style scoped lang="scss">

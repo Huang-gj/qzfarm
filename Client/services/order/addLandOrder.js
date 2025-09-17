@@ -65,7 +65,8 @@ function addLandOrder(orderData) {
   /* keep */
   
   const requestConfig = {
-    url: 'http://8.133.19.244:8891/order/AddLandOrder',
+    // url: 'http://8.133.19.244:8891/order/AddLandOrder',
+    url: 'https://qzfarm.top/order/AddLandOrder',
     method: 'POST',
     header: {
       'Authorization': `Bearer ${token.accessToken}`,

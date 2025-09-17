@@ -90,7 +90,8 @@ export function getAllLandsApi(params = {}) {
       headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
     }
     wx.request({
-      url: 'http://8.133.19.244:8889/commodity/getAllLands',
+      // url: 'http://8.133.19.244:8889/commodity/getAllLands',
+      url: 'https://qzfarm.top/commodity/getAllLands',
       method: 'POST',
       data: {
         user_id: params.user_id || 0,
@@ -158,7 +159,8 @@ export function getLandById(landId, userId = 0) {
     });
     
     wx.request({
-      url: 'http://8.133.19.244:8889/commodity/getLand',
+      // url: 'http://8.133.19.244:8889/commodity/getLand',
+      url: 'https://qzfarm.top/commodity/getLand',
       method: 'POST',
       data: {
         user_id: numericUserId,
@@ -212,7 +214,8 @@ export function getLandsByTag(landTag, userId = 0) {
       headers['Authorization'] = `Bearer ${tokenData.accessToken}`;
     }
     wx.request({
-      url: 'http://8.133.19.244:8889/commodity/getLandsByTag',
+      // url: 'http://8.133.19.244:8889/commodity/getLandsByTag',
+      url: 'https://qzfarm.top/commodity/getLandsByTag',
       method: 'POST',
       data: {
         user_id: userId,

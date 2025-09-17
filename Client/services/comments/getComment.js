@@ -23,7 +23,8 @@ function getComment(params = {}) {
 		}
 
 		wx.request({
-			    url: 'http://8.133.19.244:8889/commodity/getComment',
+          // url: 'http://8.133.19.244:8889/commodity/getComment',
+          url: 'https://qzfarm.top/commodity/getComment',
 			method: 'POST',
 			data: data,
 			header: headers,

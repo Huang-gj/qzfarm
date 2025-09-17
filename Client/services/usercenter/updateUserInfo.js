@@ -31,7 +31,8 @@ export function updateUserInfo(userInfo) {
   console.log('[updateUserInfo] 发送的请求数据:', JSON.stringify(requestData, null, 2));
 
   return request({
-    url: 'http://8.133.19.244:8893/user/uploadUserInfo',
+    // url: 'http://8.133.19.244:8893/user/uploadUserInfo',
+    url: 'https://qzfarm.top/user/uploadUserInfo',
     method: 'POST',
     data: requestData
   }).then(res => {

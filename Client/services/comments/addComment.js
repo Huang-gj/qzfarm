@@ -21,7 +21,8 @@ function addComment(comment = {}) {
 		nickname: String(comment.nickname || ''),
 		comment_reply_num: 0,
 	};
-	  return post('http://8.133.19.244:8889/commodity/addComment', { comment: payload });
+    // return post('http://8.133.19.244:8889/commodity/addComment', { comment: payload });
+    return post('https://qzfarm.top/commodity/addComment', { comment: payload });
 }
 
 module.exports = {

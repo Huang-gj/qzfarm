@@ -17,7 +17,8 @@ export function fetchLandOrder(params) {
   }
   
   return request({
-    url: 'http://8.133.19.244:8891/order/GetLandOrder', // 直接访问订单服务
+    // url: 'http://8.133.19.244:8891/order/GetLandOrder', // 直接访问订单服务
+    url: 'https://qzfarm.top/order/GetLandOrder', // 直接访问订单服务
     method: 'POST',
     header: {
       'Authorization': `Bearer ${token.accessToken}`,

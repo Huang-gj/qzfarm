@@ -20,7 +20,8 @@ export function updateAvatar(filePath, userId) {
     console.log('[updateAvatar] 请求头:', headers);
 
     wx.uploadFile({
-      url: 'http://8.133.19.244:8893/user/updateAvatar', // 直接访问用户服务
+      // url: 'http://8.133.19.244:8893/user/updateAvatar', // 直接访问用户服务
+      url: 'https://qzfarm.top/user/updateAvatar', // 直接访问用户服务
       filePath: filePath,
       name: 'file', // 后端接收文件的字段名
       formData: {

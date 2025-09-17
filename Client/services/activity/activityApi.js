@@ -20,7 +20,8 @@ function getMainPic(farmId) {
     }
 
     wx.request({
-      url: 'http://8.133.19.244:8889/commodity/GetMainPic',
+      // url: 'http://8.133.19.244:8889/commodity/GetMainPic',
+      url: 'https://qzfarm.top/commodity/GetMainPic',
       method: 'POST',
       data: {
         farm_id: farmId
@@ -81,7 +82,8 @@ function getActivityDetail(activityId) {
     }
 
     wx.request({
-      url: 'http://8.133.19.244:8889/commodity/GetActivityDetail',
+      // url: 'http://8.133.19.244:8889/commodity/GetActivityDetail',
+      url: 'https://qzfarm.top/commodity/GetActivityDetail',
       method: 'POST',
       data: {
         activity_id: activityId

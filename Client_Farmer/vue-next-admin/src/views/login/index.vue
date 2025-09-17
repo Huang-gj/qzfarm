@@ -43,6 +43,17 @@
 				</div>
 			</div>
 		</div>
+		<!-- 底部版权信息 -->
+		<div class="login-footer">
+			<div class="login-footer-content">
+				<div class="copyright">版权所有 © 黄高俊</div>
+				<div class="icp">
+					<a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">
+						浙ICP备2025157146号
+					</a>
+				</div>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -274,6 +285,71 @@ onMounted(() => {
 							top: 0px;
 						}
 					}
+				}
+			}
+		}
+	}
+	
+	// 底部版权信息样式
+	.login-footer {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background: linear-gradient(135deg, rgba(211, 239, 255, 0.8), rgba(255, 255, 255, 0.9));
+		backdrop-filter: blur(10px);
+		border-top: 1px solid rgba(38, 165, 154, 0.2);
+		padding: 16px 0;
+		z-index: 10;
+		
+		.login-footer-content {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			gap: 30px;
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 0 20px;
+			
+			.copyright {
+				font-size: 14px;
+				color: #666;
+				font-weight: 500;
+			}
+			
+			.icp {
+				a {
+					font-size: 14px;
+					color: #666;
+					text-decoration: none;
+					transition: all 0.3s ease;
+					padding: 4px 8px;
+					border-radius: 4px;
+					
+					&:hover {
+						color: #26a59a;
+						background-color: rgba(38, 165, 154, 0.1);
+						transform: translateY(-1px);
+					}
+					
+					&:active {
+						transform: translateY(0);
+					}
+				}
+			}
+		}
+	}
+	
+	// 响应式设计
+	@media (max-width: 768px) {
+		.login-footer {
+			.login-footer-content {
+				flex-direction: column;
+				gap: 8px;
+				
+				.copyright,
+				.icp a {
+					font-size: 12px;
 				}
 			}
 		}

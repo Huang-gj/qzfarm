@@ -142,7 +142,8 @@ Page({
     console.log('发送的用户信息:', userInfo);
 
     wx.request({
-      url: 'http://8.133.19.244:8893/user/uploadUserInfo',
+      // url: 'http://8.133.19.244:8893/user/uploadUserInfo',
+      url: 'https://qzfarm.top/user/uploadUserInfo',
       method: 'POST',
       header: {
         'Content-Type': 'application/json',

@@ -40,21 +40,24 @@ export function fetchOrderDetail(params) {
 
   if (isGoodsOrder) {
     // 商品订单
-    url = 'http://8.133.19.244:8891/order/GetGoodOrderDetail';
+    // url = 'http://8.133.19.244:8891/order/GetGoodOrderDetail';
+    url = 'https://qzfarm.top/order/GetGoodOrderDetail';
     requestData = {
       user_id: userId,
       good_order_id: parseInt(orderId)
     };
   } else if (isLandOrder) {
     // 土地订单
-    url = 'http://8.133.19.244:8891/order/GetLandOrderDetail';
+    // url = 'http://8.133.19.244:8891/order/GetLandOrderDetail';
+    url = 'https://qzfarm.top/order/GetLandOrderDetail';
     requestData = {
       user_id: userId,
       land_order_id: parseInt(orderId)
     };
   } else {
     // 默认尝试商品订单
-    url = 'http://8.133.19.244:8891/order/GetGoodOrderDetail';
+    // url = 'http://8.133.19.244:8891/order/GetGoodOrderDetail';
+    url = 'https://qzfarm.top/order/GetGoodOrderDetail';
     requestData = {
       user_id: userId,
       good_order_id: parseInt(orderId)

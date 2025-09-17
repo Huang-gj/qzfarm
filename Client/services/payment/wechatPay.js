@@ -152,7 +152,8 @@ export function createWechatOrder(params) {
   console.log('  payer.openid:', requestData.payer.openid);
   console.log('  orderType:', JSON.parse(requestData.attach).orderType);
 
-  return post('http://8.133.19.244:8891/order/WechatOrder', requestData)
+  // return post('http://8.133.19.244:8891/order/WechatOrder', requestData)
+  return post('https://qzfarm.top/order/WechatOrder', requestData)
     .then(res => {
       console.log('[createWechatOrder] 下单成功:', res);
       return res;

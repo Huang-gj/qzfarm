@@ -17,7 +17,8 @@ function addCommentReply(comment_reply = {}) {
 		avatar: comment_reply.avatar || '',
 		nickname: comment_reply.nickname || '',
 	};
-	  return post('http://8.133.19.244:8889/commodity/addCommentReply', { comment_reply: payload });
+    // return post('http://8.133.19.244:8889/commodity/addCommentReply', { comment_reply: payload });
+    return post('https://qzfarm.top/commodity/addCommentReply', { comment_reply: payload });
 }
 
 module.exports = {

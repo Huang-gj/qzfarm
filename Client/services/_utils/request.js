@@ -118,7 +118,8 @@ function request(options = {}) {
     }
 
     // 构建完整的URL - 开发阶段写死后端地址
-    const baseUrl = 'http://8.133.19.244:8889'; // 生产环境服务器地址
+    // const baseUrl = 'http://8.133.19.244:8889'; // 生产环境服务器地址
+    const baseUrl = 'https://qzfarm.top'; // 生产环境服务器地址
     const url = options.url.startsWith('http') ? options.url : `${baseUrl}${options.url}`;
 
     console.log('[request] ===== 发送网络请求 =====');

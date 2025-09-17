@@ -34,7 +34,8 @@ export const devConfig = {
   wechat: {
     appid: 'wx66857ea5c2af3c77',
     mchid: '1725100870',
-    notifyUrl: 'http://8.133.19.244:8891/order/WechatOrderHandler'
+    // notifyUrl: 'http://8.133.19.244:8891/order/WechatOrderHandler'
+    notifyUrl: 'https://qzfarm.top/order/WechatOrderHandler'
   }
 };
 
@@ -44,7 +45,8 @@ export const prodConfig = {
   wechat: {
     appid: 'wx66857ea5c2af3c77',
     mchid: '1725100870',
-    notifyUrl: 'http://8.133.19.244:8891/order/WechatOrderHandler'
+    // notifyUrl: 'http://8.133.19.244:8891/order/WechatOrderHandler'
+    notifyUrl: 'https://qzfarm.top/order/WechatOrderHandler'
   }
 };
 

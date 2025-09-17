@@ -9,7 +9,8 @@ export function fetchUserInfo(userId) {
   console.log('[fetchUserInfo] 开始获取用户信息:', userId);
 
   return request({
-    url: `http://8.133.19.244:8893/user/getUserInfo`,
+    // url: `http://8.133.19.244:8893/user/getUserInfo`,
+    url: `https://qzfarm.top/user/getUserInfo`,
     method: 'POST',
     data: {
       user_id: userId

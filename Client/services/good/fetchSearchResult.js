@@ -38,7 +38,8 @@ export async function getSearchResult(params) {
   const keyword = params.keyword || params.keywords || '';
   const reqBody = { keyword };
 
-  const resp = await post('http://8.133.19.244:8889/commodity/searchProduct', reqBody);
+  // const resp = await post('http://8.133.19.244:8889/commodity/searchProduct', reqBody);
+  const resp = await post('https://qzfarm.top/commodity/searchProduct', reqBody);
   const goods = Array.isArray(resp?.goods) ? resp.goods : [];
   const lands = Array.isArray(resp?.lands) ? resp.lands : [];
 

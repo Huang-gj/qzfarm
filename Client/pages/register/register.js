@@ -84,7 +84,8 @@ Page({
 
     // 调用后端注册接口
     wx.request({
-      url: 'http://8.133.19.244:8893/user/userRegister',
+      // url: 'http://8.133.19.244:8893/user/userRegister',
+      url: 'https://qzfarm.top/user/userRegister',
       method: 'POST',
 
       data: {

@@ -12,8 +12,8 @@
 				<img :src="loginMain" />
 			</div> -->
 			<div class="login-left-title">
-				<span>智慧管理工具</span>
-				<div class="login-left-title-en">INTELLIGENT TOOL</div>
+				<span>智慧农业系统</span>
+				<div class="login-left-title-en">SMART AGRICULTURE SYSTEM</div>
 			</div>
 			<img :src="loginBg" class="login-left-waves" />
 		</div>
@@ -22,7 +22,7 @@
 				<span class="login-right-warp-one"></span>
 				<span class="login-right-warp-two"></span>
 				<div class="login-right-warp-mian">
-					<div class="login-right-warp-main-title">智慧管理工具欢迎您！</div>
+					<div class="login-right-warp-main-title">智慧农业系统欢迎您！</div>
 					<div class="login-right-warp-main-form">
 						<div v-if="!state.isScan">
 							<el-tabs v-model="state.tabsActiveName">
@@ -51,6 +51,14 @@
 					<a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">
 						浙ICP备2025157146号
 					</a>
+				</div>
+				<div class="gongan">
+					<p>
+						<img  width="20" style="vertical-align: middle; margin-right: 4px;"/>
+						<a href="https://beian.mps.gov.cn/#/query/webSearch?code=xxx" rel="noreferrer" target="_blank">
+							浙公网安备33019202002718号 
+						</a>
+					</p>
 				</div>
 			</div>
 		</div>
@@ -337,6 +345,34 @@ onMounted(() => {
 					}
 				}
 			}
+			
+			.gongan {
+				p {
+					margin: 0;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+				
+				a {
+					font-size: 14px;
+					color: #666;
+					text-decoration: none;
+					transition: all 0.3s ease;
+					padding: 4px 8px;
+					border-radius: 4px;
+					
+					&:hover {
+						color: #26a59a;
+						background-color: rgba(38, 165, 154, 0.1);
+						transform: translateY(-1px);
+					}
+					
+					&:active {
+						transform: translateY(0);
+					}
+				}
+			}
 		}
 	}
 	
@@ -348,7 +384,8 @@ onMounted(() => {
 				gap: 8px;
 				
 				.copyright,
-				.icp a {
+				.icp a,
+				.gongan a {
 					font-size: 12px;
 				}
 			}

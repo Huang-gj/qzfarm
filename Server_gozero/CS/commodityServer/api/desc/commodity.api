@@ -17,6 +17,7 @@ import (
 	"make/activity.api"
 	"make/category.api"
 	"make/attention.api"
+	"make/coupon.api"
 )
 
 @server (
@@ -132,5 +133,21 @@ service commodity {
 
 	@handler DelAttention
 	post /DelAttention (DelAttentionRequest) returns (DelAttentionResponse)
+}
+
+@server (
+	prefix: commodity
+	jwt:    Auth
+	group:  coupon
+)
+service commodity {
+	@handler GetCouponOne
+	post /GetCouponOne (GetCouponOneRequest) returns (GetCouponOneResponse)
+
+	@handler GetCouponTwo
+	post /GetCouponTwo (GetCouponTwoRequest) returns (GetCouponTwoResponse)
+
+	@handler GetCouponThree
+	post /GetCouponThree (GetCouponThreeRequest) returns (GetCouponThreeResponse)
 }
 

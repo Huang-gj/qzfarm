@@ -7,6 +7,7 @@ import (
 	"Server_gozero/CS/commodityServer/model/categoryModel"
 	"Server_gozero/CS/commodityServer/model/commentModel"
 	"Server_gozero/CS/commodityServer/model/commentReplyModel"
+	"Server_gozero/CS/commodityServer/model/couponModel"
 	"Server_gozero/CS/commodityServer/model/farmModel"
 	"Server_gozero/CS/commodityServer/model/goodModel/model"
 	model2 "Server_gozero/CS/commodityServer/model/landModel/model"
@@ -30,6 +31,7 @@ type ServiceContext struct {
 	CategoryModel     categoryModel.CategoryModel
 	FarmModel         farmModel.FarmModel
 	AttentionModel    attentionModel.AttentionModel
+	CouponModel       couponModel.CouponModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -49,5 +51,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		CategoryModel:     categoryModel.NewCategoryModel(sqlxConn),
 		FarmModel:         farmModel.NewFarmModel(sqlxConn),
 		AttentionModel:    attentionModel.NewAttentionModel(sqlxConn),
+		CouponModel:       couponModel.NewCouponModel(sqlxConn),
 	}
 }

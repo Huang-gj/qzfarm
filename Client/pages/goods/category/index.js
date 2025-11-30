@@ -14,17 +14,18 @@ Page({
           children: [], // 初始为空，点击时加载
         }],
       },
-      {
-        groupId: '1000',
-        name: '土地',
-        thumbnail: 'https://via.placeholder.com/100x100?text=土地',
-        children: [{
-          groupId: '1100',
-          name: '土地',
-          thumbnail: 'https://via.placeholder.com/100x100?text=土地',
-          children: [], // 初始为空，点击时加载
-        }],
-      },
+      // 土地分类已暂时隐藏
+      // {
+      //   groupId: '1000',
+      //   name: '土地',
+      //   thumbnail: 'https://via.placeholder.com/100x100?text=土地',
+      //   children: [{
+      //     groupId: '1100',
+      //     name: '土地',
+      //     thumbnail: 'https://via.placeholder.com/100x100?text=土地',
+      //     children: [], // 初始为空，点击时加载
+      //   }],
+      // },
       {
         groupId: '3000',
         name: '农场',
@@ -181,13 +182,10 @@ Page({
     // 判断点击的是哪个分类类型
     let categoryType, categoryTypeName;
     if (validIndex === 0) {
-      categoryType = 1; // 农产品分类（现在在第一位）
+      categoryType = 1; // 农产品分类（在第一位）
       categoryTypeName = '农产品';
     } else if (validIndex === 1) {
-      categoryType = 2; // 土地分类（现在在第二位）
-      categoryTypeName = '土地';
-    } else if (validIndex === 2) {
-      categoryType = 3; // 农场分类
+      categoryType = 3; // 农场分类（现在在第二位，原来是第三位）
       categoryTypeName = '农场';
     } else {
       console.error('[goods/category] 未知的分类索引:', validIndex);

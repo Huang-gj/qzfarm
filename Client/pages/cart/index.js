@@ -47,21 +47,10 @@ Page({
     // 监听购物车数据更新事件
     this.setupEventListeners();
 
-    // 页面初次加载后，确保两种购物车类型都至少刷新一次，避免首次切换时为空
+    // 页面初次加载后，确保只预刷新农产品购物车数据
     setTimeout(() => {
-      console.log('[onLoad] 预刷新两种购物车类型数据');
-      const currentType = this.data.currentCartType;
-      this.setData({ currentCartType: 'goods' });
+      console.log('[onLoad] 预刷新农产品购物车数据');
       this.refreshData();
-      setTimeout(() => {
-        this.setData({ currentCartType: 'land' });
-        this.refreshData();
-        // 恢复用户的当前类型
-        setTimeout(() => {
-          this.setData({ currentCartType: currentType });
-          this.refreshData();
-        }, 50);
-      }, 50);
     }, 0);
   },
 
@@ -74,6 +63,19 @@ Page({
   onCartTypeChange(e) {
     const { value } = e.detail;
     console.log('[cart] 切换购物车类型:', value);
+
+    // 检查是否切换到土地购物车
+    if (value === 'land') {
+      Toast({
+        context: this,
+        selector: '#t-toast',
+        message: '土地购物车功能暂时不支持',
+        icon: 'info-circle',
+        duration: 2000,
+      });
+      return;
+    }
+
     this.setData({
       currentCartType: value
     });
@@ -81,16 +83,11 @@ Page({
   },
 
   refreshData() {
-    // 防止重复调用（支持类型切换的抢占）
+    // 防止重复调用
     if (this.isRefreshing) {
-      if (this.refreshingCartType !== this.data.currentCartType) {
-        console.log('[refreshData] 正在刷新其他类型，切换为', this.data.currentCartType, '并强制刷新');
-        this.isRefreshing = false; // 允许本次刷新继续
-      } else {
-        console.log('[refreshData] 正在刷新中，跳过重复调用');
-        this.pendingRefresh = true; // 记录一次待刷新请求
-        return;
-      }
+      console.log('[refreshData] 正在刷新中，跳过重复调用');
+      this.pendingRefresh = true; // 记录一次待刷新请求
+      return;
     }
     
     this.isRefreshing = true;
@@ -98,9 +95,8 @@ Page({
     console.log('[refreshData] 开始刷新购物车数据');
     console.log('[refreshData] 当前购物车类型:', this.data.currentCartType);
     
-    const refreshPromise = this.data.currentCartType === 'goods' 
-      ? fetchGoodsCartData()
-      : fetchLandCartData();
+    // 目前只支持农产品购物车
+    const refreshPromise = fetchGoodsCartData();
     
     refreshPromise.then(res => {
       console.log('[refreshData] 购物车原始数据:', res);
@@ -217,8 +213,8 @@ Page({
   },
 
   getCartGroupData() {
-    const { currentCartType } = this.data;
-    return currentCartType === 'goods' ? fetchGoodsCartData() : fetchLandCartData();
+    // 目前只支持农产品购物车
+    return fetchGoodsCartData();
   },
 
   // 将购物车数据转换为组件需要的格式
@@ -455,8 +451,9 @@ Page({
   },
 
   updateLocalStorage() {
-    const { currentCartType, cartGroupData } = this.data;
-    const storageKey = currentCartType === 'goods' ? 'goods_cart_data' : 'land_cart_data';
+    // 只处理农产品购物车存储
+    const { cartGroupData } = this.data;
+    const storageKey = 'goods_cart_data';
     
     // 提取商品列表
     let goodsList = [];
@@ -697,21 +694,12 @@ Page({
       return;
     }
     
-    // 根据购物车类型跳转到对应的详情页面
-    if (currentCartType === 'goods') {
-      const url = `/pages/goods/details/index?goodId=${good_id}&skuId=${skuId || ''}`;
-      console.log('[goGoodsDetail] 跳转到商品详情页面:', url);
-      wx.navigateTo({
-        url: url,
-      });
-    } else {
-      // 土地详情页面使用landId参数，与首页保持一致
-      const url = `/pages/land/details/index?landId=${good_id}&skuId=${skuId || ''}`;
-      console.log('[goGoodsDetail] 跳转到土地详情页面:', url);
-      wx.navigateTo({
-        url: url,
-      });
-    }
+    // 目前只支持农产品详情页面
+    const url = `/pages/goods/details/index?goodId=${good_id}&skuId=${skuId || ''}`;
+    console.log('[goGoodsDetail] 跳转到商品详情页面:', url);
+    wx.navigateTo({
+      url: url,
+    });
   },
 
   clearInvalidGoods() {
@@ -883,9 +871,8 @@ Page({
           specTitle: '规格',
           specValue: goods.units || '标准规格'
         }],
-        // 添加购物车类型标识，用于支付时识别商品类型
-        cartType: currentCartType,
-        land_id: currentCartType === 'land' ? goods.good_id : undefined,
+        // 添加购物车类型标识，目前只支持农产品
+        cartType: 'goods',
         farm_id: goods.farm_id,
         farm_address: goods.farm_address,
         detail: goods.detail,
@@ -897,7 +884,7 @@ Page({
 
     // 跳转到订单确认页面
     wx.navigateTo({
-      url: `/pages/order/order-confirm/index?goodsRequestList=${encodeURIComponent(JSON.stringify(goodsRequestList))}&isBatchOrder=true&cartType=${currentCartType}`
+      url: `/pages/order/order-confirm/index?goodsRequestList=${encodeURIComponent(JSON.stringify(goodsRequestList))}&isBatchOrder=true&cartType=goods`
     });
   },
 
@@ -907,13 +894,8 @@ Page({
     
     const { currentCartType } = this.data;
     
-    // 获取当前购物车数据
-    let cartData;
-    if (currentCartType === 'goods') {
-      cartData = wx.getStorageSync('goods_cart_data');
-    } else {
-      cartData = wx.getStorageSync('land_cart_data');
-    }
+    // 获取农产品购物车数据
+    let cartData = wx.getStorageSync('goods_cart_data');
 
     if (!cartData || !cartData.goodsList) {
       console.log('[removeOrderedGoodsFromCart] 购物车数据为空');
@@ -932,12 +914,8 @@ Page({
       }
     });
 
-    // 更新本地存储
-    if (currentCartType === 'goods') {
-      wx.setStorageSync('goods_cart_data', cartData);
-    } else {
-      wx.setStorageSync('land_cart_data', cartData);
-    }
+    // 更新农产品购物车本地存储
+    wx.setStorageSync('goods_cart_data', cartData);
 
     // 更新购物车数量
     updateCartNum();
@@ -963,8 +941,8 @@ Page({
             isRefreshing: this.isRefreshing
           });
           
-          // 只有当前购物车类型与更新的类型匹配时才刷新
-          if (eventData.type === this.data.currentCartType) {
+          // 只有农产品购物车类型的事件才处理
+          if (eventData.type === 'goods') {
             // 去抖：相同时间戳的重复事件不处理
             if (this.lastCartUpdateTs && eventData.ts && eventData.ts === this.lastCartUpdateTs) {
               console.log('[cartDataUpdate] 跳过重复事件');

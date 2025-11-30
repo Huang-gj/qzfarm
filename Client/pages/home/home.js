@@ -108,9 +108,12 @@ Page({
       activities
     }) => {
       console.log('[loadHomePage] 获取到首页数据:', { swiper, activityMapping, tabList, activities });
-      
+
+      // 过滤掉土地认养标签，暂时隐藏土地认养模块
+      const filteredTabList = tabList.filter(tab => tab.key !== 1);
+
       this.setData({
-        tabList,
+        tabList: filteredTabList,
         imgSrcs: swiper,
         activityMapping: activityMapping || [], // 保存活动映射关系
         activities: activities || null, // 保存活动数据

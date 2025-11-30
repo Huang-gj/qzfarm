@@ -75,6 +75,23 @@ type CommentReply struct {
 	Nickname       string `json:"nickname"`
 }
 
+type Coupon struct {
+	Id             int64   `json:"id"`              // 主键ID
+	DelState       int64   `json:"del_state"`       // 0-正常 1-删除
+	DelTime        string  `json:"del_time"`        // 删除时间
+	CreateTime     string  `json:"create_time"`     // 创建时间
+	CouponId       int64   `json:"coupon_id"`       // 分布式唯一ID
+	CouponName     string  `json:"coupon_name"`     // 优惠券名称
+	CouponType     string  `json:"coupon_type"`     // 优惠券类型
+	ValidStart     string  `json:"valid_start"`     // 生效时间
+	ValidEnd       string  `json:"valid_end"`       // 失效时间
+	MinSpend       float64 `json:"min_spend"`       // 最低消费金额（门槛）
+	Overlay        int64   `json:"overlay"`         // 是否叠加 0-否 1-是
+	DiscountAmount float64 `json:"discount_amount"` // 折扣金额
+	Discount       float64 `json:"discount"`        // 折扣比例
+	Status         int64   `json:"status"`          // 1-可使用 2-已使用 3-已过期
+}
+
 type DelAttentionRequest struct {
 	UserID int `json:"user_id"`
 	FarmID int `json:"farm_id"`
@@ -141,6 +158,42 @@ type GetCommentResponse struct {
 	Code     int        `json:code"`
 	Msg      string     `json:"msg"`
 	Comments []*Comment `json:"comments"`
+}
+
+type GetCouponOneRequest struct {
+	UserID int `json:"user_id"`
+}
+
+type GetCouponOneResponse struct {
+	Code    int       `json:"code"`        // 状态码
+	Msg     string    `json:"msg"`         // 信息
+	Coupons []*Coupon `json:"coupon_list"` // 可使用的优惠券
+}
+
+type GetCouponResponse struct {
+	Code    int       `json:"code"`        // 状态码
+	Msg     string    `json:"msg"`         // 信息
+	Coupons []*Coupon `json:"coupon_list"` // 优惠券列表
+}
+
+type GetCouponThreeRequest struct {
+	UserID int `json:"user_id"`
+}
+
+type GetCouponThreeResponse struct {
+	Code    int       `json:"code"`        // 状态码
+	Msg     string    `json:"msg"`         // 信息
+	Coupons []*Coupon `json:"coupon_list"` // 已过期的优惠券
+}
+
+type GetCouponTwoRequest struct {
+	UserID int `json:"user_id"`
+}
+
+type GetCouponTwoResponse struct {
+	Code    int       `json:"code"`        // 状态码
+	Msg     string    `json:"msg"`         // 信息
+	Coupons []*Coupon `json:"coupon_list"` // 已使用的优惠券
 }
 
 type GetFarmAttentionRequest struct {

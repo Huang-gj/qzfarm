@@ -369,3 +369,27 @@ CREATE TABLE `attention`
 CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_general_ci
 ROW_FORMAT = Dynamic;
+
+
+DROP TABLE IF EXISTS `coupon`;
+CREATE TABLE `coupon`
+(
+    id          INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    del_state   INT          NOT NULL DEFAULT 0 COMMENT '0-正常 1-删除',
+    del_time    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+    create_time TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    coupon_id INT          NOT NULL DEFAULT 0 COMMENT '分类的分布式唯一ID',
+    coupon_name VARCHAR(50) NOT NULL DEFAULT '' COMMENT '优惠券名称',
+    coupon_type VARCHAR(10) NOT NULL DEFAULT '' COMMENT '优惠券类型',
+    valid_start TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '生效时间',
+    valid_end   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '失效时间',
+    min_spend DECIMAL(12,2) NOT NULL DEFAULT 0.00 COMMENT '最低消费金额（门槛）',
+    overlay INT NOT NULL DEFAULT 0 COMMENT '是否可以叠加 0-否 1-是',
+    discount_amount DECIMAL(12, 2) NOT NULL DEFAULT 0.00 COMMENT '折扣金额',
+    discount DOUBLE NOT NULL DEFAULT 10.0 COMMENT '折扣比例',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '1-可以使用 2-已经使用 3-已过期 ',
+
+) ENGINE = InnoDB
+CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_general_ci
+ROW_FORMAT = Dynamic;

@@ -10,18 +10,19 @@
 <view class="content-wrapper">
   <!-- 订单类型切换按钮 -->
   <view class="order-type-switch">
-    <view 
-      class="switch-btn {{currentOrderType === 'goods' ? 'active' : ''}}" 
+    <view
+      class="switch-btn {{currentOrderType === 'goods' ? 'active' : ''}}"
       bindtap="switchToGoods"
     >
       商品订单
     </view>
-    <view 
-      class="switch-btn {{currentOrderType === 'lands' ? 'active' : ''}}" 
+    <!-- 土地订单已暂时隐藏 -->
+    <!-- <view
+      class="switch-btn {{currentOrderType === 'lands' ? 'active' : ''}}"
       bindtap="switchToLands"
     >
       土地订单
-    </view>
+    </view> -->
   </view>
   
   <!-- 商品订单模块 -->

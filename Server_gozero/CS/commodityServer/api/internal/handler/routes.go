@@ -10,6 +10,7 @@ import (
 	attention "Server_gozero/CS/commodityServer/api/internal/handler/attention"
 	category "Server_gozero/CS/commodityServer/api/internal/handler/category"
 	comment "Server_gozero/CS/commodityServer/api/internal/handler/comment"
+	coupon "Server_gozero/CS/commodityServer/api/internal/handler/coupon"
 	good "Server_gozero/CS/commodityServer/api/internal/handler/good"
 	land "Server_gozero/CS/commodityServer/api/internal/handler/land"
 	search "Server_gozero/CS/commodityServer/api/internal/handler/search"
@@ -106,6 +107,28 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPost,
 				Path:    "/getCommentReply",
 				Handler: comment.GetCommentReplyHandler(serverCtx),
+			},
+		},
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/commodity"),
+	)
+
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetCouponOne",
+				Handler: coupon.GetCouponOneHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetCouponThree",
+				Handler: coupon.GetCouponThreeHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/GetCouponTwo",
+				Handler: coupon.GetCouponTwoHandler(serverCtx),
 			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

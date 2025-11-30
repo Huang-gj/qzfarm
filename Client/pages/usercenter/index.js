@@ -186,7 +186,7 @@ const getDefaultData = () => {
     menuData,
     orderTagInfos,
     goodsOrderTagInfos,
-    landsOrderTagInfos,
+    // landsOrderTagInfos, // 土地订单数据已暂时隐藏
     currentOrderType: 'goods', // 默认显示商品订单
     customerServiceInfo: {},
     currAuthStep: 1,
